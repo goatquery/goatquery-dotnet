@@ -105,13 +105,8 @@ public sealed class EnableQueryAttribute<T> : Attribute, IActionFilter
         {
             var (data, totalCount) = content.Apply(query, _topMax, searchBinder);
 
-            if (totalCount is not null)
-            {
-                context.HttpContext.Response.Headers.TryAdd("x-total-count", totalCount.ToString());
-            }
-
             result.StatusCode = StatusCodes.Status200OK;
-            result.Value = new PagedResponse<T>((IQueryable<T>)data);
+            result.Value = new PagedResponse<T>((IQueryable<T>)data, totalCount);
         }
         catch (Exception ex)
         {
