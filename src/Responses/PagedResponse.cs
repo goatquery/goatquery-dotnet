@@ -8,6 +8,11 @@ public class PagedResponse<T>
         Count = count;
     }
 
+    public PagedResponse()
+    {
+        Value = new List<T>();
+    }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? Count { get; set; }
 
