@@ -337,4 +337,34 @@ public class Tests : TestWithSqlite
 
         Assert.Equal(expectedSql, sql);
     }
+
+    [Fact]
+    public void Test_QueryWithFilterCustomJsonPropertyName()
+    {
+        var query = new Query() { Filter = "displayName eq 'John'" };
+
+        var (result, _) = _context.Users.AsQueryable().Apply(query, null);
+        var sql = result.ToQueryString();
+
+        var expectedSql = _context.Users.AsQueryable()
+            .Where(x => x.UserName == "John")
+            .ToQueryString();
+
+        Assert.Equal(expectedSql, sql);
+    }
+
+    [Fact]
+    public void Test_QueryWithFilterCustomColumnName()
+    {
+        var query = new Query() { Filter = "gender eq 'Male'" };
+
+        var (result, _) = _context.Users.AsQueryable().Apply(query, null);
+        var sql = result.ToQueryString();
+
+        var expectedSql = _context.Users.AsQueryable()
+            .Where(x => x.Gender == "Male")
+            .ToQueryString();
+
+        Assert.Equal(expectedSql, sql);
+    }
 }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Bogus.DataSets;
 
 public record User
 {
@@ -16,4 +17,10 @@ public record User
     [Column(TypeName = "varchar(1024)")]
     public string AvatarUrl { get; set; } = string.Empty;
     public bool IsDeleted { get; set; }
+
+    [Column(TypeName = "varchar(64)")]
+    public string UserName { get; set; } = string.Empty;
+
+    [Column("PersonSex", TypeName = "varchar(32)")]
+    public string Gender { get; set; } = string.Empty;
 }

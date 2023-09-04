@@ -1,5 +1,7 @@
 using System.Linq.Dynamic.Core;
+using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 
 public static class QueryableExtension
 {
@@ -46,6 +48,12 @@ public static class QueryableExtension
                 var operand = opts[1];
                 var value = opts[2].Replace("'", "\"");
 
+                string? propertyName = typeof(T).GetProperties().FirstOrDefault(x => x.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name == property)?.Name;
+
+                if (!string.IsNullOrEmpty(propertyName))
+                {
+                    property = propertyName;
+                }
 
                 if (operand.Equals("contains", StringComparison.OrdinalIgnoreCase))
                 {
