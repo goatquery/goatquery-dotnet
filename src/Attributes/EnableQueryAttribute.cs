@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 public sealed class EnableQueryAttribute<T> : Attribute, IActionFilter
 {
-    private readonly int _topMax;
+    private readonly int _topMax = 100;
 
     public EnableQueryAttribute(int topMax)
     {
