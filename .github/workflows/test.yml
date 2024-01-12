@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dotnet-version: ["7.0.x"]
+        dotnet-version: ["8.0.x"]
 
     steps:
       - uses: actions/checkout@v4
@@ -26,5 +26,4 @@ jobs:
         working-directory: ./tests
 
       - name: Test
-        run: dotnet test --no-restore --verbosity normal
-        working-directory: ./tests
+        run: make test
