@@ -106,7 +106,9 @@ public sealed class EnableQueryAttribute<T> : Attribute, IActionFilter
             var (data, totalCount) = content.Apply(query, _topMax, searchBinder);
 
             result.StatusCode = StatusCodes.Status200OK;
-            result.Value = new PagedResponse<T>((IQueryable<T>)data, totalCount);
+            // We use <object> here because when utilizing the 'select' functionality, it becomes
+            // an anonymous object and no longer is the type T.
+            result.Value = new PagedResponse<object>((IQueryable<object>)data, totalCount);
         }
         catch (Exception ex)
         {
