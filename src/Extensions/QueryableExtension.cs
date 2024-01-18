@@ -84,7 +84,7 @@ public static class QueryableExtension
         int? count = null;
 
         // Count
-        if (query.Count)
+        if (query.Count ?? false)
         {
             count = result.Count();
         }
@@ -104,13 +104,13 @@ public static class QueryableExtension
         // Skip
         if (query.Skip > 0)
         {
-            result = result.Skip(query.Skip);
+            result = result.Skip(query.Skip ?? 0);
         }
 
         // Top
         if (query.Top > 0)
         {
-            result = result.Take(query.Top);
+            result = result.Take(query.Top ?? 0);
         }
 
         return (result, count);

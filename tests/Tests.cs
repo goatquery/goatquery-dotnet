@@ -40,7 +40,7 @@ public class Tests : TestWithSqlite
         var (result, _) = _context.Users.AsQueryable().Apply(query);
         var sql = result.ToQueryString();
 
-        var expectedSql = _context.Users.AsQueryable().Take(query.Top).ToQueryString();
+        var expectedSql = _context.Users.AsQueryable().Take(query.Top ?? 0).ToQueryString();
 
         Assert.Equal(expectedSql, sql);
     }
@@ -64,7 +64,7 @@ public class Tests : TestWithSqlite
         var (result, _) = _context.Users.AsQueryable().Apply(query);
         var sql = result.ToQueryString();
 
-        var expectedSql = _context.Users.AsQueryable().Skip(query.Skip).ToQueryString();
+        var expectedSql = _context.Users.AsQueryable().Skip(query.Skip ?? 0).ToQueryString();
 
         Assert.Equal(expectedSql, sql);
     }
