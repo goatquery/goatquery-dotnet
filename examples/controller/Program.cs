@@ -16,7 +16,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseInMemoryDatabase("example1");
+    options.UseInMemoryDatabase("controller");
 });
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
