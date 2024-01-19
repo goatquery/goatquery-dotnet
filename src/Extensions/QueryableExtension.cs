@@ -61,9 +61,11 @@ public static class QueryableExtension
                 }
                 else
                 {
-                    where.Append($"{property} {_filterOperations[operand]} {value}");
+                    where.Append($"{property}.ToLower() {_filterOperations[operand]} {value}.ToLower()");
                 }
             }
+
+            Console.WriteLine(where.ToString());
 
             result = result.Where(where.ToString());
         }
