@@ -48,7 +48,8 @@ if (app.Environment.IsDevelopment())
                 .RuleFor(x => x.AvatarUrl, f => f.Internet.Avatar())
                 .RuleFor(x => x.UserName, f => f.Person.UserName)
                 .RuleFor(x => x.Gender, f => f.Person.Gender.ToString())
-                .RuleFor(x => x.IsDeleted, f => f.Random.Bool());
+                .RuleFor(x => x.IsDeleted, f => f.Random.Bool())
+                .RuleFor(x => x.Age, f => f.Random.Number(1, 10));
 
             context.Users.AddRange(users.Generate(1_000));
             context.SaveChanges();

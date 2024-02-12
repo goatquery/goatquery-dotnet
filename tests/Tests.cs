@@ -380,4 +380,30 @@ public class Tests : TestWithSqlite
 
         Assert.Equal(expectedSql, sql);
     }
+
+    [Fact]
+    public void Test_QueryWithFilterGuidEquals()
+    {
+        var query = new Query() { Filter = "id eq '7ac156a2-f938-43cb-8652-8b14a8b471de'" };
+
+        var (result, _) = _context.Users.AsQueryable().Apply(query, null);
+        var sql = result.ToQueryString();
+
+        var expectedSql = _context.Users.AsQueryable().Where(x => x.Id == new Guid("7ac156a2-f938-43cb-8652-8b14a8b471de")).ToQueryString();
+
+        Assert.Equal(expectedSql, sql);
+    }
+
+    [Fact]
+    public void Test_QueryWithFilterIntegerEquals()
+    {
+        var query = new Query() { Filter = "age eq 4" };
+
+        var (result, _) = _context.Users.AsQueryable().Apply(query, null);
+        var sql = result.ToQueryString();
+
+        var expectedSql = _context.Users.AsQueryable().Where(x => x.Age == 4).ToQueryString();
+
+        Assert.Equal(expectedSql, sql);
+    }
 }

@@ -59,13 +59,19 @@ public static class QueryableExtension
                 {
                     where.Append($"{property}.{_filterOperations[operand]}({value})");
                 }
-                else
+                else if (typeof(T).GetProperties().FirstOrDefault(x => x.Name.Equals(property, StringComparison.OrdinalIgnoreCase))?.PropertyType == typeof(string))
                 {
                     where.Append($"{property}.ToLower() {_filterOperations[operand]} {value}.ToLower()");
                 }
+                else if (typeof(T).GetProperties().FirstOrDefault(x => x.Name.Equals(property, StringComparison.OrdinalIgnoreCase))?.PropertyType == typeof(Guid))
+                {
+                    where.Append($"{property} {_filterOperations[operand]} Guid({value})");
+                }
+                else
+                {
+                    where.Append($"{property} {_filterOperations[operand]} {value}");
+                }
             }
-
-            Console.WriteLine(where.ToString());
 
             result = result.Where(where.ToString());
         }
