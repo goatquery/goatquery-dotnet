@@ -14,6 +14,7 @@ public record User
 
     [Column("PersonSex", TypeName = "varchar(32)")]
     public string Gender { get; set; } = string.Empty;
+    public int Age { get; set; }
 }
 
 
