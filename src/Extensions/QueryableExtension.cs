@@ -1,7 +1,6 @@
-using System.Linq.Dynamic.Core;
-using System.Reflection;
-using System.Text;
-using System.Text.Json.Serialization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public static class QueryableExtension
 {
@@ -12,115 +11,170 @@ public static class QueryableExtension
         {"contains", "Contains"},
     };
 
-    public static (IQueryable, int?) Apply<T>(this IQueryable<T> queryable, Query query, int? maxTop = null, ISearchBinder<T>? searchBinder = null)
+    public static (IQueryable<T>, int?) Apply<T>(this IQueryable<T> queryable, Query query)
     {
-        var result = (IQueryable)queryable;
-
-        if (maxTop is not null && query.Top > maxTop)
-        {
-            throw new GoatQueryException("The value supplied for the query parameter 'Top' was greater than the maximum top allowed for this resource");
-        }
-
-        // Filter
-        if (!string.IsNullOrEmpty(query.Filter))
-        {
-            var filters = StringHelper.SplitString(query.Filter);
-
-            var where = new StringBuilder();
-
-            for (int i = 0; i < filters.Count; i++)
-            {
-                var filter = filters[i];
-                var opts = StringHelper.SplitStringByWhitespace(filter.Trim());
-
-                if (opts.Count != 3)
-                {
-                    continue;
-                }
-
-                if (i > 0)
-                {
-                    var prev = filters[i - 1];
-                    where.Append($" {prev.Trim()} ");
-                }
-
-                var property = opts[0];
-                var operand = opts[1];
-                var value = opts[2].Replace("'", "\"");
-
-                string? propertyName = typeof(T).GetProperties().FirstOrDefault(x => x.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name == property)?.Name;
-
-                if (!string.IsNullOrEmpty(propertyName))
-                {
-                    property = propertyName;
-                }
-
-                if (operand.Equals("contains", StringComparison.OrdinalIgnoreCase))
-                {
-                    where.Append($"{property}.{_filterOperations[operand]}({value})");
-                }
-                else if (typeof(T).GetProperties().FirstOrDefault(x => x.Name.Equals(property, StringComparison.OrdinalIgnoreCase))?.PropertyType == typeof(string))
-                {
-                    where.Append($"{property}.ToLower() {_filterOperations[operand]} {value}.ToLower()");
-                }
-                else if (typeof(T).GetProperties().FirstOrDefault(x => x.Name.Equals(property, StringComparison.OrdinalIgnoreCase))?.PropertyType == typeof(Guid))
-                {
-                    where.Append($"{property} {_filterOperations[operand]} Guid({value})");
-                }
-                else
-                {
-                    where.Append($"{property} {_filterOperations[operand]} {value}");
-                }
-            }
-
-            result = result.Where(where.ToString());
-        }
-
-        // Search
-        if (searchBinder is not null && !string.IsNullOrEmpty(query.Search))
-        {
-            var searchExpression = searchBinder.Bind(query.Search);
-
-            if (searchExpression is null)
-            {
-                throw new GoatQueryException("search binder does not return valid expression that can be parsed to where clause");
-            }
-
-            result = result.Where(searchExpression);
-        }
-
-        int? count = null;
-
-        // Count
-        if (query.Count ?? false)
-        {
-            count = result.Count();
-        }
-
         // Order by
         if (!string.IsNullOrEmpty(query.OrderBy))
         {
-            result = result.OrderBy(query.OrderBy);
+            var lexer = new QueryLexer(query.OrderBy);
+            var parser = new QueryParser(lexer);
+
+            parser.ParseOrderBy();
+
+            // queryable = queryable.OrderBy();
         }
 
-        // Select
-        if (!string.IsNullOrEmpty(query.Select))
+        return (queryable, 0);
+    }
+}
+
+public enum TokenType
+{
+    EOF,
+    ILLEGAL,
+    IDENT,
+
+    // Keywords
+    ASC,
+    DESC,
+}
+
+public class Token
+{
+    public TokenType Type { get; set; }
+    public string Literal { get; set; } = string.Empty;
+
+    private static readonly Dictionary<string, TokenType> _keywords = new Dictionary<string, TokenType>()
+    {
+        { "asc", TokenType.ASC },
+        { "desc", TokenType.DESC },
+    };
+
+    public Token(TokenType type, char literal)
+    {
+        Type = type;
+        Literal = literal.ToString();
+    }
+
+    public static TokenType GetIdentifierTokenType(string identifier)
+    {
+        if (_keywords.TryGetValue(identifier, out var token))
         {
-            result = result.Select($"new {{ {query.Select} }}");
+            return token;
         }
 
-        // Skip
-        if (query.Skip > 0)
+        return TokenType.IDENT;
+    }
+}
+
+public sealed class QueryParser
+{
+    private readonly QueryLexer _lexer;
+    private Token _currentToken { get; set; } = default!;
+    private Token _peekToken { get; set; } = default!;
+
+    public QueryParser(QueryLexer lexer)
+    {
+        _lexer = lexer;
+
+        NextToken();
+        NextToken();
+    }
+
+    private void NextToken()
+    {
+        _currentToken = _peekToken;
+        _peekToken = _lexer.NextToken();
+    }
+
+    public void ParseOrderBy()
+    {
+        while (!CurrentTokenIs(TokenType.EOF))
         {
-            result = result.Skip(query.Skip ?? 0);
+            Console.WriteLine(_currentToken);
         }
+    }
 
-        // Top
-        if (query.Top > 0)
+    private bool CurrentTokenIs(TokenType token)
+    {
+        return _currentToken.Type == token;
+    }
+}
+
+public sealed class QueryLexer
+{
+    private readonly string _input;
+    private int _position { get; set; }
+    private int _readPosition { get; set; }
+    private char _character { get; set; }
+
+    public QueryLexer(string input)
+    {
+        _input = input;
+
+        ReadCharacter();
+    }
+
+    private void ReadCharacter()
+    {
+        if (_readPosition >= _input.Length)
         {
-            result = result.Take(query.Top ?? 0);
+            _character = char.MinValue;
+        }
+        else
+        {
+            _character = _input[_readPosition];
         }
 
-        return (result, count);
+        _position = _readPosition;
+        _readPosition++;
+    }
+
+    public Token NextToken()
+    {
+        var token = new Token(TokenType.ILLEGAL, _character);
+
+        SkipWhitespace();
+
+        switch (_character)
+        {
+            default:
+                if (IsLetter(_character))
+                {
+                    token.Literal = ReadIdentifier();
+                    token.Type = Token.GetIdentifierTokenType(token.Literal);
+                    return token;
+                }
+                break;
+        }
+
+        ReadCharacter();
+
+        return token;
+    }
+
+    private string ReadIdentifier()
+    {
+        var currentPosition = _position;
+
+        while (IsLetter(_character))
+        {
+            ReadCharacter();
+        }
+
+        return _input.Substring(currentPosition, _position - currentPosition);
+    }
+
+    private bool IsLetter(char ch)
+    {
+        return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_';
+    }
+
+    private void SkipWhitespace()
+    {
+        while (_character == ' ' || _character == '\t' || _character == '\n' || _character == '\r')
+        {
+            ReadCharacter();
+        }
     }
 }

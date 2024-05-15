@@ -1,6 +1,6 @@
-using System.Text.Json.Serialization;
+using System.Collections.Generic;
 
-public class PagedResponse<T>
+public sealed class PagedResponse<T>
 {
     public PagedResponse(IEnumerable<T> data, int? count = null)
     {
@@ -13,7 +13,7 @@ public class PagedResponse<T>
         Value = new List<T>();
     }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    // [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? Count { get; set; }
 
     public IEnumerable<T> Value { get; set; }

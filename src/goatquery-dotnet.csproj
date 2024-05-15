@@ -1,9 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <RootNamespace>goatquery-dotnet</RootNamespace>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
     <PackageId>GoatQuery</PackageId>
@@ -16,9 +15,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.3.8" />
   </ItemGroup>
 
   <ItemGroup>

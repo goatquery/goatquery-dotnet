@@ -1,4 +1,4 @@
-public record Query
+public sealed class Query
 {
     public int? Top { get; set; }
     public int? Skip { get; set; }
