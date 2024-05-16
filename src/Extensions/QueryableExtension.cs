@@ -5,8 +5,13 @@ using System.Reflection;
 
 public static class QueryableExtension
 {
-    public static (IQueryable<T>, int?) Apply<T>(this IQueryable<T> queryable, Query query)
+    public static (IQueryable<T>, int?) Apply<T>(this IQueryable<T> queryable, Query query, QueryOptions? options = null)
     {
+        if (query.Top > options?.MaxTop)
+        {
+            throw new GoatQueryException("The value supplied for the query parameter 'Top' was greater than the maximum top allowed for this resource");
+        }
+
         var type = typeof(T);
 
         // Order by
@@ -59,6 +64,23 @@ public static class QueryableExtension
                     }
                 }
             }
+        }
+
+        // Skip
+        if (query.Skip > 0)
+        {
+            queryable = queryable.Skip(query.Skip ?? 0);
+        }
+
+        // Top
+        if (query.Top > 0)
+        {
+            queryable = queryable.Take(query.Top ?? 0);
+        }
+
+        if (query.Top <= 0 && options?.MaxTop != null)
+        {
+            queryable = queryable.Take(options.MaxTop);
         }
 
         return (queryable, 0);

@@ -12,7 +12,7 @@ public enum TokenType
     DESC,
 }
 
-public class Token
+public sealed class Token
 {
     public TokenType Type { get; set; }
     public string Literal { get; set; } = string.Empty;
