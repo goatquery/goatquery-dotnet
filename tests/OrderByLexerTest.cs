@@ -19,6 +19,9 @@ public sealed class OrderByLexerTest
     {
         var input = @"id asc
         iD desc
+        id aSc
+        id DeSc
+        id AsC
         ";
 
         var tests = new Expected[]
@@ -26,7 +29,13 @@ public sealed class OrderByLexerTest
             new Expected(TokenType.IDENT, "id"),
             new Expected(TokenType.ASC, "asc"),
             new Expected(TokenType.IDENT, "iD"),
-            new Expected(TokenType.DESC, "desc")
+            new Expected(TokenType.DESC, "desc"),
+            new Expected(TokenType.IDENT, "id"),
+            new Expected(TokenType.ASC, "aSc"),
+            new Expected(TokenType.IDENT, "id"),
+            new Expected(TokenType.DESC, "DeSc"),
+            new Expected(TokenType.IDENT, "id"),
+            new Expected(TokenType.ASC, "AsC"),
         };
 
         var lexer = new QueryLexer(input);

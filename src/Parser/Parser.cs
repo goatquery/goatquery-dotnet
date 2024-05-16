@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 public sealed class QueryParser
@@ -21,15 +20,17 @@ public sealed class QueryParser
         _peekToken = _lexer.NextToken();
     }
 
-    // "Id asc"
-
     public IEnumerable<OrderByStatement> ParseOrderBy()
     {
         var statements = new List<OrderByStatement>();
 
         while (!CurrentTokenIs(TokenType.EOF))
         {
-            Console.WriteLine($"literal: {_currentToken.Literal}");
+            if (!CurrentTokenIs(TokenType.IDENT))
+            {
+                NextToken();
+                continue;
+            }
 
             var statement = ParseOrderByStatement();
             if (statement != null)
@@ -45,19 +46,17 @@ public sealed class QueryParser
 
     private OrderByStatement? ParseOrderByStatement()
     {
-        var statement = new OrderByStatement(_currentToken, _currentToken.Literal)
-        {
-            Direction = OrderByDirection.Ascending
-        };
-
-        if (!ExpectPeek(TokenType.ASC) && !ExpectPeek(TokenType.DESC))
-        {
-            return null;
-        }
+        var statement = new OrderByStatement(_currentToken);
 
         if (PeekTokenIs(TokenType.DESC))
         {
             statement.Direction = OrderByDirection.Descending;
+
+            NextToken();
+        }
+        else if (PeekTokenIs(TokenType.ASC))
+        {
+            statement.Direction = OrderByDirection.Ascending;
 
             NextToken();
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 public enum TokenType
@@ -16,7 +17,7 @@ public class Token
     public TokenType Type { get; set; }
     public string Literal { get; set; } = string.Empty;
 
-    private static readonly Dictionary<string, TokenType> _keywords = new Dictionary<string, TokenType>()
+    private static readonly Dictionary<string, TokenType> _keywords = new Dictionary<string, TokenType>(StringComparer.CurrentCultureIgnoreCase)
     {
         { "asc", TokenType.ASC },
         { "desc", TokenType.DESC },
@@ -26,6 +27,12 @@ public class Token
     {
         Type = type;
         Literal = literal.ToString();
+    }
+
+    public Token(TokenType type, string literal)
+    {
+        Type = type;
+        Literal = literal;
     }
 
     public static TokenType GetIdentifierTokenType(string identifier)
