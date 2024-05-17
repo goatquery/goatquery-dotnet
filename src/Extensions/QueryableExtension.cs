@@ -5,7 +5,7 @@ using System.Reflection;
 
 public static class QueryableExtension
 {
-    public static (IQueryable<T>, int?) Apply<T>(this IQueryable<T> queryable, Query query, QueryOptions? options = null)
+    public static (IQueryable<T>, int?) Apply<T>(this IQueryable<T> queryable, Query query, ISearchBinder<T>? searchBinder = null, QueryOptions? options = null)
     {
         if (query.Top > options?.MaxTop)
         {
@@ -13,6 +13,19 @@ public static class QueryableExtension
         }
 
         var type = typeof(T);
+
+        // Search
+        if (searchBinder != null && !string.IsNullOrEmpty(query.Search))
+        {
+            var searchExpression = searchBinder.Bind(query.Search);
+
+            if (searchExpression is null)
+            {
+                throw new GoatQueryException("Cannot parse search binder expression");
+            }
+
+            queryable = queryable.Where(searchExpression);
+        }
 
         // Count
         int? count = null;
