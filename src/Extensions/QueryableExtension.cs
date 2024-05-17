@@ -14,6 +14,14 @@ public static class QueryableExtension
 
         var type = typeof(T);
 
+        // Count
+        int? count = null;
+
+        if (query.Count ?? false)
+        {
+            count = queryable.Count();
+        }
+
         // Order by
         if (!string.IsNullOrEmpty(query.OrderBy))
         {
@@ -83,7 +91,7 @@ public static class QueryableExtension
             queryable = queryable.Take(options.MaxTop);
         }
 
-        return (queryable, 0);
+        return (queryable, count);
     }
 
     private static MethodInfo GenericMethodOf<TReturn>(Expression<Func<object, TReturn>> expression)
