@@ -14,6 +14,43 @@ public static class QueryableExtension
 
         var type = typeof(T);
 
+        // Filter
+        if (!string.IsNullOrEmpty(query.Filter))
+        {
+            var lexer = new QueryLexer(query.Filter);
+            var parser = new QueryParser(lexer);
+            var statements = parser.ParseFilter();
+
+            ParameterExpression parameter = Expression.Parameter(type);
+            Expression? binaryExpression = null;
+
+            foreach (var statement in statements)
+            {
+                var property = Expression.Property(parameter, statement.Left.TokenLiteral());
+                ConstantExpression? value = null;
+
+                switch (statement.Right)
+                {
+                    case IntegerLiteral literal:
+                        value = Expression.Constant(literal.Value, property.Type);
+                        break;
+                    case StringLiteral literal:
+                        value = Expression.Constant(literal.Value, property.Type);
+                        break;
+                    default:
+                        break;
+                }
+
+                var expression = Expression.Equal(property, value);
+
+                binaryExpression = binaryExpression == null ? expression : Expression.AndAlso(binaryExpression, expression);
+            }
+
+            var exp = Expression.Lambda<Func<T, bool>>(binaryExpression, parameter);
+
+            queryable = queryable.Where(exp);
+        }
+
         // Search
         if (searchBinder != null && !string.IsNullOrEmpty(query.Search))
         {
@@ -44,11 +81,12 @@ public static class QueryableExtension
             var statements = parser.ParseOrderBy();
             var isAlreadyOrdered = false;
 
+            var parameter = Expression.Parameter(type);
+
             foreach (var statement in statements)
             {
-                ParameterExpression parameter = Expression.Parameter(type);
-                MemberExpression property = Expression.Property(parameter, statement.TokenLiteral());
-                LambdaExpression lamba = Expression.Lambda(property, parameter);
+                var property = Expression.Property(parameter, statement.TokenLiteral());
+                var lamba = Expression.Lambda(property, parameter);
 
                 if (isAlreadyOrdered)
                 {

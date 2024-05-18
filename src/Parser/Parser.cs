@@ -44,6 +44,30 @@ public sealed class QueryParser
         return statements;
     }
 
+    public IEnumerable<InfixExpression> ParseFilter()
+    {
+        var statements = new List<InfixExpression>();
+
+        while (!CurrentTokenIs(TokenType.EOF))
+        {
+            if (!CurrentTokenIs(TokenType.IDENT))
+            {
+                NextToken();
+                continue;
+            }
+
+            var statement = ParseFilterStatement();
+            if (statement != null)
+            {
+                statements.Add(statement);
+            }
+
+            NextToken();
+        }
+
+        return statements;
+    }
+
     private OrderByStatement? ParseOrderByStatement()
     {
         var statement = new OrderByStatement(_currentToken);
@@ -60,6 +84,43 @@ public sealed class QueryParser
 
             NextToken();
         }
+
+        return statement;
+    }
+
+    private InfixExpression? ParseFilterStatement()
+    {
+        var identifier = new Identifier(_currentToken, _currentToken.Literal);
+
+        if (!PeekTokenIs(TokenType.EQ))
+        {
+            return null;
+        }
+
+        NextToken();
+
+        var statement = new InfixExpression(_currentToken, identifier, _currentToken.Literal);
+
+        if (!PeekTokenIs(TokenType.STRING) && !PeekTokenIs(TokenType.INT))
+        {
+            return null;
+        }
+
+        NextToken();
+
+        switch (_currentToken.Type)
+        {
+            case TokenType.STRING:
+                statement.Right = new StringLiteral(_currentToken, _currentToken.Literal);
+                break;
+            case TokenType.INT:
+                if (int.TryParse(_currentToken.Literal, out var value))
+                {
+                    statement.Right = new IntegerLiteral(_currentToken, value);
+                }
+                break;
+        }
+
 
         return statement;
     }

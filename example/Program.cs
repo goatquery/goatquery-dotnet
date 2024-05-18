@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 
+Randomizer.Seed = new Random(123123123);
+
 var builder = WebApplication.CreateBuilder(args);
 
 var postgreSqlContainer = new PostgreSqlBuilder()
@@ -34,10 +36,7 @@ using (var scope = app.Services.CreateScope())
         var users = new Faker<User>()
             .RuleFor(x => x.Firstname, f => f.Person.FirstName)
             .RuleFor(x => x.Lastname, f => f.Person.LastName)
-            .RuleFor(x => x.Email, f => f.Person.Email)
-            .RuleFor(x => x.AvatarUrl, f => f.Internet.Avatar())
-            .RuleFor(x => x.UserName, f => f.Person.UserName)
-            .RuleFor(x => x.Gender, f => f.Person.Gender.ToString())
+            .RuleFor(x => x.Age, f => f.Random.Int(0, 100))
             .RuleFor(x => x.IsDeleted, f => f.Random.Bool());
 
         context.Users.AddRange(users.Generate(1_000));
@@ -49,12 +48,14 @@ using (var scope = app.Services.CreateScope())
 
 app.MapGet("/users", (ApplicationDbContext db, [FromServices] IMapper mapper, [AsParameters] Query query) =>
 {
-    var (users, _) = db.Users
+    var (users, count) = db.Users
         .Where(x => !x.IsDeleted)
         .ProjectTo<UserDto>(mapper.ConfigurationProvider)
         .Apply(query);
 
-    return TypedResults.Ok(new PagedResponse<UserDto>(users.ToList(), 0));
+    var response = new PagedResponse<UserDto>(users.ToList(), count);
+
+    return TypedResults.Ok(response);
 });
 
 

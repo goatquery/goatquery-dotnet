@@ -6,10 +6,13 @@ public enum TokenType
     EOF,
     ILLEGAL,
     IDENT,
+    STRING,
+    INT,
 
     // Keywords
     ASC,
     DESC,
+    EQ,
 }
 
 public sealed class Token
@@ -21,6 +24,7 @@ public sealed class Token
     {
         { "asc", TokenType.ASC },
         { "desc", TokenType.DESC },
+        { "eq", TokenType.EQ },
     };
 
     public Token(TokenType type, char literal)
