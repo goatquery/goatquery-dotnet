@@ -41,9 +41,6 @@ public sealed class TopTest
     [InlineData(2, 2)]
     [InlineData(3, 3)]
     [InlineData(4, 4)]
-    // [InlineData(5, 4)]
-    // [InlineData(100, 4)]
-    // [InlineData(100_000, 4)]
     public void Test_TopWithMaxTop(int top, int expectedCount)
     {
         var users = new List<User>{

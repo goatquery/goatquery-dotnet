@@ -2,18 +2,6 @@ using Xunit;
 
 public sealed class FilterParserTest
 {
-    public static IEnumerable<object[]> Parameters()
-    {
-        yield return new object[]
-        {
-            "Name eq 'John'",
-            new OrderByStatement[]
-            {
-                new OrderByStatement(new Token(TokenType.IDENT, "ID"), OrderByDirection.Descending),
-            }
-        };
-    }
-
     [Theory]
     [InlineData("Name eq 'John'", "Name", "eq", "John")]
     [InlineData("Firstname eq 'Jane'", "Firstname", "eq", "Jane")]
@@ -32,5 +20,31 @@ public sealed class FilterParserTest
         Assert.Equal(expectedLeft, statement.Left.TokenLiteral());
         Assert.Equal(expectedOperator, statement.Operator);
         Assert.Equal(expectedRight, statement.Right.TokenLiteral());
+    }
+
+    [Fact]
+    public void Test_ParsingFilterStatementWithAnd()
+    {
+        var input = "Name eq 'John' and Age eq 10";
+
+        var lexer = new QueryLexer(input);
+        var parser = new QueryParser(lexer);
+
+        var program = parser.ParseFilter();
+        Assert.Equal(2, program.Count());
+
+        var firstStatement = program.ElementAt(0);
+        Assert.NotNull(firstStatement);
+
+        Assert.Equal("Name", firstStatement.Left.TokenLiteral());
+        Assert.Equal("eq", firstStatement.Operator);
+        Assert.Equal("John", firstStatement.Right.TokenLiteral());
+
+        var secondStatement = program.ElementAt(1);
+        Assert.NotNull(firstStatement);
+
+        Assert.Equal("Age", secondStatement.Left.TokenLiteral());
+        Assert.Equal("eq", secondStatement.Operator);
+        Assert.Equal("10", secondStatement.Right.TokenLiteral());
     }
 }

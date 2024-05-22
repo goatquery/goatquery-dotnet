@@ -142,6 +142,8 @@ public static class QueryableExtension
             queryable = queryable.Take(options.MaxTop);
         }
 
+        Console.WriteLine(queryable.ToString());
+
         return (queryable, count);
     }
 

@@ -24,6 +24,26 @@ public sealed class FilterTest
             "id eq 1",
             new User[] {}
         };
+
+        yield return new object[]
+        {
+            "firstname eq 'John' and id eq 2",
+            new User[]
+            {
+                new User { Id = 2, Firstname = "John" },
+            }
+        };
+
+        yield return new object[]
+        {
+            "firstname eq 'John' or id eq 3",
+            new User[]
+            {
+            new User { Id = 2, Firstname = "John" },
+            new User { Id = 3, Firstname = "Doe" },
+            new User { Id = 3, Firstname = "Egg" }
+            }
+        };
     }
 
     [Theory]
@@ -47,13 +67,6 @@ public sealed class FilterTest
         var (queryable, _) = users.Apply(query);
         var results = queryable.ToArray();
 
-        for (var i = 0; i < expected.Count(); i++)
-        {
-            var expectedUser = expected.ElementAt(i);
-            var user = results.ElementAt(i);
-
-            Assert.Equal(expectedUser.Id, user.Id);
-            Assert.Equal(expectedUser.Firstname, user.Firstname);
-        }
+        Assert.Equal(expected, results);
     }
 }

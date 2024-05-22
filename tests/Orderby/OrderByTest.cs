@@ -186,13 +186,6 @@ public sealed class OrderByTest
         var (queryable, _) = users.Apply(query);
         var results = queryable.ToArray();
 
-        for (var i = 0; i < expected.Count(); i++)
-        {
-            var expectedUser = expected.ElementAt(i);
-            var user = results.ElementAt(i);
-
-            Assert.Equal(expectedUser.Id, user.Id);
-            Assert.Equal(expectedUser.Firstname, user.Firstname);
-        }
+        Assert.Equal(expected, results);
     }
 }

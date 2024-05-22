@@ -13,6 +13,7 @@ public enum TokenType
     ASC,
     DESC,
     EQ,
+    AND,
 }
 
 public sealed class Token
@@ -25,6 +26,7 @@ public sealed class Token
         { "asc", TokenType.ASC },
         { "desc", TokenType.DESC },
         { "eq", TokenType.EQ },
+        { "and", TokenType.AND },
     };
 
     public Token(TokenType type, char literal)
