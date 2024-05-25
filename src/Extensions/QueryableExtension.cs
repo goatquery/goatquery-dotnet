@@ -19,34 +19,13 @@ public static class QueryableExtension
         {
             var lexer = new QueryLexer(query.Filter);
             var parser = new QueryParser(lexer);
-            var statements = parser.ParseFilter();
+            var statement = parser.ParseFilter();
 
             ParameterExpression parameter = Expression.Parameter(type);
-            Expression? binaryExpression = null;
 
-            foreach (var statement in statements)
-            {
-                var property = Expression.Property(parameter, statement.Left.TokenLiteral());
-                ConstantExpression? value = null;
+            var expression = Evaluate(statement.Expression, parameter);
 
-                switch (statement.Right)
-                {
-                    case IntegerLiteral literal:
-                        value = Expression.Constant(literal.Value, property.Type);
-                        break;
-                    case StringLiteral literal:
-                        value = Expression.Constant(literal.Value, property.Type);
-                        break;
-                    default:
-                        break;
-                }
-
-                var expression = Expression.Equal(property, value);
-
-                binaryExpression = binaryExpression == null ? expression : Expression.AndAlso(binaryExpression, expression);
-            }
-
-            var exp = Expression.Lambda<Func<T, bool>>(binaryExpression, parameter);
+            var exp = Expression.Lambda<Func<T, bool>>(expression, parameter);
 
             queryable = queryable.Where(exp);
         }
@@ -145,6 +124,51 @@ public static class QueryableExtension
         Console.WriteLine(queryable.ToString());
 
         return (queryable, count);
+    }
+
+    private static Expression? Evaluate(QueryExpression expression, ParameterExpression parameterExpression)
+    {
+        switch (expression)
+        {
+            case InfixExpression exp:
+                if (exp.Left.GetType() == typeof(Identifier))
+                {
+                    var property = Expression.Property(parameterExpression, exp.Left.TokenLiteral());
+                    ConstantExpression? value = null;
+
+                    switch (exp.Right)
+                    {
+                        case IntegerLiteral literal:
+                            value = Expression.Constant(literal.Value, property.Type);
+                            break;
+                        case StringLiteral literal:
+                            value = Expression.Constant(literal.Value, property.Type);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    var expa = Expression.Equal(property, value);
+
+                    return expa;
+                }
+
+                var left = Evaluate(exp.Left, parameterExpression);
+                var right = Evaluate(exp.Right, parameterExpression);
+
+                if (exp.Operator == Keywords.And)
+                {
+                    return Expression.AndAlso(left, right);
+                }
+                else if (exp.Operator == Keywords.Or)
+                {
+                    return Expression.OrElse(left, right);
+                }
+
+                break;
+        }
+
+        return null;
     }
 
     private static MethodInfo GenericMethodOf<TReturn>(Expression<Func<object, TReturn>> expression)

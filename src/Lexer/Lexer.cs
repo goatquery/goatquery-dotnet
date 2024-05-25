@@ -47,7 +47,7 @@ public sealed class QueryLexer
                 if (IsLetter(_character))
                 {
                     token.Literal = ReadIdentifier();
-                    token.Type = Token.GetIdentifierTokenType(token.Literal);
+                    token.Type = TokenType.IDENT;
                     return token;
                 }
                 else if (IsDigit(_character))

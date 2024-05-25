@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 public sealed class QueryParser
@@ -44,41 +45,55 @@ public sealed class QueryParser
         return statements;
     }
 
-    public IEnumerable<InfixExpression> ParseFilter()
+    public ExpressionStatement ParseFilter()
     {
-        var statements = new List<InfixExpression>();
-
-        while (!CurrentTokenIs(TokenType.EOF))
+        var statement = new ExpressionStatement(_currentToken)
         {
-            if (!CurrentTokenIs(TokenType.IDENT))
-            {
-                NextToken();
-                continue;
-            }
+            Expression = ParseExpression()
+        };
 
-            var statement = ParseFilterStatement();
-            if (statement != null)
-            {
-                statements.Add(statement);
-            }
+        return statement;
+    }
 
-            NextToken();
+    private InfixExpression ParseExpression()
+    {
+        var left = ParseFilterStatement();
+        if (left is null)
+        {
+            throw new Exception("bad");
         }
 
-        return statements;
+        NextToken();
+
+        while (CurrentIdentifierIs(Keywords.And) || CurrentIdentifierIs(Keywords.Or))
+        {
+            left = new InfixExpression(_currentToken, left, _currentToken.Literal);
+
+            NextToken();
+
+            var right = ParseFilterStatement();
+            if (right is null)
+            {
+                throw new Exception("bad");
+            }
+
+            left.Right = right;
+        }
+
+        return left;
     }
 
     private OrderByStatement? ParseOrderByStatement()
     {
         var statement = new OrderByStatement(_currentToken);
 
-        if (PeekTokenIs(TokenType.DESC))
+        if (PeekIdentifierIs(Keywords.Desc))
         {
             statement.Direction = OrderByDirection.Descending;
 
             NextToken();
         }
-        else if (PeekTokenIs(TokenType.ASC))
+        else if (PeekIdentifierIs(Keywords.Asc))
         {
             statement.Direction = OrderByDirection.Ascending;
 
@@ -92,7 +107,7 @@ public sealed class QueryParser
     {
         var identifier = new Identifier(_currentToken, _currentToken.Literal);
 
-        if (!PeekTokenIs(TokenType.EQ))
+        if (!PeekIdentifierIs(Keywords.Eq))
         {
             return null;
         }
@@ -133,6 +148,16 @@ public sealed class QueryParser
     private bool PeekTokenIs(TokenType token)
     {
         return _peekToken.Type == token;
+    }
+
+    private bool PeekIdentifierIs(string identifier)
+    {
+        return _peekToken.Type == TokenType.IDENT && _peekToken.Literal.Equals(identifier, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private bool CurrentIdentifierIs(string identifier)
+    {
+        return _currentToken.Type == TokenType.IDENT && _currentToken.Literal.Equals(identifier, StringComparison.OrdinalIgnoreCase);
     }
 
     private bool ExpectPeek(TokenType token)

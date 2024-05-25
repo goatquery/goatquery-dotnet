@@ -22,6 +22,15 @@ public sealed class FilterTest
         yield return new object[]
         {
             "id eq 1",
+            new User[] {
+                new User { Id = 1, Firstname = "Jane" },
+                new User { Id = 1, Firstname = "Harry" },
+            }
+        };
+
+        yield return new object[]
+        {
+            "id eq 0",
             new User[] {}
         };
 

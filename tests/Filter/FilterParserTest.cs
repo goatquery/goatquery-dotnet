@@ -12,14 +12,13 @@ public sealed class FilterParserTest
         var parser = new QueryParser(lexer);
 
         var program = parser.ParseFilter();
-        Assert.Single(program);
 
-        var statement = program.FirstOrDefault();
-        Assert.NotNull(statement);
+        var expression = program.Expression as InfixExpression;
+        Assert.NotNull(expression);
 
-        Assert.Equal(expectedLeft, statement.Left.TokenLiteral());
-        Assert.Equal(expectedOperator, statement.Operator);
-        Assert.Equal(expectedRight, statement.Right.TokenLiteral());
+        Assert.Equal(expectedLeft, expression.Left.TokenLiteral());
+        Assert.Equal(expectedOperator, expression.Operator);
+        Assert.Equal(expectedRight, expression.Right.TokenLiteral());
     }
 
     [Fact]
@@ -31,20 +30,54 @@ public sealed class FilterParserTest
         var parser = new QueryParser(lexer);
 
         var program = parser.ParseFilter();
-        Assert.Equal(2, program.Count());
 
-        var firstStatement = program.ElementAt(0);
-        Assert.NotNull(firstStatement);
+        var expression = program.Expression as InfixExpression;
+        Assert.NotNull(expression);
 
-        Assert.Equal("Name", firstStatement.Left.TokenLiteral());
-        Assert.Equal("eq", firstStatement.Operator);
-        Assert.Equal("John", firstStatement.Right.TokenLiteral());
+        var left = expression.Left as InfixExpression;
+        Assert.NotNull(left);
 
-        var secondStatement = program.ElementAt(1);
-        Assert.NotNull(firstStatement);
+        Assert.Equal("Name", left.Left.TokenLiteral());
+        Assert.Equal("eq", left.Operator);
+        Assert.Equal("John", left.Right.TokenLiteral());
 
-        Assert.Equal("Age", secondStatement.Left.TokenLiteral());
-        Assert.Equal("eq", secondStatement.Operator);
-        Assert.Equal("10", secondStatement.Right.TokenLiteral());
+        Assert.Equal("and", expression.Operator);
+
+        var right = expression.Right as InfixExpression;
+        Assert.NotNull(right);
+
+        Assert.Equal("Age", right.Left.TokenLiteral());
+        Assert.Equal("eq", right.Operator);
+        Assert.Equal("10", right.Right.TokenLiteral());
+    }
+
+    [Fact]
+    public void Test_ParsingFilterStatementWithOr()
+    {
+        var input = "Name eq 'John' or Age eq 10";
+
+        var lexer = new QueryLexer(input);
+        var parser = new QueryParser(lexer);
+
+        var program = parser.ParseFilter();
+
+        var expression = program.Expression as InfixExpression;
+        Assert.NotNull(expression);
+
+        var left = expression.Left as InfixExpression;
+        Assert.NotNull(left);
+
+        Assert.Equal("Name", left.Left.TokenLiteral());
+        Assert.Equal("eq", left.Operator);
+        Assert.Equal("John", left.Right.TokenLiteral());
+
+        Assert.Equal("or", expression.Operator);
+
+        var right = expression.Right as InfixExpression;
+        Assert.NotNull(right);
+
+        Assert.Equal("Age", right.Left.TokenLiteral());
+        Assert.Equal("eq", right.Operator);
+        Assert.Equal("10", right.Right.TokenLiteral());
     }
 }

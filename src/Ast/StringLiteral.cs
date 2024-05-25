@@ -1,4 +1,4 @@
-public sealed class StringLiteral : Node
+public sealed class StringLiteral : QueryExpression
 {
     public string Value { get; set; }
 
@@ -8,7 +8,7 @@ public sealed class StringLiteral : Node
     }
 }
 
-public sealed class IntegerLiteral : Node
+public sealed class IntegerLiteral : QueryExpression
 {
     public int Value { get; set; }
 

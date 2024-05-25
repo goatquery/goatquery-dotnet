@@ -1,4 +1,4 @@
-public sealed class Identifier : Node
+public sealed class Identifier : QueryExpression
 {
     public string Value { get; set; }
 

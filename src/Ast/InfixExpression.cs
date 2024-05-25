@@ -1,12 +1,16 @@
-public sealed class InfixExpression : Node
+public sealed class InfixExpression : QueryExpression
 {
-    public Identifier Left { get; set; }
-    public string Operator { get; set; }
-    public Node Right { get; set; } = default!;
+    public QueryExpression Left { get; set; } = default!;
+    public string Operator { get; set; } = string.Empty;
+    public QueryExpression Right { get; set; } = default!;
 
-    public InfixExpression(Token token, Identifier left, string op) : base(token)
+    public InfixExpression(Token token, QueryExpression left, string op) : base(token)
     {
         Left = left;
         Operator = op;
+    }
+
+    public InfixExpression(Token token) : base(token)
+    {
     }
 }

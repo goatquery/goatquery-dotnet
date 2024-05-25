@@ -8,24 +8,38 @@ public sealed class FilterLexerTest
         var input = @"Name eq 'john'
         Id eq 1
         Name eq 'john' and Id eq 1
+        eq eq 1
+        Name eq 'john' or Id eq 1
         ";
 
         var tests = new Expected[]
         {
             new Expected(TokenType.IDENT, "Name"),
-            new Expected(TokenType.EQ, "eq"),
+            new Expected(TokenType.IDENT, "eq"),
             new Expected(TokenType.STRING, "john"),
 
             new Expected(TokenType.IDENT, "Id"),
-            new Expected(TokenType.EQ, "eq"),
+            new Expected(TokenType.IDENT, "eq"),
             new Expected(TokenType.INT, "1"),
 
             new Expected(TokenType.IDENT, "Name"),
-            new Expected(TokenType.EQ, "eq"),
+            new Expected(TokenType.IDENT, "eq"),
             new Expected(TokenType.STRING, "john"),
-            new Expected(TokenType.AND, "and"),
+            new Expected(TokenType.IDENT, "and"),
             new Expected(TokenType.IDENT, "Id"),
-            new Expected(TokenType.EQ, "eq"),
+            new Expected(TokenType.IDENT, "eq"),
+            new Expected(TokenType.INT, "1"),
+
+            new Expected(TokenType.IDENT, "eq"),
+            new Expected(TokenType.IDENT, "eq"),
+            new Expected(TokenType.INT, "1"),
+
+            new Expected(TokenType.IDENT, "Name"),
+            new Expected(TokenType.IDENT, "eq"),
+            new Expected(TokenType.STRING, "john"),
+            new Expected(TokenType.IDENT, "or"),
+            new Expected(TokenType.IDENT, "Id"),
+            new Expected(TokenType.IDENT, "eq"),
             new Expected(TokenType.INT, "1"),
         };
 

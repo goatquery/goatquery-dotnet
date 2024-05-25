@@ -27,15 +27,15 @@ public sealed class OrderByLexerTest
         var tests = new Expected[]
         {
             new Expected(TokenType.IDENT, "id"),
-            new Expected(TokenType.ASC, "asc"),
+            new Expected(TokenType.IDENT, "asc"),
             new Expected(TokenType.IDENT, "iD"),
-            new Expected(TokenType.DESC, "desc"),
+            new Expected(TokenType.IDENT, "desc"),
             new Expected(TokenType.IDENT, "id"),
-            new Expected(TokenType.ASC, "aSc"),
+            new Expected(TokenType.IDENT, "aSc"),
             new Expected(TokenType.IDENT, "id"),
-            new Expected(TokenType.DESC, "DeSc"),
+            new Expected(TokenType.IDENT, "DeSc"),
             new Expected(TokenType.IDENT, "id"),
-            new Expected(TokenType.ASC, "AsC"),
+            new Expected(TokenType.IDENT, "AsC"),
         };
 
         var lexer = new QueryLexer(input);
