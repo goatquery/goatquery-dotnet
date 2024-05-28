@@ -78,6 +78,8 @@ public sealed class QueryParser
             }
 
             left.Right = right;
+
+            NextToken();
         }
 
         return left;
@@ -158,16 +160,5 @@ public sealed class QueryParser
     private bool CurrentIdentifierIs(string identifier)
     {
         return _currentToken.Type == TokenType.IDENT && _currentToken.Literal.Equals(identifier, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private bool ExpectPeek(TokenType token)
-    {
-        if (PeekTokenIs(token))
-        {
-            NextToken();
-            return true;
-        }
-
-        return false;
     }
 }

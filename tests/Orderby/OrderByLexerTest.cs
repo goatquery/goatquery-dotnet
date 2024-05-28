@@ -1,51 +1,82 @@
 using Xunit;
 
-public sealed record Expected
-{
-    public TokenType Token { get; set; }
-    public string Literal { get; set; } = string.Empty;
-
-    public Expected(TokenType token, string literal)
-    {
-        Token = token;
-        Literal = literal;
-    }
-}
-
 public sealed class OrderByLexerTest
 {
-    [Fact]
-    public void Test_OrderByNextToken()
+    public static IEnumerable<object[]> Parameters()
     {
-        var input = @"id asc
-        iD desc
-        id aSc
-        id DeSc
-        id AsC
-        ";
-
-        var tests = new Expected[]
+        yield return new object[]
         {
-            new Expected(TokenType.IDENT, "id"),
-            new Expected(TokenType.IDENT, "asc"),
-            new Expected(TokenType.IDENT, "iD"),
-            new Expected(TokenType.IDENT, "desc"),
-            new Expected(TokenType.IDENT, "id"),
-            new Expected(TokenType.IDENT, "aSc"),
-            new Expected(TokenType.IDENT, "id"),
-            new Expected(TokenType.IDENT, "DeSc"),
-            new Expected(TokenType.IDENT, "id"),
-            new Expected(TokenType.IDENT, "AsC"),
+            "id asc",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "asc"),
+            }
         };
 
+        yield return new object[]
+        {
+            "iD desc",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "iD"),
+                new (TokenType.IDENT, "desc"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "id aSc",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "aSc"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "id DeSc",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "DeSc"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "id AsC",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "AsC"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "asc asc",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "asc"),
+                new (TokenType.IDENT, "asc"),
+            }
+        };
+    }
+
+    [Theory]
+    [MemberData(nameof(Parameters))]
+    public void Test_OrderByNextToken(string input, KeyValuePair<TokenType, string>[] expected)
+    {
         var lexer = new QueryLexer(input);
 
-        foreach (var test in tests)
+        foreach (var test in expected)
         {
             var token = lexer.NextToken();
 
-            Assert.Equal(test.Token, token.Type);
-            Assert.Equal(test.Literal, token.Literal);
+            Assert.Equal(test.Key, token.Type);
+            Assert.Equal(test.Value, token.Literal);
         }
     }
 }
