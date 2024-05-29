@@ -7,6 +7,7 @@ public sealed class FilterParserTest
     [InlineData("Firstname eq 'Jane'", "Firstname", "eq", "Jane")]
     [InlineData("Age eq 21", "Age", "eq", "21")]
     [InlineData("Age ne 10", "Age", "ne", "10")]
+    [InlineData("Name contains 'John'", "Name", "contains", "John")]
     public void Test_ParsingFilterStatement(string input, string expectedLeft, string expectedOperator, string expectedRight)
     {
         var lexer = new QueryLexer(input);

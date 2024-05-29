@@ -154,6 +154,12 @@ public static class QueryableExtension
                             return Expression.Equal(property, value);
                         case Keywords.Ne:
                             return Expression.NotEqual(property, value);
+                        case Keywords.Contains:
+                            var identifier = (Identifier)exp.Left;
+
+                            var method = identifier.Value.GetType().GetMethod("Contains", new[] { value?.Value.GetType() });
+
+                            return Expression.Call(property, method, value);
                     }
                 }
 

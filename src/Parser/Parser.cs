@@ -106,7 +106,7 @@ public sealed class QueryParser
     {
         var identifier = new Identifier(_currentToken, _currentToken.Literal);
 
-        if (!PeekIdentifierIn(Keywords.Eq, Keywords.Ne))
+        if (!PeekIdentifierIn(Keywords.Eq, Keywords.Ne, Keywords.Contains))
         {
             throw new GoatQueryException("Invalid conjunction within filter string");
         }

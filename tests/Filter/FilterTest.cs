@@ -89,6 +89,31 @@ public sealed class FilterTest
                 new User { Id = 1, Firstname = "Harry" },
             }
         };
+
+        yield return new object[]
+        {
+            "firstName contains 'a'",
+            new User[]
+            {
+                new User { Id = 1, Firstname = "Jane" },
+                new User { Id = 1, Firstname = "Harry" },
+            }
+        };
+
+        yield return new object[]
+        {
+            "id ne 1 and firstName contains 'a'",
+            new User[] {}
+        };
+
+        yield return new object[]
+        {
+            "id ne 1 and firstName contains 'a' or firstName eq 'Apple'",
+            new User[]
+            {
+                new User { Id = 2, Firstname = "Apple" },
+            }
+        };
     }
 
     [Theory]

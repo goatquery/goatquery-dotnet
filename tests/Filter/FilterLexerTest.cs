@@ -115,6 +115,17 @@ public sealed class FilterLexerTest
                 new (TokenType.INT, "1"),
             }
         };
+
+        yield return new object[]
+        {
+            "Name contains 'John'",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "Name"),
+                new (TokenType.IDENT, "contains"),
+                new (TokenType.STRING, "John"),
+            }
+        };
     }
 
     [Theory]
