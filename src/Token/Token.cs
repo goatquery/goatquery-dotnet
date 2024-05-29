@@ -1,6 +1,6 @@
 public enum TokenType
 {
-    EOF,
+    EOF = 1,
     ILLEGAL,
     IDENT,
     STRING,

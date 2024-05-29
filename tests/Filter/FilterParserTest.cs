@@ -23,6 +23,22 @@ public sealed class FilterParserTest
         Assert.Equal(expectedRight, expression.Right.TokenLiteral());
     }
 
+    [Theory]
+    [InlineData("Name")]
+    [InlineData("")]
+    [InlineData("eq nee")]
+    [InlineData("name nee 10")]
+    [InlineData("id contains 10")]
+    [InlineData("id contaiins '10'")]
+    [InlineData("id eq       John'")]
+    public void Test_ParsingInvalidFilterThrowsException(string input)
+    {
+        var lexer = new QueryLexer(input);
+        var parser = new QueryParser(lexer);
+
+        Assert.Throws<GoatQueryException>(parser.ParseFilter);
+    }
+
     [Fact]
     public void Test_ParsingFilterStatementWithAnd()
     {

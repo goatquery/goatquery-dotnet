@@ -53,6 +53,12 @@ public sealed class OrderByParserTest
                 new OrderByStatement(new Token(TokenType.IDENT, "postcode"), OrderByDirection.Descending)
             }
         };
+
+        yield return new object[]
+        {
+            "",
+            new OrderByStatement[] { }
+        };
     }
 
     [Theory]

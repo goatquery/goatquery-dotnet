@@ -69,10 +69,6 @@ public sealed class QueryParser
             NextToken();
 
             var right = ParseFilterStatement();
-            if (right is null)
-            {
-                throw new Exception("bad");
-            }
 
             left.Right = right;
 
@@ -84,20 +80,14 @@ public sealed class QueryParser
 
     private OrderByStatement ParseOrderByStatement()
     {
-        var statement = new OrderByStatement(_currentToken);
+        var statement = new OrderByStatement(_currentToken, OrderByDirection.Ascending);
 
         if (PeekIdentifierIs(Keywords.Desc))
         {
             statement.Direction = OrderByDirection.Descending;
-
-            NextToken();
         }
-        else if (PeekIdentifierIs(Keywords.Asc))
-        {
-            statement.Direction = OrderByDirection.Ascending;
 
-            NextToken();
-        }
+        NextToken();
 
         return statement;
     }
@@ -108,7 +98,7 @@ public sealed class QueryParser
 
         if (!PeekIdentifierIn(Keywords.Eq, Keywords.Ne, Keywords.Contains))
         {
-            throw new GoatQueryException("Invalid conjunction within filter string");
+            throw new GoatQueryException("Invalid conjunction within filter");
         }
 
         NextToken();
@@ -117,10 +107,15 @@ public sealed class QueryParser
 
         if (!PeekTokenIn(TokenType.STRING, TokenType.INT))
         {
-            throw new GoatQueryException("Invalid value type within filter string");
+            throw new GoatQueryException("Invalid value type within filter");
         }
 
         NextToken();
+
+        if (statement.Operator.Equals(Keywords.Contains) && _currentToken.Type != TokenType.STRING)
+        {
+            throw new GoatQueryException("Value must be a string when using contains operand");
+        }
 
         switch (_currentToken.Type)
         {

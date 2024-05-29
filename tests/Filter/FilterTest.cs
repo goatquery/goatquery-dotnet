@@ -139,4 +139,25 @@ public sealed class FilterTest
 
         Assert.Equal(expected, results);
     }
+
+    [Theory]
+    [InlineData("NonExistentProperty eq 'John'")]
+    public void Test_InvalidFilterThrowsException(string filter)
+    {
+        var users = new List<User>{
+            new User { Id = 2, Firstname = "John" },
+            new User { Id = 1, Firstname = "Jane" },
+            new User { Id = 2, Firstname = "Apple" },
+            new User { Id = 1, Firstname = "Harry" },
+            new User { Id = 3, Firstname = "Doe" },
+            new User { Id = 3, Firstname = "Egg" }
+        }.AsQueryable();
+
+        var query = new Query
+        {
+            Filter = filter
+        };
+
+        Assert.Throws<GoatQueryException>(() => users.Apply(query));
+    }
 }

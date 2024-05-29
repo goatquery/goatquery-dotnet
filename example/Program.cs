@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 
-Randomizer.Seed = new Random(123123123);
-
 var builder = WebApplication.CreateBuilder(args);
 
 var postgreSqlContainer = new PostgreSqlBuilder()
@@ -15,6 +13,8 @@ var postgreSqlContainer = new PostgreSqlBuilder()
   .Build();
 
 await postgreSqlContainer.StartAsync();
+
+builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -46,17 +46,25 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-app.MapGet("/users", (ApplicationDbContext db, [FromServices] IMapper mapper, [AsParameters] Query query) =>
+app.MapGet("/minimal/users", (ApplicationDbContext db, [FromServices] IMapper mapper, [AsParameters] Query query) =>
 {
-    var (users, count) = db.Users
-        .Where(x => !x.IsDeleted)
-        .ProjectTo<UserDto>(mapper.ConfigurationProvider)
-        .Apply(query);
+    try
+    {
+        var (users, count) = db.Users
+            .Where(x => !x.IsDeleted)
+            .ProjectTo<UserDto>(mapper.ConfigurationProvider)
+            .Apply(query);
 
-    var response = new PagedResponse<UserDto>(users.ToList(), count);
+        var response = new PagedResponse<UserDto>(users.ToList(), count);
 
-    return TypedResults.Ok(response);
+        return Results.Ok(response);
+    }
+    catch (GoatQueryException ex)
+    {
+        return Results.BadRequest(new { ex.Message });
+    }
 });
 
+app.MapControllers();
 
 app.Run();
