@@ -12,6 +12,7 @@ public static class Keywords
     internal const string Asc = "asc";
     internal const string Desc = "desc";
     internal const string Eq = "eq";
+    internal const string Ne = "ne";
     internal const string And = "and";
     internal const string Or = "or";
 }

@@ -104,6 +104,17 @@ public sealed class FilterLexerTest
                 new (TokenType.INT, "2"),
             }
         };
+
+        yield return new object[]
+        {
+            "Id ne 1",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "Id"),
+                new (TokenType.IDENT, "ne"),
+                new (TokenType.INT, "1"),
+            }
+        };
     }
 
     [Theory]

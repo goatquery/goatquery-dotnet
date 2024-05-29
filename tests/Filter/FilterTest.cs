@@ -77,6 +77,18 @@ public sealed class FilterTest
                 new User { Id = 3, Firstname = "Egg" }
             }
         };
+
+        yield return new object[]
+        {
+            "id ne 3",
+            new User[]
+            {
+                new User { Id = 2, Firstname = "John" },
+                new User { Id = 1, Firstname = "Jane" },
+                new User { Id = 2, Firstname = "Apple" },
+                new User { Id = 1, Firstname = "Harry" },
+            }
+        };
     }
 
     [Theory]

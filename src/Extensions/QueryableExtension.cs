@@ -148,21 +148,24 @@ public static class QueryableExtension
                             break;
                     }
 
-                    var expa = Expression.Equal(property, value);
-
-                    return expa;
+                    switch (exp.Operator)
+                    {
+                        case Keywords.Eq:
+                            return Expression.Equal(property, value);
+                        case Keywords.Ne:
+                            return Expression.NotEqual(property, value);
+                    }
                 }
 
                 var left = Evaluate(exp.Left, parameterExpression);
                 var right = Evaluate(exp.Right, parameterExpression);
 
-                if (exp.Operator == Keywords.And)
+                switch (exp.Operator)
                 {
-                    return Expression.AndAlso(left, right);
-                }
-                else if (exp.Operator == Keywords.Or)
-                {
-                    return Expression.OrElse(left, right);
+                    case Keywords.And:
+                        return Expression.AndAlso(left, right);
+                    case Keywords.Or:
+                        return Expression.OrElse(left, right);
                 }
 
                 break;
