@@ -64,6 +64,19 @@ public sealed class FilterTest
                 new User { Id = 1, Firstname = "Harry" },
             }
         };
+
+        yield return new object[]
+        {
+            "id eq 1 or id eq 2 or firstName eq 'Egg'",
+            new User[]
+            {
+                new User { Id = 2, Firstname = "John" },
+                new User { Id = 1, Firstname = "Jane" },
+                new User { Id = 2, Firstname = "Apple" },
+                new User { Id = 1, Firstname = "Harry" },
+                new User { Id = 3, Firstname = "Egg" }
+            }
+        };
     }
 
     [Theory]
