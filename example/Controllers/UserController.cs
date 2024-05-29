@@ -18,6 +18,7 @@ public class UsersController : ControllerBase
     // GET: /controller/users
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
+    [EnableQuery<UserDto>]
     public ActionResult<IEnumerable<UserDto>> Get()
     {
         var users = _db.Users

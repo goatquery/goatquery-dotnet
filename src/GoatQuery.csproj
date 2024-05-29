@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <RootNamespace>goatquery-dotnet</RootNamespace>
+    <TargetFrameworks>netstandard2.1</TargetFrameworks>
+    <RootNamespace>GoatQuery</RootNamespace>
     <Nullable>enable</Nullable>
 
     <PackageId>GoatQuery</PackageId>

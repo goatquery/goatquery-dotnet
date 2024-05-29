@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\goatquery-dotnet.csproj" />
+    <ProjectReference Include="..\src\GoatQuery.csproj" />
   </ItemGroup>
 
 </Project>
