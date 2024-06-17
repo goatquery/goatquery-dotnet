@@ -14,3 +14,8 @@ public sealed class OrderByStatement : Node
         Direction = direction;
     }
 }
+
+public sealed class SelectStatement : Statement
+{
+    public SelectStatement(Token token) : base(token) { }
+}

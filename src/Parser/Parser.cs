@@ -22,6 +22,34 @@ public sealed class QueryParser
         _peekToken = _lexer.NextToken();
     }
 
+    public IEnumerable<SelectStatement> ParseSelect()
+    {
+        var statements = new List<SelectStatement>();
+
+        while (!CurrentTokenIs(TokenType.EOF))
+        {
+            if (CurrentTokenIs(TokenType.IDENT) && (!PeekTokenIn(TokenType.COMMA, TokenType.EOF)))
+            {
+                throw new GoatQueryException("Invalid term, expected comma seperated list");
+            }
+
+            if (!CurrentTokenIn(TokenType.IDENT, TokenType.COMMA))
+            {
+                throw new GoatQueryException("Invalid statement, expected identifer or comma");
+            }
+
+            if (CurrentTokenIs(TokenType.IDENT))
+            {
+                var statement = new SelectStatement(_currentToken);
+                statements.Add(statement);
+            }
+
+            NextToken();
+        }
+
+        return statements;
+    }
+
     public IEnumerable<OrderByStatement> ParseOrderBy()
     {
         var statements = new List<OrderByStatement>();
@@ -138,9 +166,19 @@ public sealed class QueryParser
         return _currentToken.Type == token;
     }
 
-    private bool PeekTokenIn(params TokenType[] token)
+    private bool CurrentTokenIn(params TokenType[] tokens)
     {
-        return token.Contains(_peekToken.Type);
+        return tokens.Contains(_currentToken.Type);
+    }
+
+    private bool PeekTokenIn(params TokenType[] tokens)
+    {
+        return tokens.Contains(_peekToken.Type);
+    }
+
+    private bool PeekTokenIs(TokenType token)
+    {
+        return _peekToken.Type == token;
     }
 
     private bool PeekIdentifierIs(string identifier)
@@ -148,9 +186,9 @@ public sealed class QueryParser
         return _peekToken.Type == TokenType.IDENT && _peekToken.Literal.Equals(identifier, StringComparison.OrdinalIgnoreCase);
     }
 
-    private bool PeekIdentifierIn(params string[] identifier)
+    private bool PeekIdentifierIn(params string[] identifiers)
     {
-        return _peekToken.Type == TokenType.IDENT && identifier.Contains(_peekToken.Literal, StringComparer.OrdinalIgnoreCase);
+        return _peekToken.Type == TokenType.IDENT && identifiers.Contains(_peekToken.Literal, StringComparer.OrdinalIgnoreCase);
     }
 
     private bool CurrentIdentifierIs(string identifier)

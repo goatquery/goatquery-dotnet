@@ -31,17 +31,19 @@ public sealed class QueryLexer
     {
         var token = new Token(TokenType.ILLEGAL, _character);
 
-        SkipWhitespace();
+        SkipCharacters();
 
         switch (_character)
         {
             case char.MinValue:
-                token.Literal = "";
-                token.Type = TokenType.EOF;
+                token = new Token(TokenType.EOF, "");
                 break;
             case '\'':
                 token.Type = TokenType.STRING;
                 token.Literal = ReadString();
+                break;
+            case ',':
+                token = new Token(TokenType.COMMA, _character);
                 break;
             default:
                 if (IsLetter(_character))
@@ -86,7 +88,7 @@ public sealed class QueryLexer
         return '0' <= ch && ch <= '9';
     }
 
-    private void SkipWhitespace()
+    private void SkipCharacters()
     {
         while (_character == ' ' || _character == '\t' || _character == '\n' || _character == '\r')
         {

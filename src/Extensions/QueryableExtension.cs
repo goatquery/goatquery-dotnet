@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 public static class QueryableExtension
 {
@@ -61,6 +63,31 @@ public static class QueryableExtension
             var parameter = Expression.Parameter(type);
 
             queryable = OrderByEvaluator.Evaluate<T>(statements, parameter, queryable);
+        }
+
+        // Select
+        if (!string.IsNullOrEmpty(query.Select))
+        {
+            var lexer = new QueryLexer(query.Select);
+            var parser = new QueryParser(lexer);
+
+            var statements = parser.ParseSelect();
+
+            ParameterExpression parameter = Expression.Parameter(type);
+
+            var expression = Expression.MemberInit(
+                Expression.New(typeof(object)),
+                statements.Select(x =>
+                {
+                    var prop = Expression.PropertyOrField(Expression.Convert(parameter, typeof(object)), x.TokenLiteral());
+
+                    return Expression.Bind(typeof(object).GetMember(x.TokenLiteral())[0], prop);
+                })
+            );
+
+            var exp = Expression.Lambda<Func<T, T>>(expression, parameter);
+
+            queryable = queryable.Select(exp);
         }
 
         // Skip

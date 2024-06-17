@@ -63,6 +63,31 @@ public sealed class OrderByLexerTest
                 new (TokenType.IDENT, "asc"),
             }
         };
+
+        yield return new object[]
+        {
+            "asc asc",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "asc"),
+                new (TokenType.IDENT, "asc"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "id asc, firstname desc",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "asc"),
+
+                new (TokenType.COMMA, ","),
+
+                new (TokenType.IDENT, "firstname"),
+                new (TokenType.IDENT, "desc"),
+            }
+        };
     }
 
     [Theory]
