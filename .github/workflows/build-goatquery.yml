@@ -1,4 +1,4 @@
-name: build
+name: build GoatQuery
 
 on: [push]
 
@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dotnet-version: ["8.0.x",]
+        dotnet-version: ["8.0.x"]
 
     steps:
       - uses: actions/checkout@v4
@@ -19,8 +19,8 @@ jobs:
 
       - name: Install dependencies
         run: dotnet restore
-        working-directory: ./src
-        
+        working-directory: ./src/GoatQuery/src
+
       - name: Build
         run: dotnet build --configuration Release --no-restore
-        working-directory: ./src
+        working-directory: ./src/GoatQuery/src

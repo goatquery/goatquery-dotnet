@@ -7,15 +7,13 @@
 
     <PackageId>GoatQuery</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageProjectUrl>https://github.com/goatquery</PackageProjectUrl>
+    <PackageProjectUrl>ttps://github.com/goatquery/src/GoatQuery</PackageProjectUrl>
     <RepositoryUrl>https://github.com/goatquery/goatquery-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Description>.NET Library to support paging, ordering, filtering, searching and selecting in REST APIs.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-  </ItemGroup>
 
   <ItemGroup>
     <None Include="../README.md" Pack="true" PackagePath="\" />

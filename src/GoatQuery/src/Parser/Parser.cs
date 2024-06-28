@@ -46,38 +46,6 @@ public sealed class QueryParser
         return statements;
     }
 
-    public ExpressionStatement ParseFilter()
-    {
-        var statement = new ExpressionStatement(_currentToken)
-        {
-            Expression = ParseExpression()
-        };
-
-        return statement;
-    }
-
-    private InfixExpression ParseExpression()
-    {
-        var left = ParseFilterStatement();
-
-        NextToken();
-
-        while (CurrentIdentifierIs(Keywords.And) || CurrentIdentifierIs(Keywords.Or))
-        {
-            left = new InfixExpression(_currentToken, left, _currentToken.Literal);
-
-            NextToken();
-
-            var right = ParseFilterStatement();
-
-            left.Right = right;
-
-            NextToken();
-        }
-
-        return left;
-    }
-
     private OrderByStatement ParseOrderByStatement()
     {
         var statement = new OrderByStatement(_currentToken, OrderByDirection.Ascending);
@@ -90,6 +58,57 @@ public sealed class QueryParser
         NextToken();
 
         return statement;
+    }
+
+    public ExpressionStatement ParseFilter()
+    {
+        var statement = new ExpressionStatement(_currentToken)
+        {
+            Expression = ParseExpression()
+        };
+
+        return statement;
+    }
+
+    private InfixExpression ParseExpression(int precedence = 0)
+    {
+        var left = CurrentTokenIs(TokenType.LPAREN) ? ParseGroupedExpression() : ParseFilterStatement();
+
+        NextToken();
+
+        while (!CurrentTokenIs(TokenType.EOF) && precedence < GetPrecedence(_currentToken.Type))
+        {
+            if (CurrentIdentifierIs(Keywords.And) || CurrentIdentifierIs(Keywords.Or))
+            {
+                left = new InfixExpression(_currentToken, left, _currentToken.Literal);
+                var currentPrecedence = GetPrecedence(_currentToken.Type);
+
+                NextToken();
+
+                var right = ParseExpression(currentPrecedence);
+                left.Right = right;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return left;
+    }
+
+    private InfixExpression ParseGroupedExpression()
+    {
+        NextToken();
+
+        var exp = ParseExpression();
+
+        if (!CurrentTokenIs(TokenType.RPAREN))
+        {
+            throw new GoatQueryException("Expected closing parenthesis");
+        }
+
+        return exp;
     }
 
     private InfixExpression ParseFilterStatement()
@@ -133,9 +152,27 @@ public sealed class QueryParser
         return statement;
     }
 
+    private int GetPrecedence(TokenType tokenType)
+    {
+        switch (tokenType)
+        {
+            case TokenType.IDENT when CurrentIdentifierIs(Keywords.And):
+                return 2;
+            case TokenType.IDENT when CurrentIdentifierIs(Keywords.Or):
+                return 1;
+            default:
+                return 0;
+        }
+    }
+
     private bool CurrentTokenIs(TokenType token)
     {
         return _currentToken.Type == token;
+    }
+
+    private bool PeekTokenIs(TokenType token)
+    {
+        return _peekToken.Type == token;
     }
 
     private bool PeekTokenIn(params TokenType[] token)

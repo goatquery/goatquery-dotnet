@@ -39,6 +39,12 @@ public sealed class QueryLexer
                 token.Literal = "";
                 token.Type = TokenType.EOF;
                 break;
+            case '(':
+                token = new Token(TokenType.LPAREN, _character);
+                break;
+            case ')':
+                token = new Token(TokenType.RPAREN, _character);
+                break;
             case '\'':
                 token.Type = TokenType.STRING;
                 token.Literal = ReadString();

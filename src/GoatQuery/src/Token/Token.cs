@@ -5,6 +5,8 @@ public enum TokenType
     IDENT,
     STRING,
     INT,
+    LPAREN,
+    RPAREN,
 }
 
 public static class Keywords

@@ -114,6 +114,58 @@ public sealed class FilterTest
                 new User { Id = 2, Firstname = "Apple" },
             }
         };
+
+        yield return new object[]
+        {
+            "Firstname eq 'John' and Id eq 2 or Id eq 3",
+            new User[]
+            {
+                new User { Id = 2, Firstname = "John" },
+                new User { Id = 3, Firstname = "Doe" },
+                new User { Id = 3, Firstname = "Egg" }
+            }
+        };
+
+        yield return new object[]
+        {
+            "(Firstname eq 'John' and Id eq 2) or Id eq 3",
+            new User[]
+            {
+                new User { Id = 2, Firstname = "John" },
+                new User { Id = 3, Firstname = "Doe" },
+                new User { Id = 3, Firstname = "Egg" }
+            }
+        };
+
+        yield return new object[]
+        {
+            "Firstname eq 'John' and (Id eq 2 or Id eq 3)",
+            new User[]
+            {
+                new User { Id = 2, Firstname = "John" },
+            }
+        };
+
+        yield return new object[]
+        {
+            "(Firstname eq 'John' and Id eq 2 or Id eq 3)",
+            new User[]
+            {
+                new User { Id = 2, Firstname = "John" },
+                new User { Id = 3, Firstname = "Doe" },
+                new User { Id = 3, Firstname = "Egg" }
+            }
+        };
+
+        yield return new object[]
+        {
+            "(Firstname eq 'John') or (Id eq 3 and Firstname eq 'Egg') or Id eq 1 and (Id eq 2)",
+            new User[]
+            {
+                new User { Id = 2, Firstname = "John" },
+                new User { Id = 3, Firstname = "Egg" }
+            }
+        };
     }
 
     [Theory]

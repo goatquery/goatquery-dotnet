@@ -56,9 +56,6 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
         // Order by
         queryString.TryGetValue("orderby", out var orderbyQuery);
 
-        // Select
-        queryString.TryGetValue("select", out var selectQuery);
-
         // Search
         queryString.TryGetValue("search", out var searchQuery);
         var search = searchQuery.ToString();
@@ -72,7 +69,6 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
             Skip = skip,
             Count = count,
             OrderBy = orderbyQuery.ToString(),
-            Select = selectQuery.ToString(),
             Search = search,
             Filter = filterQuery.ToString()
         };

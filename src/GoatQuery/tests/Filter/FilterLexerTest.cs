@@ -126,6 +126,27 @@ public sealed class FilterLexerTest
                 new (TokenType.STRING, "John"),
             }
         };
+
+        yield return new object[]
+        {
+            "(Id eq 1 or Id eq 2) and Name eq 'John'",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.LPAREN, "("),
+                new (TokenType.IDENT, "Id"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.INT, "1"),
+                new (TokenType.IDENT, "or"),
+                new (TokenType.IDENT, "Id"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.INT, "2"),
+                new (TokenType.RPAREN, ")"),
+                new (TokenType.IDENT, "and"),
+                new (TokenType.IDENT, "Name"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.STRING, "John")
+            }
+        };
     }
 
     [Theory]
