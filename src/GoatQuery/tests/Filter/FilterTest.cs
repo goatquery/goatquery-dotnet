@@ -9,7 +9,7 @@ public sealed class FilterTest
             "firstname eq 'John'",
             new User[]
             {
-                new User { Id = 2, Firstname = "John" },
+                new User { Age = 2, Firstname = "John" },
             }
         };
 
@@ -21,72 +21,72 @@ public sealed class FilterTest
 
         yield return new object[]
         {
-            "id eq 1",
+            "Age eq 1",
             new User[] {
-                new User { Id = 1, Firstname = "Jane" },
-                new User { Id = 1, Firstname = "Harry" },
+                new User { Age = 1, Firstname = "Jane" },
+                new User { Age = 1, Firstname = "Harry" },
             }
         };
 
         yield return new object[]
         {
-            "id eq 0",
+            "Age eq 0",
             new User[] {}
         };
 
         yield return new object[]
         {
-            "firstname eq 'John' and id eq 2",
+            "firstname eq 'John' and Age eq 2",
             new User[]
             {
-                new User { Id = 2, Firstname = "John" },
+                new User { Age = 2, Firstname = "John" },
             }
         };
 
         yield return new object[]
         {
-            "firstname eq 'John' or id eq 3",
+            "firstname eq 'John' or Age eq 3",
             new User[]
             {
-                new User { Id = 2, Firstname = "John" },
-                new User { Id = 3, Firstname = "Doe" },
-                new User { Id = 3, Firstname = "Egg" }
+                new User { Age = 2, Firstname = "John" },
+                new User { Age = 3, Firstname = "Doe" },
+                new User { Age = 3, Firstname = "Egg" }
             }
         };
 
         yield return new object[]
         {
-            "id eq 1 and firstName eq 'Harry' or id eq 2",
+            "Age eq 1 and firstName eq 'Harry' or Age eq 2",
             new User[]
             {
-                new User { Id = 2, Firstname = "John" },
-                new User { Id = 2, Firstname = "Apple" },
-                new User { Id = 1, Firstname = "Harry" },
+                new User { Age = 2, Firstname = "John" },
+                new User { Age = 2, Firstname = "Apple" },
+                new User { Age = 1, Firstname = "Harry" },
             }
         };
 
         yield return new object[]
         {
-            "id eq 1 or id eq 2 or firstName eq 'Egg'",
+            "Age eq 1 or Age eq 2 or firstName eq 'Egg'",
             new User[]
             {
-                new User { Id = 2, Firstname = "John" },
-                new User { Id = 1, Firstname = "Jane" },
-                new User { Id = 2, Firstname = "Apple" },
-                new User { Id = 1, Firstname = "Harry" },
-                new User { Id = 3, Firstname = "Egg" }
+                new User { Age = 2, Firstname = "John" },
+                new User { Age = 1, Firstname = "Jane" },
+                new User { Age = 2, Firstname = "Apple" },
+                new User { Age = 1, Firstname = "Harry" },
+                new User { Age = 3, Firstname = "Egg" }
             }
         };
 
         yield return new object[]
         {
-            "id ne 3",
+            "Age ne 3",
             new User[]
             {
-                new User { Id = 2, Firstname = "John" },
-                new User { Id = 1, Firstname = "Jane" },
-                new User { Id = 2, Firstname = "Apple" },
-                new User { Id = 1, Firstname = "Harry" },
+                new User { Age = 2, Firstname = "John" },
+                new User { Age = 1, Firstname = "Jane" },
+                new User { Age = 2, Firstname = "Apple" },
+                new User { Age = 1, Firstname = "Harry" },
             }
         };
 
@@ -95,75 +95,75 @@ public sealed class FilterTest
             "firstName contains 'a'",
             new User[]
             {
-                new User { Id = 1, Firstname = "Jane" },
-                new User { Id = 1, Firstname = "Harry" },
+                new User { Age = 1, Firstname = "Jane" },
+                new User { Age = 1, Firstname = "Harry" },
             }
         };
 
         yield return new object[]
         {
-            "id ne 1 and firstName contains 'a'",
+            "Age ne 1 and firstName contains 'a'",
             new User[] {}
         };
 
         yield return new object[]
         {
-            "id ne 1 and firstName contains 'a' or firstName eq 'Apple'",
+            "Age ne 1 and firstName contains 'a' or firstName eq 'Apple'",
             new User[]
             {
-                new User { Id = 2, Firstname = "Apple" },
+                new User { Age = 2, Firstname = "Apple" },
             }
         };
 
         yield return new object[]
         {
-            "Firstname eq 'John' and Id eq 2 or Id eq 3",
+            "Firstname eq 'John' and Age eq 2 or Age eq 3",
             new User[]
             {
-                new User { Id = 2, Firstname = "John" },
-                new User { Id = 3, Firstname = "Doe" },
-                new User { Id = 3, Firstname = "Egg" }
+                new User { Age = 2, Firstname = "John" },
+                new User { Age = 3, Firstname = "Doe" },
+                new User { Age = 3, Firstname = "Egg" }
             }
         };
 
         yield return new object[]
         {
-            "(Firstname eq 'John' and Id eq 2) or Id eq 3",
+            "(Firstname eq 'John' and Age eq 2) or Age eq 3",
             new User[]
             {
-                new User { Id = 2, Firstname = "John" },
-                new User { Id = 3, Firstname = "Doe" },
-                new User { Id = 3, Firstname = "Egg" }
+                new User { Age = 2, Firstname = "John" },
+                new User { Age = 3, Firstname = "Doe" },
+                new User { Age = 3, Firstname = "Egg" }
             }
         };
 
         yield return new object[]
         {
-            "Firstname eq 'John' and (Id eq 2 or Id eq 3)",
+            "Firstname eq 'John' and (Age eq 2 or Age eq 3)",
             new User[]
             {
-                new User { Id = 2, Firstname = "John" },
+                new User { Age = 2, Firstname = "John" },
             }
         };
 
         yield return new object[]
         {
-            "(Firstname eq 'John' and Id eq 2 or Id eq 3)",
+            "(Firstname eq 'John' and Age eq 2 or Age eq 3)",
             new User[]
             {
-                new User { Id = 2, Firstname = "John" },
-                new User { Id = 3, Firstname = "Doe" },
-                new User { Id = 3, Firstname = "Egg" }
+                new User { Age = 2, Firstname = "John" },
+                new User { Age = 3, Firstname = "Doe" },
+                new User { Age = 3, Firstname = "Egg" }
             }
         };
 
         yield return new object[]
         {
-            "(Firstname eq 'John') or (Id eq 3 and Firstname eq 'Egg') or Id eq 1 and (Id eq 2)",
+            "(Firstname eq 'John') or (Age eq 3 and Firstname eq 'Egg') or Age eq 1 and (Age eq 2)",
             new User[]
             {
-                new User { Id = 2, Firstname = "John" },
-                new User { Id = 3, Firstname = "Egg" }
+                new User { Age = 2, Firstname = "John" },
+                new User { Age = 3, Firstname = "Egg" }
             }
         };
     }
@@ -173,12 +173,12 @@ public sealed class FilterTest
     public void Test_Filter(string filter, IEnumerable<User> expected)
     {
         var users = new List<User>{
-            new User { Id = 2, Firstname = "John" },
-            new User { Id = 1, Firstname = "Jane" },
-            new User { Id = 2, Firstname = "Apple" },
-            new User { Id = 1, Firstname = "Harry" },
-            new User { Id = 3, Firstname = "Doe" },
-            new User { Id = 3, Firstname = "Egg" }
+            new User { Age = 2, Firstname = "John" },
+            new User { Age = 1, Firstname = "Jane" },
+            new User { Age = 2, Firstname = "Apple" },
+            new User { Age = 1, Firstname = "Harry" },
+            new User { Age = 3, Firstname = "Doe" },
+            new User { Age = 3, Firstname = "Egg" }
         }.AsQueryable();
 
         var query = new Query
@@ -197,12 +197,12 @@ public sealed class FilterTest
     public void Test_InvalidFilterThrowsException(string filter)
     {
         var users = new List<User>{
-            new User { Id = 2, Firstname = "John" },
-            new User { Id = 1, Firstname = "Jane" },
-            new User { Id = 2, Firstname = "Apple" },
-            new User { Id = 1, Firstname = "Harry" },
-            new User { Id = 3, Firstname = "Doe" },
-            new User { Id = 3, Firstname = "Egg" }
+            new User { Age = 2, Firstname = "John" },
+            new User { Age = 1, Firstname = "Jane" },
+            new User { Age = 2, Firstname = "Apple" },
+            new User { Age = 1, Firstname = "Harry" },
+            new User { Age = 3, Firstname = "Doe" },
+            new User { Age = 3, Firstname = "Egg" }
         }.AsQueryable();
 
         var query = new Query

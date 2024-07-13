@@ -1,3 +1,6 @@
+test:
+	dotnet test ./src/GoatQuery/tests
+
 build:
 	dotnet build ./src/GoatQuery/src --configuration Release
 	dotnet build ./src/GoatQuery.AspNetCore/src --configuration Release

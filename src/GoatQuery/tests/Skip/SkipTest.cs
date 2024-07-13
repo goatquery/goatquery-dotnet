@@ -9,11 +9,11 @@ public sealed class SkipTest
             1,
             new User[]
             {
-                new User { Id = 1, Firstname = "Jane" },
-                new User { Id = 2, Firstname = "John" },
-                new User { Id = 2, Firstname = "Apple" },
-                new User { Id = 3, Firstname = "Doe" },
-                new User { Id = 3, Firstname = "Egg" }
+                new User { Age = 1, Firstname = "Jane" },
+                new User { Age = 2, Firstname = "John" },
+                new User { Age = 2, Firstname = "Apple" },
+                new User { Age = 3, Firstname = "Doe" },
+                new User { Age = 3, Firstname = "Egg" }
             }
         };
 
@@ -22,10 +22,10 @@ public sealed class SkipTest
             2,
             new User[]
             {
-                new User { Id = 2, Firstname = "John" },
-                new User { Id = 2, Firstname = "Apple" },
-                new User { Id = 3, Firstname = "Doe" },
-                new User { Id = 3, Firstname = "Egg" }
+                new User { Age = 2, Firstname = "John" },
+                new User { Age = 2, Firstname = "Apple" },
+                new User { Age = 3, Firstname = "Doe" },
+                new User { Age = 3, Firstname = "Egg" }
             }
         };
 
@@ -34,9 +34,9 @@ public sealed class SkipTest
             3,
             new User[]
             {
-                new User { Id = 2, Firstname = "Apple" },
-                new User { Id = 3, Firstname = "Doe" },
-                new User { Id = 3, Firstname = "Egg" }
+                new User { Age = 2, Firstname = "Apple" },
+                new User { Age = 3, Firstname = "Doe" },
+                new User { Age = 3, Firstname = "Egg" }
             }
         };
 
@@ -45,8 +45,8 @@ public sealed class SkipTest
             4,
             new User[]
             {
-                new User { Id = 3, Firstname = "Doe" },
-                new User { Id = 3, Firstname = "Egg" }
+                new User { Age = 3, Firstname = "Doe" },
+                new User { Age = 3, Firstname = "Egg" }
             }
         };
 
@@ -55,7 +55,7 @@ public sealed class SkipTest
             5,
             new User[]
             {
-                new User { Id = 3, Firstname = "Egg" }
+                new User { Age = 3, Firstname = "Egg" }
             }
         };
 
@@ -83,12 +83,12 @@ public sealed class SkipTest
     public void Test_Skip(int skip, IEnumerable<User> expected)
     {
         var users = new List<User>{
-            new User { Id = 1, Firstname = "Harry" },
-            new User { Id = 1, Firstname = "Jane" },
-            new User { Id = 2, Firstname = "John" },
-            new User { Id = 2, Firstname = "Apple" },
-            new User { Id = 3, Firstname = "Doe" },
-            new User { Id = 3, Firstname = "Egg" }
+            new User { Age = 1, Firstname = "Harry" },
+            new User { Age = 1, Firstname = "Jane" },
+            new User { Age = 2, Firstname = "John" },
+            new User { Age = 2, Firstname = "Apple" },
+            new User { Age = 3, Firstname = "Doe" },
+            new User { Age = 3, Firstname = "Egg" }
         }.AsQueryable();
 
         var query = new Query
