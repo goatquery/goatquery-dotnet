@@ -5,8 +5,8 @@ using System.Linq;
 public sealed class QueryParser
 {
     private readonly QueryLexer _lexer;
-    private Token _currentToken { get; set; } = default!;
-    private Token _peekToken { get; set; } = default!;
+    private Token _currentToken { get; set; } = default;
+    private Token _peekToken { get; set; } = default;
 
     public QueryParser(QueryLexer lexer)
     {

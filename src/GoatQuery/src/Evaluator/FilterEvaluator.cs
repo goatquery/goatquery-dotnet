@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 public static class FilterEvaluator
 {
-    public static Expression? Evaluate(QueryExpression expression, ParameterExpression parameterExpression)
+    public static Expression Evaluate(QueryExpression expression, ParameterExpression parameterExpression)
     {
         switch (expression)
         {
@@ -20,7 +20,7 @@ public static class FilterEvaluator
                         throw new GoatQueryException($"Invalid property '{exp.Left.TokenLiteral()}' within filter");
                     }
 
-                    ConstantExpression? value = null;
+                    ConstantExpression value = null;
 
                     switch (exp.Right)
                     {

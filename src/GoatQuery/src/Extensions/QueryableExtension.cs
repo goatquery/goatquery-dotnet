@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 public static class QueryableExtension
 {
-    public static (IQueryable<T>, int?) Apply<T>(this IQueryable<T> queryable, Query query, ISearchBinder<T>? searchBinder = null, QueryOptions? options = null)
+    public static (IQueryable<T>, int?) Apply<T>(this IQueryable<T> queryable, Query query, ISearchBinder<T> searchBinder = null, QueryOptions options = null)
     {
         if (query.Top > options?.MaxTop)
         {
