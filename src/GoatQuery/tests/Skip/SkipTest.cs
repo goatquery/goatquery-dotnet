@@ -96,9 +96,8 @@ public sealed class SkipTest
             Skip = skip
         };
 
-        var (queryable, _) = users.Apply(query);
-        var results = queryable.ToArray();
+        var result = users.Apply(query);
 
-        Assert.Equal(expected, results);
+        Assert.Equal(expected, result.Value.Query);
     }
 }

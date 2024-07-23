@@ -15,7 +15,7 @@ public sealed class FilterParserTest
 
         var program = parser.ParseFilter();
 
-        var expression = program.Expression;
+        var expression = program.Value.Expression;
         Assert.NotNull(expression);
 
         Assert.Equal(expectedLeft, expression.Left.TokenLiteral());
@@ -36,7 +36,9 @@ public sealed class FilterParserTest
         var lexer = new QueryLexer(input);
         var parser = new QueryParser(lexer);
 
-        Assert.Throws<GoatQueryException>(parser.ParseFilter);
+        var result = parser.ParseFilter();
+
+        Assert.True(result.IsFailed);
     }
 
     [Fact]
@@ -49,7 +51,7 @@ public sealed class FilterParserTest
 
         var program = parser.ParseFilter();
 
-        var expression = program.Expression;
+        var expression = program.Value.Expression;
         Assert.NotNull(expression);
 
         var left = expression.Left as InfixExpression;
@@ -79,7 +81,7 @@ public sealed class FilterParserTest
 
         var program = parser.ParseFilter();
 
-        var expression = program.Expression;
+        var expression = program.Value.Expression;
         Assert.NotNull(expression);
 
         var left = expression.Left as InfixExpression;
@@ -109,7 +111,7 @@ public sealed class FilterParserTest
 
         var program = parser.ParseFilter();
 
-        var expression = program.Expression;
+        var expression = program.Value.Expression;
         Assert.NotNull(expression);
 
         var left = expression.Left as InfixExpression;

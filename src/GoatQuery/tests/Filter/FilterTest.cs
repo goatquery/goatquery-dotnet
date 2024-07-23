@@ -186,10 +186,9 @@ public sealed class FilterTest
             Filter = filter
         };
 
-        var (queryable, _) = users.Apply(query);
-        var results = queryable.ToArray();
+        var result = users.Apply(query);
 
-        Assert.Equal(expected, results);
+        Assert.Equal(expected, result.Value.Query);
     }
 
     [Theory]
@@ -210,7 +209,9 @@ public sealed class FilterTest
             Filter = filter
         };
 
-        Assert.Throws<GoatQueryException>(() => users.Apply(query));
+        var result = users.Apply(query);
+
+        Assert.True(result.IsFailed);
     }
 
     [Fact]
@@ -230,11 +231,10 @@ public sealed class FilterTest
             Filter = "last_name eq 'John'"
         };
 
-        var (queryable, _) = users.Apply(query);
-        var results = queryable.ToArray();
+        var result = users.Apply(query);
 
         Assert.Equal(new List<CustomJsonPropertyUser>{
             new CustomJsonPropertyUser { Lastname = "John" },
-        }, results);
+        }, result.Value.Query);
     }
 }

@@ -38,9 +38,8 @@ public sealed class SearchTest
             Search = searchTerm
         };
 
-        var (queryable, _) = users.Apply(query, new UserSearchTestBinder());
-        var results = queryable.ToArray();
+        var result = users.Apply(query, new UserSearchTestBinder());
 
-        Assert.Equal(expectedCount, results.Count());
+        Assert.Equal(expectedCount, result.Value.Query.Count());
     }
 }

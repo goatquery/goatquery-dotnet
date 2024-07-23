@@ -191,10 +191,9 @@ public sealed class OrderByTest
             OrderBy = orderby
         };
 
-        var (queryable, _) = users.Apply(query);
-        var results = queryable.ToArray();
+        var result = users.Apply(query);
 
-        Assert.Equal(expected, results);
+        Assert.Equal(expected, result.Value.Query);
     }
 
     [Fact]
@@ -214,8 +213,7 @@ public sealed class OrderByTest
             OrderBy = "last_name asc"
         };
 
-        var (queryable, _) = users.Apply(query);
-        var results = queryable.ToArray();
+        var result = users.Apply(query);
 
         Assert.Equal(new List<CustomJsonPropertyUser>{
             new CustomJsonPropertyUser { Lastname = "Apple" },
@@ -224,6 +222,6 @@ public sealed class OrderByTest
             new CustomJsonPropertyUser { Lastname = "Harry" },
             new CustomJsonPropertyUser { Lastname = "Jane" },
             new CustomJsonPropertyUser { Lastname = "John" },
-        }, results);
+        }, result.Value.Query);
     }
 }

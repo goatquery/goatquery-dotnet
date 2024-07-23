@@ -19,11 +19,10 @@ public sealed class CountTest
             Count = true
         };
 
-        var (queryable, count) = users.Apply(query);
-        var results = queryable.ToArray();
+        var result = users.Apply(query);
 
-        Assert.Equal(6, count);
-        Assert.Equal(6, results.Count());
+        Assert.Equal(6, result.Value.Count);
+        Assert.Equal(6, result.Value.Query.Count());
     }
 
     [Fact]
@@ -43,8 +42,8 @@ public sealed class CountTest
             Count = false
         };
 
-        var (_, count) = users.Apply(query);
+        var result = users.Apply(query);
 
-        Assert.Null(count);
+        Assert.Null(result.Value.Count);
     }
 }

@@ -28,10 +28,9 @@ public sealed class TopTest
             Top = top
         };
 
-        var (queryable, _) = users.Apply(query);
-        var results = queryable.ToArray();
+        var result = users.Apply(query);
 
-        Assert.Equal(expectedCount, results.Count());
+        Assert.Equal(expectedCount, result.Value.Query.Count());
     }
 
     [Theory]
@@ -62,10 +61,9 @@ public sealed class TopTest
             MaxTop = 4
         };
 
-        var (queryable, _) = users.Apply(query, null, queryOptions);
-        var results = queryable.ToArray();
+        var result = users.Apply(query, null, queryOptions);
 
-        Assert.Equal(expectedCount, results.Count());
+        Assert.Equal(expectedCount, result.Value.Query.Count());
     }
 
     [Theory]
@@ -93,8 +91,8 @@ public sealed class TopTest
             MaxTop = 4
         };
 
-        Action action = () => users.Apply(query, null, queryOptions);
+        var result = users.Apply(query, null, queryOptions);
 
-        Assert.Throws<GoatQueryException>(action);
+        Assert.True(result.IsFailed);
     }
 }
