@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using FluentResults;
 
 public static class OrderByEvaluator
 {
-    public static IQueryable<T> Evaluate<T>(IEnumerable<OrderByStatement> statements, ParameterExpression parameterExpression, IQueryable<T> queryable, Dictionary<string, string> propertyMapping)
+    public static Result<IQueryable<T>> Evaluate<T>(IEnumerable<OrderByStatement> statements, ParameterExpression parameterExpression, IQueryable<T> queryable, Dictionary<string, string> propertyMapping)
     {
         var isAlreadyOrdered = false;
 
@@ -14,7 +15,7 @@ public static class OrderByEvaluator
         {
             if (!propertyMapping.TryGetValue(statement.TokenLiteral(), out var propertyName))
             {
-                throw new GoatQueryException($"Invalid property '{statement.TokenLiteral()}' within orderby.");
+                return Result.Fail(new Error($"Invalid property '{statement.TokenLiteral()}' within orderby"));
             }
 
             var property = Expression.Property(parameterExpression, propertyName);
@@ -56,7 +57,7 @@ public static class OrderByEvaluator
             }
         }
 
-        return queryable;
+        return Result.Ok(queryable);
     }
 
     private static MethodInfo GenericMethodOf<TReturn>(Expression<Func<object, TReturn>> expression)

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using FluentResults;
 
 public static class QueryableExtension
 {
@@ -28,11 +29,11 @@ public static class QueryableExtension
         return result;
     }
 
-    public static (IQueryable<T>, int?) Apply<T>(this IQueryable<T> queryable, Query query, ISearchBinder<T> searchBinder = null, QueryOptions options = null)
+    public static Result<QueryResult<T>> Apply<T>(this IQueryable<T> queryable, Query query, ISearchBinder<T> searchBinder = null, QueryOptions options = null)
     {
         if (query.Top > options?.MaxTop)
         {
-            throw new GoatQueryException("The value supplied for the query parameter 'Top' was greater than the maximum top allowed for this resource");
+            return Result.Fail("The value supplied for the query parameter 'Top' was greater than the maximum top allowed for this resource");
         }
 
         var type = typeof(T);
@@ -45,12 +46,20 @@ public static class QueryableExtension
             var lexer = new QueryLexer(query.Filter);
             var parser = new QueryParser(lexer);
             var statement = parser.ParseFilter();
+            if (statement.IsFailed)
+            {
+                return Result.Fail(statement.Errors);
+            }
 
             ParameterExpression parameter = Expression.Parameter(type);
 
-            var expression = FilterEvaluator.Evaluate(statement.Expression, parameter, propertyMappings);
+            var expression = FilterEvaluator.Evaluate(statement.Value.Expression, parameter, propertyMappings);
+            if (expression.IsFailed)
+            {
+                return Result.Fail(expression.Errors);
+            }
 
-            var exp = Expression.Lambda<Func<T, bool>>(expression, parameter);
+            var exp = Expression.Lambda<Func<T, bool>>(expression.Value, parameter);
 
             queryable = queryable.Where(exp);
         }
@@ -62,7 +71,7 @@ public static class QueryableExtension
 
             if (searchExpression is null)
             {
-                throw new GoatQueryException("Cannot parse search binder expression");
+                return Result.Fail("Cannot parse search binder expression");
             }
 
             queryable = queryable.Where(searchExpression);
@@ -86,7 +95,13 @@ public static class QueryableExtension
 
             var parameter = Expression.Parameter(type);
 
-            queryable = OrderByEvaluator.Evaluate<T>(statements, parameter, queryable, propertyMappings);
+            var orderByQuery = OrderByEvaluator.Evaluate<T>(statements, parameter, queryable, propertyMappings);
+            if (orderByQuery.IsFailed)
+            {
+                return Result.Fail(orderByQuery.Errors);
+            }
+
+            queryable = orderByQuery.Value;
         }
 
         // Skip
@@ -106,6 +121,6 @@ public static class QueryableExtension
             queryable = queryable.Take(options.MaxTop);
         }
 
-        return (queryable, count);
+        return Result.Ok(new QueryResult<T>(queryable, count));
     }
 }

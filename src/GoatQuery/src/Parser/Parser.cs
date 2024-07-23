@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentResults;
 
 public sealed class QueryParser
 {
@@ -60,19 +61,29 @@ public sealed class QueryParser
         return statement;
     }
 
-    public ExpressionStatement ParseFilter()
+    public Result<ExpressionStatement> ParseFilter()
     {
+        var expression = ParseExpression();
+        if (expression.IsFailed)
+        {
+            return Result.Fail(expression.Errors);
+        }
+
         var statement = new ExpressionStatement(_currentToken)
         {
-            Expression = ParseExpression()
+            Expression = expression.Value
         };
 
         return statement;
     }
 
-    private InfixExpression ParseExpression(int precedence = 0)
+    private Result<InfixExpression> ParseExpression(int precedence = 0)
     {
         var left = CurrentTokenIs(TokenType.LPAREN) ? ParseGroupedExpression() : ParseFilterStatement();
+        if (left.IsFailed)
+        {
+            return left;
+        }
 
         NextToken();
 
@@ -80,13 +91,17 @@ public sealed class QueryParser
         {
             if (CurrentIdentifierIs(Keywords.And) || CurrentIdentifierIs(Keywords.Or))
             {
-                left = new InfixExpression(_currentToken, left, _currentToken.Literal);
+                left = new InfixExpression(_currentToken, left.Value, _currentToken.Literal);
                 var currentPrecedence = GetPrecedence(_currentToken.Type);
 
                 NextToken();
 
                 var right = ParseExpression(currentPrecedence);
-                left.Right = right;
+                if (right.IsFailed)
+                {
+                    return right;
+                }
+                left.Value.Right = right.Value;
             }
             else
             {
@@ -97,7 +112,7 @@ public sealed class QueryParser
         return left;
     }
 
-    private InfixExpression ParseGroupedExpression()
+    private Result<InfixExpression> ParseGroupedExpression()
     {
         NextToken();
 
@@ -105,19 +120,19 @@ public sealed class QueryParser
 
         if (!CurrentTokenIs(TokenType.RPAREN))
         {
-            throw new GoatQueryException("Expected closing parenthesis");
+            return Result.Fail("Expected closing parenthesis");
         }
 
         return exp;
     }
 
-    private InfixExpression ParseFilterStatement()
+    private Result<InfixExpression> ParseFilterStatement()
     {
         var identifier = new Identifier(_currentToken, _currentToken.Literal);
 
         if (!PeekIdentifierIn(Keywords.Eq, Keywords.Ne, Keywords.Contains))
         {
-            throw new GoatQueryException("Invalid conjunction within filter");
+            return Result.Fail("Invalid conjunction within filter");
         }
 
         NextToken();
@@ -126,14 +141,14 @@ public sealed class QueryParser
 
         if (!PeekTokenIn(TokenType.STRING, TokenType.INT))
         {
-            throw new GoatQueryException("Invalid value type within filter");
+            return Result.Fail("Invalid value type within filter");
         }
 
         NextToken();
 
         if (statement.Operator.Equals(Keywords.Contains) && _currentToken.Type != TokenType.STRING)
         {
-            throw new GoatQueryException("Value must be a string when using contains operand");
+            return Result.Fail("Value must be a string when using contains operand");
         }
 
         switch (_currentToken.Type)

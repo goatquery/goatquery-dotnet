@@ -48,21 +48,19 @@ using (var scope = app.Services.CreateScope())
 
 app.MapGet("/minimal/users", (ApplicationDbContext db, [FromServices] IMapper mapper, [AsParameters] Query query) =>
 {
-    try
-    {
-        var (users, count) = db.Users
-            .Where(x => !x.IsDeleted)
-            .ProjectTo<UserDto>(mapper.ConfigurationProvider)
-            .Apply(query);
+    var result = db.Users
+        .Where(x => !x.IsDeleted)
+        .ProjectTo<UserDto>(mapper.ConfigurationProvider)
+        .Apply(query);
 
-        var response = new PagedResponse<UserDto>(users.ToList(), count);
-
-        return Results.Ok(response);
-    }
-    catch (GoatQueryException ex)
+    if (result.IsFailed)
     {
-        return Results.BadRequest(new { ex.Message });
+        return Results.BadRequest(new { message = result.Errors });
     }
+
+    var response = new PagedResponse<UserDto>(result.Value.Query.ToList(), result.Value.Count);
+
+    return Results.Ok(response);
 });
 
 app.MapControllers();

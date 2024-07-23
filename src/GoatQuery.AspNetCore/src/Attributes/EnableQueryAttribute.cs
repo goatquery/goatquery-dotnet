@@ -80,15 +80,14 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
             searchBinder = context.HttpContext.RequestServices.GetService(typeof(ISearchBinder<T>)) as ISearchBinder<T>;
         }
 
-        try
+        var applyResult = queryable.Apply(query, searchBinder, _options);
+        if (applyResult.IsFailed)
         {
-            var (data, totalCount) = queryable.Apply(query, searchBinder, _options);
+            var message = string.Join(", ", applyResult.Errors.Select(x => x.Message));
+            context.Result = new BadRequestObjectResult(new { message, errors = applyResult.Errors });
+            return;
+        }
 
-            context.Result = new OkObjectResult(new PagedResponse<T>(data, totalCount));
-        }
-        catch (GoatQueryException ex)
-        {
-            context.Result = new BadRequestObjectResult(new { ex.Message });
-        }
+        context.Result = new OkObjectResult(new PagedResponse<T>(applyResult.Value.Query.ToList(), applyResult.Value.Count));
     }
 }

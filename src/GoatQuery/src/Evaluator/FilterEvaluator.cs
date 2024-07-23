@@ -1,10 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using FluentResults;
 
 public static class FilterEvaluator
 {
-    public static Expression Evaluate(QueryExpression expression, ParameterExpression parameterExpression, Dictionary<string, string> propertyMapping)
+    public static Result<Expression> Evaluate(QueryExpression expression, ParameterExpression parameterExpression, Dictionary<string, string> propertyMapping)
     {
         switch (expression)
         {
@@ -13,7 +13,7 @@ public static class FilterEvaluator
                 {
                     if (!propertyMapping.TryGetValue(exp.Left.TokenLiteral(), out var propertyName))
                     {
-                        throw new GoatQueryException($"Invalid property '{exp.Left.TokenLiteral()}' within filter.");
+                        return Result.Fail($"Invalid property '{exp.Left.TokenLiteral()}' within filter");
                     }
 
                     var property = Expression.Property(parameterExpression, propertyName);
@@ -48,14 +48,23 @@ public static class FilterEvaluator
                 }
 
                 var left = Evaluate(exp.Left, parameterExpression, propertyMapping);
+                if (left.IsFailed)
+                {
+                    return left;
+                }
+
                 var right = Evaluate(exp.Right, parameterExpression, propertyMapping);
+                if (right.IsFailed)
+                {
+                    return right;
+                }
 
                 switch (exp.Operator)
                 {
                     case Keywords.And:
-                        return Expression.AndAlso(left, right);
+                        return Expression.AndAlso(left.Value, right.Value);
                     case Keywords.Or:
-                        return Expression.OrElse(left, right);
+                        return Expression.OrElse(left.Value, right.Value);
                 }
 
                 break;
