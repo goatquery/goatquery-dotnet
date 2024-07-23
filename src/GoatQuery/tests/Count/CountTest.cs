@@ -2,7 +2,6 @@ using Xunit;
 
 public sealed class CountTest
 {
-
     [Fact]
     public void Test_CountWithTrue()
     {

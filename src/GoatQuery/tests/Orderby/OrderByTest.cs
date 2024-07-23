@@ -12,7 +12,7 @@ public sealed class OrderByTest
     {
         yield return new object[]
         {
-            "Age desc, firstname asc",
+            "age desc, firstname asc",
             new User[]
             {
                 new User { Age = 3, Firstname = "Doe" },
@@ -26,7 +26,7 @@ public sealed class OrderByTest
 
         yield return new object[]
         {
-            "Age desc, firstname desc",
+            "age desc, firstname desc",
             new User[]
             {
                 new User { Age = 3, Firstname = "Egg" },
@@ -40,7 +40,7 @@ public sealed class OrderByTest
 
         yield return new object[]
         {
-            "Age desc",
+            "age desc",
             new User[]
             {
                 new User { Age = 3, Firstname = "Doe" },
@@ -49,34 +49,6 @@ public sealed class OrderByTest
                 new User { Age = 2, Firstname = "Apple" },
                 new User { Age = 1, Firstname = "Jane" },
                 new User { Age = 1, Firstname = "Harry" },
-            }
-        };
-
-        yield return new object[]
-        {
-            "Age asc",
-            new User[]
-            {
-                new User { Age = 1, Firstname = "Jane" },
-                new User { Age = 1, Firstname = "Harry" },
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 3, Firstname = "Egg" },
-            }
-        };
-
-        yield return new object[]
-        {
-            "Age",
-            new User[]
-            {
-                new User { Age = 1, Firstname = "Jane" },
-                new User { Age = 1, Firstname = "Harry" },
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 3, Firstname = "Egg" },
             }
         };
 
@@ -96,7 +68,7 @@ public sealed class OrderByTest
 
         yield return new object[]
         {
-            "Age asc",
+            "age",
             new User[]
             {
                 new User { Age = 1, Firstname = "Jane" },
@@ -110,7 +82,7 @@ public sealed class OrderByTest
 
         yield return new object[]
         {
-            "Age asc",
+            "age asc",
             new User[]
             {
                 new User { Age = 1, Firstname = "Jane" },
@@ -138,7 +110,7 @@ public sealed class OrderByTest
 
         yield return new object[]
         {
-            "Age Asc",
+            "aGe asc",
             new User[]
             {
                 new User { Age = 1, Firstname = "Jane" },
@@ -152,7 +124,35 @@ public sealed class OrderByTest
 
         yield return new object[]
         {
-            "Age aSc",
+            "AGe asc",
+            new User[]
+            {
+                new User { Age = 1, Firstname = "Jane" },
+                new User { Age = 1, Firstname = "Harry" },
+                new User { Age = 2, Firstname = "John" },
+                new User { Age = 2, Firstname = "Apple" },
+                new User { Age = 3, Firstname = "Doe" },
+                new User { Age = 3, Firstname = "Egg" },
+            }
+        };
+
+        yield return new object[]
+        {
+            "aGE Asc",
+            new User[]
+            {
+                new User { Age = 1, Firstname = "Jane" },
+                new User { Age = 1, Firstname = "Harry" },
+                new User { Age = 2, Firstname = "John" },
+                new User { Age = 2, Firstname = "Apple" },
+                new User { Age = 3, Firstname = "Doe" },
+                new User { Age = 3, Firstname = "Egg" },
+            }
+        };
+
+        yield return new object[]
+        {
+            "age aSc",
             new User[]
             {
                 new User { Age = 1, Firstname = "Jane" },
