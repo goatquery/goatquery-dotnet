@@ -139,7 +139,7 @@ public sealed class QueryParser
 
         var statement = new InfixExpression(_currentToken, identifier, _currentToken.Literal);
 
-        if (!PeekTokenIn(TokenType.STRING, TokenType.INT))
+        if (!PeekTokenIn(TokenType.STRING, TokenType.INT, TokenType.GUID))
         {
             return Result.Fail("Invalid value type within filter");
         }
@@ -153,13 +153,19 @@ public sealed class QueryParser
 
         switch (_currentToken.Type)
         {
+            case TokenType.GUID:
+                if (Guid.TryParse(_currentToken.Literal, out var guidValue))
+                {
+                    statement.Right = new GuidLiteral(_currentToken, guidValue);
+                }
+                break;
             case TokenType.STRING:
                 statement.Right = new StringLiteral(_currentToken, _currentToken.Literal);
                 break;
             case TokenType.INT:
-                if (int.TryParse(_currentToken.Literal, out var value))
+                if (int.TryParse(_currentToken.Literal, out var intValue))
                 {
-                    statement.Right = new IntegerLiteral(_currentToken, value);
+                    statement.Right = new IntegerLiteral(_currentToken, intValue);
                 }
                 break;
         }
@@ -183,11 +189,6 @@ public sealed class QueryParser
     private bool CurrentTokenIs(TokenType token)
     {
         return _currentToken.Type == token;
-    }
-
-    private bool PeekTokenIs(TokenType token)
-    {
-        return _peekToken.Type == token;
     }
 
     private bool PeekTokenIn(params TokenType[] token)

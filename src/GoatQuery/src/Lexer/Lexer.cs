@@ -1,3 +1,5 @@
+using System;
+
 public sealed class QueryLexer
 {
     private readonly string _input;
@@ -50,16 +52,22 @@ public sealed class QueryLexer
                 token.Literal = ReadString();
                 break;
             default:
-                if (IsLetter(_character))
+                if (IsLetter(_character) || IsDigit(_character))
                 {
                     token.Literal = ReadIdentifier();
+                    if (IsGuid(token.Literal))
+                    {
+                        token.Type = TokenType.GUID;
+                        return token;
+                    }
+
+                    if (IsDigit(token.Literal[0]))
+                    {
+                        token.Type = TokenType.INT;
+                        return token;
+                    }
+
                     token.Type = TokenType.IDENT;
-                    return token;
-                }
-                else if (IsDigit(_character))
-                {
-                    token.Literal = ReadNumber();
-                    token.Type = TokenType.INT;
                     return token;
                 }
                 break;
@@ -68,6 +76,11 @@ public sealed class QueryLexer
         ReadCharacter();
 
         return token;
+    }
+
+    private bool IsGuid(string value)
+    {
+        return Guid.TryParse(value, out _);
     }
 
     private string ReadIdentifier()
@@ -84,7 +97,7 @@ public sealed class QueryLexer
 
     private bool IsLetter(char ch)
     {
-        return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_';
+        return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch == '-';
     }
 
     private bool IsDigit(char ch)

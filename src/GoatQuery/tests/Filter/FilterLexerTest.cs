@@ -169,6 +169,17 @@ public sealed class FilterLexerTest
                 new (TokenType.STRING, "10 Test Av"),
             }
         };
+
+        yield return new object[]
+        {
+            "id eq e4c7772b-8947-4e46-98ed-644b417d2a08",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.GUID, "e4c7772b-8947-4e46-98ed-644b417d2a08"),
+            }
+        };
     }
 
     [Theory]

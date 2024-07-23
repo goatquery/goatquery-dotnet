@@ -22,6 +22,9 @@ public static class FilterEvaluator
 
                     switch (exp.Right)
                     {
+                        case GuidLiteral literal:
+                            value = Expression.Constant(literal.Value, property.Type);
+                            break;
                         case IntegerLiteral literal:
                             value = Expression.Constant(literal.Value, property.Type);
                             break;

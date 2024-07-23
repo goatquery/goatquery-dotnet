@@ -2,174 +2,88 @@ using Xunit;
 
 public sealed class OrderByTest
 {
+    private static readonly Dictionary<string, User> _users = new Dictionary<string, User>
+    {
+        ["John"] = new User { Age = 2, Firstname = "John" },
+        ["Jane"] = new User { Age = 1, Firstname = "Jane" },
+        ["Apple"] = new User { Age = 2, Firstname = "Apple" },
+        ["Harry"] = new User { Age = 1, Firstname = "Harry" },
+        ["Doe"] = new User { Age = 3, Firstname = "Doe" },
+        ["Egg"] = new User { Age = 3, Firstname = "Egg" }
+    };
+
     public static IEnumerable<object[]> Parameters()
     {
         yield return new object[]
         {
             "age desc, firstname asc",
-            new User[]
-            {
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 3, Firstname = "Egg" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 1, Firstname = "Harry" },
-                new User { Age = 1, Firstname = "Jane" },
-            }
+            new[] { _users["Doe"], _users["Egg"], _users["Apple"], _users["John"], _users["Harry"], _users["Jane"] }
         };
 
         yield return new object[]
         {
             "age desc, firstname desc",
-            new User[]
-            {
-                new User { Age = 3, Firstname = "Egg" },
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 1, Firstname = "Jane" },
-                new User { Age = 1, Firstname = "Harry" },
-            }
+            new[] { _users["Egg"], _users["Doe"], _users["John"], _users["Apple"], _users["Jane"], _users["Harry"] }
         };
 
         yield return new object[]
         {
             "age desc",
-            new User[]
-            {
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 3, Firstname = "Egg" },
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 1, Firstname = "Jane" },
-                new User { Age = 1, Firstname = "Harry" },
-            }
+            new[] { _users["Doe"], _users["Egg"], _users["John"], _users["Apple"], _users["Jane"], _users["Harry"] }
         };
 
         yield return new object[]
         {
             "Age asc",
-            new User[]
-            {
-                new User { Age = 1, Firstname = "Jane" },
-                new User { Age = 1, Firstname = "Harry" },
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 3, Firstname = "Egg" },
-            }
+            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
         };
 
         yield return new object[]
         {
             "age",
-            new User[]
-            {
-                new User { Age = 1, Firstname = "Jane" },
-                new User { Age = 1, Firstname = "Harry" },
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 3, Firstname = "Egg" },
-            }
+            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
         };
 
         yield return new object[]
         {
             "age asc",
-            new User[]
-            {
-                new User { Age = 1, Firstname = "Jane" },
-                new User { Age = 1, Firstname = "Harry" },
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 3, Firstname = "Egg" },
-            }
+            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
         };
 
         yield return new object[]
         {
             "Age asc",
-            new User[]
-            {
-                new User { Age = 1, Firstname = "Jane" },
-                new User { Age = 1, Firstname = "Harry" },
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 3, Firstname = "Egg" },
-            }
+            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
         };
 
         yield return new object[]
         {
             "aGe asc",
-            new User[]
-            {
-                new User { Age = 1, Firstname = "Jane" },
-                new User { Age = 1, Firstname = "Harry" },
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 3, Firstname = "Egg" },
-            }
+            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
         };
 
         yield return new object[]
         {
             "AGe asc",
-            new User[]
-            {
-                new User { Age = 1, Firstname = "Jane" },
-                new User { Age = 1, Firstname = "Harry" },
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 3, Firstname = "Egg" },
-            }
+            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
         };
 
         yield return new object[]
         {
             "aGE Asc",
-            new User[]
-            {
-                new User { Age = 1, Firstname = "Jane" },
-                new User { Age = 1, Firstname = "Harry" },
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 3, Firstname = "Egg" },
-            }
+            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
         };
 
         yield return new object[]
         {
             "age aSc",
-            new User[]
-            {
-                new User { Age = 1, Firstname = "Jane" },
-                new User { Age = 1, Firstname = "Harry" },
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 3, Firstname = "Egg" },
-            }
+            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
         };
 
         yield return new object[]
         {
             "",
-            new User[]
-            {
-                new User { Age = 2, Firstname = "John" },
-                new User { Age = 1, Firstname = "Jane" },
-                new User { Age = 2, Firstname = "Apple" },
-                new User { Age = 1, Firstname = "Harry" },
-                new User { Age = 3, Firstname = "Doe" },
-                new User { Age = 3, Firstname = "Egg" }
-            }
+            new[] { _users["John"], _users["Jane"], _users["Apple"], _users["Harry"], _users["Doe"], _users["Egg"] }
         };
     }
 
@@ -177,21 +91,12 @@ public sealed class OrderByTest
     [MemberData(nameof(Parameters))]
     public void Test_OrderBy(string orderby, IEnumerable<User> expected)
     {
-        var users = new List<User>{
-            new User { Age = 2, Firstname = "John" },
-            new User { Age = 1, Firstname = "Jane" },
-            new User { Age = 2, Firstname = "Apple" },
-            new User { Age = 1, Firstname = "Harry" },
-            new User { Age = 3, Firstname = "Doe" },
-            new User { Age = 3, Firstname = "Egg" }
-        }.AsQueryable();
-
         var query = new Query
         {
             OrderBy = orderby
         };
 
-        var result = users.Apply(query);
+        var result = _users.Values.AsQueryable().Apply(query);
 
         Assert.Equal(expected, result.Value.Query);
     }

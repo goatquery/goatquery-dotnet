@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 public record User
 {
     public int Age { get; set; }
+    public Guid UserId { get; set; }
     public string Firstname { get; set; } = string.Empty;
 }
 
