@@ -74,7 +74,7 @@ public sealed class QueryLexer
     {
         var currentPosition = _position;
 
-        while (IsLetter(_character))
+        while (IsLetter(_character) || IsDigit(_character))
         {
             ReadCharacter();
         }

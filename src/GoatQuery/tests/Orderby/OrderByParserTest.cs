@@ -56,6 +56,17 @@ public sealed class OrderByParserTest
 
         yield return new object[]
         {
+            "address1Line10 asc, asc asc, desc desc",
+            new OrderByStatement[]
+            {
+                new OrderByStatement(new Token(TokenType.IDENT, "address1Line10"), OrderByDirection.Ascending),
+                new OrderByStatement(new Token(TokenType.IDENT, "asc"), OrderByDirection.Ascending),
+                new OrderByStatement(new Token(TokenType.IDENT, "desc"), OrderByDirection.Descending),
+            }
+        };
+
+        yield return new object[]
+        {
             "",
             new OrderByStatement[] { }
         };

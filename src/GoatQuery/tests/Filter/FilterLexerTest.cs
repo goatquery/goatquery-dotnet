@@ -147,6 +147,28 @@ public sealed class FilterLexerTest
                 new (TokenType.STRING, "John")
             }
         };
+
+        yield return new object[]
+        {
+            "address1Line eq '1 Main Street'",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "address1Line"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.STRING, "1 Main Street"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "addASCress1Line contains '10 Test Av'",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "addASCress1Line"),
+                new (TokenType.IDENT, "contains"),
+                new (TokenType.STRING, "10 Test Av"),
+            }
+        };
     }
 
     [Theory]

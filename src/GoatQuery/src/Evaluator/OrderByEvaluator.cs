@@ -6,13 +6,18 @@ using System.Reflection;
 
 public static class OrderByEvaluator
 {
-    public static IQueryable<T> Evaluate<T>(IEnumerable<OrderByStatement> statements, ParameterExpression parameterExpression, IQueryable<T> queryable)
+    public static IQueryable<T> Evaluate<T>(IEnumerable<OrderByStatement> statements, ParameterExpression parameterExpression, IQueryable<T> queryable, Dictionary<string, string> propertyMapping)
     {
         var isAlreadyOrdered = false;
 
         foreach (var statement in statements)
         {
-            var property = Expression.Property(parameterExpression, statement.TokenLiteral());
+            if (!propertyMapping.TryGetValue(statement.TokenLiteral(), out var propertyName))
+            {
+                throw new GoatQueryException($"Invalid property '{statement.TokenLiteral()}' within orderby.");
+            }
+
+            var property = Expression.Property(parameterExpression, propertyName);
             var lambda = Expression.Lambda(property, parameterExpression);
 
             if (isAlreadyOrdered)

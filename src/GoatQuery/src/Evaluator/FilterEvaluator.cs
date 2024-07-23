@@ -1,24 +1,22 @@
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 public static class FilterEvaluator
 {
-    public static Expression Evaluate(QueryExpression expression, ParameterExpression parameterExpression)
+    public static Expression Evaluate(QueryExpression expression, ParameterExpression parameterExpression, Dictionary<string, string> propertyMapping)
     {
         switch (expression)
         {
             case InfixExpression exp:
                 if (exp.Left.GetType() == typeof(Identifier))
                 {
-                    MemberExpression property;
-                    try
+                    if (!propertyMapping.TryGetValue(exp.Left.TokenLiteral(), out var propertyName))
                     {
-                        property = Expression.Property(parameterExpression, exp.Left.TokenLiteral());
+                        throw new GoatQueryException($"Invalid property '{exp.Left.TokenLiteral()}' within filter.");
                     }
-                    catch (Exception)
-                    {
-                        throw new GoatQueryException($"Invalid property '{exp.Left.TokenLiteral()}' within filter");
-                    }
+
+                    var property = Expression.Property(parameterExpression, propertyName);
 
                     ConstantExpression value = null;
 
@@ -49,8 +47,8 @@ public static class FilterEvaluator
                     }
                 }
 
-                var left = Evaluate(exp.Left, parameterExpression);
-                var right = Evaluate(exp.Right, parameterExpression);
+                var left = Evaluate(exp.Left, parameterExpression, propertyMapping);
+                var right = Evaluate(exp.Right, parameterExpression, propertyMapping);
 
                 switch (exp.Operator)
                 {

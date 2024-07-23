@@ -63,6 +63,26 @@ public sealed class OrderByLexerTest
                 new (TokenType.IDENT, "asc"),
             }
         };
+
+        yield return new object[]
+        {
+            "address1Line asc",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "address1Line"),
+                new (TokenType.IDENT, "asc"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "addASCress1Line desc",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "addASCress1Line"),
+                new (TokenType.IDENT, "desc"),
+            }
+        };
     }
 
     [Theory]

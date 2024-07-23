@@ -1,11 +1,5 @@
 using Xunit;
 
-public sealed record User
-{
-    public int Age { get; set; }
-    public string Firstname { get; set; } = string.Empty;
-}
-
 public sealed class OrderByTest
 {
     public static IEnumerable<object[]> Parameters()
@@ -201,5 +195,35 @@ public sealed class OrderByTest
         var results = queryable.ToArray();
 
         Assert.Equal(expected, results);
+    }
+
+    [Fact]
+    public void Test_OrderBy_WithCustomJsonPropertyName()
+    {
+        var users = new List<CustomJsonPropertyUser>{
+            new CustomJsonPropertyUser { Lastname = "John" },
+            new CustomJsonPropertyUser { Lastname = "Jane" },
+            new CustomJsonPropertyUser { Lastname = "Apple" },
+            new CustomJsonPropertyUser { Lastname = "Harry" },
+            new CustomJsonPropertyUser { Lastname = "Doe" },
+            new CustomJsonPropertyUser { Lastname = "Egg" }
+        }.AsQueryable();
+
+        var query = new Query
+        {
+            OrderBy = "last_name asc"
+        };
+
+        var (queryable, _) = users.Apply(query);
+        var results = queryable.ToArray();
+
+        Assert.Equal(new List<CustomJsonPropertyUser>{
+            new CustomJsonPropertyUser { Lastname = "Apple" },
+            new CustomJsonPropertyUser { Lastname = "Doe" },
+            new CustomJsonPropertyUser { Lastname = "Egg" },
+            new CustomJsonPropertyUser { Lastname = "Harry" },
+            new CustomJsonPropertyUser { Lastname = "Jane" },
+            new CustomJsonPropertyUser { Lastname = "John" },
+        }, results);
     }
 }

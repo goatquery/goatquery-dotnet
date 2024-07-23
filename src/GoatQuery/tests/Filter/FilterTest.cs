@@ -212,4 +212,29 @@ public sealed class FilterTest
 
         Assert.Throws<GoatQueryException>(() => users.Apply(query));
     }
+
+    [Fact]
+    public void Test_Filter_WithCustomJsonPropertyName()
+    {
+        var users = new List<CustomJsonPropertyUser>{
+            new CustomJsonPropertyUser { Lastname = "John" },
+            new CustomJsonPropertyUser { Lastname = "Jane" },
+            new CustomJsonPropertyUser { Lastname = "Apple" },
+            new CustomJsonPropertyUser { Lastname = "Harry" },
+            new CustomJsonPropertyUser { Lastname = "Doe" },
+            new CustomJsonPropertyUser { Lastname = "Egg" }
+        }.AsQueryable();
+
+        var query = new Query
+        {
+            Filter = "last_name eq 'John'"
+        };
+
+        var (queryable, _) = users.Apply(query);
+        var results = queryable.ToArray();
+
+        Assert.Equal(new List<CustomJsonPropertyUser>{
+            new CustomJsonPropertyUser { Lastname = "John" },
+        }, results);
+    }
 }
