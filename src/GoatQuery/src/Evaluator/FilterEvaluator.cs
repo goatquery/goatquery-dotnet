@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using FluentResults;
@@ -18,7 +19,7 @@ public static class FilterEvaluator
 
                     var property = Expression.Property(parameterExpression, propertyName);
 
-                    ConstantExpression value = null;
+                    ConstantExpression value;
 
                     switch (exp.Right)
                     {
@@ -26,13 +27,28 @@ public static class FilterEvaluator
                             value = Expression.Constant(literal.Value, property.Type);
                             break;
                         case IntegerLiteral literal:
-                            value = Expression.Constant(literal.Value, property.Type);
+                            var integerConstant = GetIntegerExpressionConstant(literal.Value, property.Type);
+                            if (integerConstant.IsFailed)
+                            {
+                                return Result.Fail(integerConstant.Errors);
+                            }
+
+                            value = integerConstant.Value;
+                            break;
+                        case DecimalLiteral literal:
+                            var decimalConstant = GetDecimalExpressionConstant(literal.Value, property.Type);
+                            if (decimalConstant.IsFailed)
+                            {
+                                return Result.Fail(decimalConstant.Errors);
+                            }
+
+                            value = decimalConstant.Value;
                             break;
                         case StringLiteral literal:
                             value = Expression.Constant(literal.Value, property.Type);
                             break;
                         default:
-                            break;
+                            return Result.Fail($"Unsupported literal type: {exp.Right.GetType().Name}");
                     }
 
                     switch (exp.Operator)
@@ -47,6 +63,8 @@ public static class FilterEvaluator
                             var method = identifier.Value.GetType().GetMethod("Contains", new[] { value?.Value.GetType() });
 
                             return Expression.Call(property, method, value);
+                        default:
+                            return Result.Fail($"Unsupported operator: {exp.Operator}");
                     }
                 }
 
@@ -74,5 +92,66 @@ public static class FilterEvaluator
         }
 
         return null;
+    }
+
+    private static Result<ConstantExpression> GetIntegerExpressionConstant(int value, Type targetType)
+    {
+        try
+        {
+            // Fetch the underlying type if it's nullable.
+            var underlyingType = Nullable.GetUnderlyingType(targetType);
+            var type = underlyingType ?? targetType;
+
+            object convertedValue = type switch
+            {
+                Type t when t == typeof(int) => value,
+                Type t when t == typeof(long) => Convert.ToInt64(value),
+                Type t when t == typeof(short) => Convert.ToInt16(value),
+                Type t when t == typeof(byte) => Convert.ToByte(value),
+                Type t when t == typeof(uint) => Convert.ToUInt32(value),
+                Type t when t == typeof(ulong) => Convert.ToUInt64(value),
+                Type t when t == typeof(ushort) => Convert.ToUInt16(value),
+                Type t when t == typeof(sbyte) => Convert.ToSByte(value),
+                _ => throw new NotSupportedException($"Unsupported numeric type: {targetType.Name}")
+            };
+
+            return Expression.Constant(convertedValue, targetType);
+        }
+        catch (OverflowException)
+        {
+            return Result.Fail($"Value {value} is too large for type {targetType.Name}");
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail($"Error converting {value} to {targetType.Name}: {ex.Message}");
+        }
+    }
+
+    private static Result<ConstantExpression> GetDecimalExpressionConstant(decimal value, Type targetType)
+    {
+        try
+        {
+            // Fetch the underlying type if it's nullable.
+            var underlyingType = Nullable.GetUnderlyingType(targetType);
+            var type = underlyingType ?? targetType;
+
+            object convertedValue = type switch
+            {
+                Type t when t == typeof(decimal) => value,
+                Type t when t == typeof(float) => Convert.ToSingle(value),
+                Type t when t == typeof(double) => Convert.ToDouble(value),
+                _ => throw new NotSupportedException($"Unsupported numeric type: {targetType.Name}")
+            };
+
+            return Expression.Constant(convertedValue, targetType);
+        }
+        catch (OverflowException)
+        {
+            return Result.Fail($"Value {value} is too large for type {targetType.Name}");
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail($"Error converting {value} to {targetType.Name}: {ex.Message}");
+        }
     }
 }

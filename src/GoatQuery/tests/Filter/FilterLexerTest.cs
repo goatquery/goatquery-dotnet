@@ -180,6 +180,28 @@ public sealed class FilterLexerTest
                 new (TokenType.GUID, "e4c7772b-8947-4e46-98ed-644b417d2a08"),
             }
         };
+
+        yield return new object[]
+        {
+            "id eq 10.50",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.DECIMAL, "10.50"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "id ne 0.1121563052701180",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "ne"),
+                new (TokenType.DECIMAL, "0.1121563052701180"),
+            }
+        };
     }
 
     [Theory]

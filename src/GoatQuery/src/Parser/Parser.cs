@@ -139,7 +139,7 @@ public sealed class QueryParser
 
         var statement = new InfixExpression(_currentToken, identifier, _currentToken.Literal);
 
-        if (!PeekTokenIn(TokenType.STRING, TokenType.INT, TokenType.GUID))
+        if (!PeekTokenIn(TokenType.STRING, TokenType.INT, TokenType.GUID, TokenType.DECIMAL))
         {
             return Result.Fail("Invalid value type within filter");
         }
@@ -166,6 +166,12 @@ public sealed class QueryParser
                 if (int.TryParse(_currentToken.Literal, out var intValue))
                 {
                     statement.Right = new IntegerLiteral(_currentToken, intValue);
+                }
+                break;
+            case TokenType.DECIMAL:
+                if (decimal.TryParse(_currentToken.Literal, out var decimalValue))
+                {
+                    statement.Right = new DecimalLiteral(_currentToken, decimalValue);
                 }
                 break;
         }

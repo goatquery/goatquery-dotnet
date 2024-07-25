@@ -29,3 +29,13 @@ public sealed class IntegerLiteral : QueryExpression
         Value = value;
     }
 }
+
+public sealed class DecimalLiteral : QueryExpression
+{
+    public decimal Value { get; set; }
+
+    public DecimalLiteral(Token token, decimal value) : base(token)
+    {
+        Value = value;
+    }
+}

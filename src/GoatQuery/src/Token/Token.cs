@@ -5,6 +5,7 @@ public enum TokenType
     IDENT,
     STRING,
     INT,
+    DECIMAL,
     GUID,
     LPAREN,
     RPAREN,

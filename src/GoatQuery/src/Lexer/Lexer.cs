@@ -61,6 +61,12 @@ public sealed class QueryLexer
                         return token;
                     }
 
+                    if (IsDigit(token.Literal[0]) && token.Literal.Contains("."))
+                    {
+                        token.Type = TokenType.DECIMAL;
+                        return token;
+                    }
+
                     if (IsDigit(token.Literal[0]))
                     {
                         token.Type = TokenType.INT;
@@ -87,7 +93,7 @@ public sealed class QueryLexer
     {
         var currentPosition = _position;
 
-        while (IsLetter(_character) || IsDigit(_character))
+        while (IsLetter(_character) || IsDigit(_character) || _character == '-' || _character == '.')
         {
             ReadCharacter();
         }
@@ -97,7 +103,7 @@ public sealed class QueryLexer
 
     private bool IsLetter(char ch)
     {
-        return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch == '-';
+        return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_';
     }
 
     private bool IsDigit(char ch)

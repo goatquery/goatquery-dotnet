@@ -5,6 +5,7 @@ public record User
     public int Age { get; set; }
     public Guid UserId { get; set; }
     public string Firstname { get; set; } = string.Empty;
+    public decimal? Balance { get; set; }
 }
 
 public sealed record CustomJsonPropertyUser : User

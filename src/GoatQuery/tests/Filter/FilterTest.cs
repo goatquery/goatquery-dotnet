@@ -4,12 +4,12 @@ public sealed class FilterTest
 {
     private static readonly Dictionary<string, User> _users = new Dictionary<string, User>
     {
-        ["John"] = new User { Age = 2, Firstname = "John", UserId = Guid.Parse("58cdeca3-645b-457c-87aa-7d5f87734255") },
-        ["Jane"] = new User { Age = 1, Firstname = "Jane", UserId = Guid.Parse("58cdeca3-645b-457c-87aa-7d5f87734255") },
-        ["Apple"] = new User { Age = 2, Firstname = "Apple", UserId = Guid.Parse("58cdeca3-645b-457c-87aa-7d5f87734255") },
-        ["Harry"] = new User { Age = 1, Firstname = "Harry", UserId = Guid.Parse("e4c7772b-8947-4e46-98ed-644b417d2a08") },
-        ["Doe"] = new User { Age = 3, Firstname = "Doe", UserId = Guid.Parse("58cdeca3-645b-457c-87aa-7d5f87734255") },
-        ["Egg"] = new User { Age = 3, Firstname = "Egg", UserId = Guid.Parse("58cdeca3-645b-457c-87aa-7d5f87734255") },
+        ["John"] = new User { Age = 2, Firstname = "John", UserId = Guid.Parse("58cdeca3-645b-457c-87aa-7d5f87734255"), Balance = 1.50m },
+        ["Jane"] = new User { Age = 1, Firstname = "Jane", UserId = Guid.Parse("58cdeca3-645b-457c-87aa-7d5f87734255"), Balance = 0 },
+        ["Apple"] = new User { Age = 2, Firstname = "Apple", UserId = Guid.Parse("58cdeca3-645b-457c-87aa-7d5f87734255"), Balance = 1204050.98m },
+        ["Harry"] = new User { Age = 1, Firstname = "Harry", UserId = Guid.Parse("e4c7772b-8947-4e46-98ed-644b417d2a08"), Balance = 0.5372958205929493m },
+        ["Doe"] = new User { Age = 3, Firstname = "Doe", UserId = Guid.Parse("58cdeca3-645b-457c-87aa-7d5f87734255"), Balance = null },
+        ["Egg"] = new User { Age = 3, Firstname = "Egg", UserId = Guid.Parse("58cdeca3-645b-457c-87aa-7d5f87734255"), Balance = 1334534453453433.33435443343231235652m },
     };
 
     public static IEnumerable<object[]> Parameters()
@@ -101,6 +101,11 @@ public sealed class FilterTest
 
         yield return new object[] {
             "UserId eq e4c7772b-8947-4e46-98ed-644b417d2a08",
+            new[] { _users["Harry"] }
+        };
+
+        yield return new object[] {
+            "balance eq 0.5372958205929493",
             new[] { _users["Harry"] }
         };
     }
