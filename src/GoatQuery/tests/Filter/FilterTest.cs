@@ -156,4 +156,43 @@ public sealed class FilterTest
             new CustomJsonPropertyUser { Lastname = "John" },
         }, result.Value.Query);
     }
+
+    public record IntegerConverts
+    {
+        public long Long { get; set; }
+        public short Short { get; set; }
+        public byte Byte { get; set; }
+        public uint Uint { get; set; }
+        public ulong ULong { get; set; }
+        public ushort UShort { get; set; }
+        public sbyte SByte { get; set; }
+    }
+
+    [Theory]
+    [InlineData("long eq 10")]
+    [InlineData("short eq 20")]
+    [InlineData("byte eq 30")]
+    [InlineData("uint eq 40")]
+    [InlineData("ulong eq 50")]
+    [InlineData("ushort eq 60")]
+    [InlineData("sbyte eq 70")]
+    public void Test_Filter_CanConvertIntToOtherNumericTypes(string filter)
+    {
+        var users = new List<IntegerConverts>{
+            new IntegerConverts() { Long = 0, Short = 0, Byte = 0, Uint = 0, ULong = 0, UShort = 0, SByte = 0},
+            new IntegerConverts() { Long = 10, Short = 20, Byte = 30, Uint = 40, ULong = 50, UShort = 60, SByte = 70},
+            new IntegerConverts() { Long = 1, Short = 2, Byte = 3, Uint = 4, ULong = 5, UShort = 6, SByte = 7},
+        }.AsQueryable();
+
+        var query = new Query
+        {
+            Filter = filter
+        };
+
+        var result = users.Apply(query);
+
+        Assert.Equal(new List<IntegerConverts>{
+            new IntegerConverts() { Long = 10, Short = 20, Byte = 30, Uint = 40, ULong = 50, UShort = 60, SByte = 70},
+        }, result.Value.Query);
+    }
 }
