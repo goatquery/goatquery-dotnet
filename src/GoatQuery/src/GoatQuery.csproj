@@ -7,7 +7,7 @@
 
     <PackageId>GoatQuery</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageProjectUrl>ttps://github.com/goatquery/src/GoatQuery</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/goatquery/src/GoatQuery</PackageProjectUrl>
     <RepositoryUrl>https://github.com/goatquery/goatquery-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Description>.NET Library to support paging, ordering, filtering, searching and selecting in REST APIs.</Description>
