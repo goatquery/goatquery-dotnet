@@ -191,6 +191,39 @@ public sealed class FilterLexerTest
                 new (TokenType.INT, "50"),
             }
         };
+
+        yield return new object[]
+        {
+            "age lte 50",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "age"),
+                new (TokenType.IDENT, "lte"),
+                new (TokenType.INT, "50"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "age gt 50",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "age"),
+                new (TokenType.IDENT, "gt"),
+                new (TokenType.INT, "50"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "age gte 50",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "age"),
+                new (TokenType.IDENT, "gte"),
+                new (TokenType.INT, "50"),
+            }
+        };
     }
 
     [Theory]

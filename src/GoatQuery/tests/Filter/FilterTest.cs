@@ -113,6 +113,26 @@ public sealed class FilterTest
             "age lt 1",
             Array.Empty<User>()
         };
+
+        yield return new object[] {
+            "age lte 2",
+            new[] { _users["John"], _users["Jane"], _users["Apple"], _users["Harry"] }
+        };
+
+        yield return new object[] {
+            "age gt 1",
+            new[] { _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
+        };
+
+        yield return new object[] {
+            "age gte 3",
+            new[] { _users["Doe"], _users["Egg"] }
+        };
+
+        yield return new object[] {
+            "age lt 3 and age gt 1",
+            new[] { _users["John"], _users["Apple"] }
+        };
     }
 
     [Theory]

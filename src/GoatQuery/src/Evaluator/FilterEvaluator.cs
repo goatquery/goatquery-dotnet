@@ -56,6 +56,12 @@ public static class FilterEvaluator
                             return Expression.Call(property, method, value);
                         case Keywords.Lt:
                             return Expression.LessThan(property, value);
+                        case Keywords.Lte:
+                            return Expression.LessThanOrEqual(property, value);
+                        case Keywords.Gt:
+                            return Expression.GreaterThan(property, value);
+                        case Keywords.Gte:
+                            return Expression.GreaterThanOrEqual(property, value);
                         default:
                             return Result.Fail($"Unsupported operator: {exp.Operator}");
                     }

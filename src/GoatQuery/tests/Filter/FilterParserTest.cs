@@ -10,6 +10,9 @@ public sealed class FilterParserTest
     [InlineData("Name contains 'John'", "Name", "contains", "John")]
     [InlineData("Id eq e4c7772b-8947-4e46-98ed-644b417d2a08", "Id", "eq", "e4c7772b-8947-4e46-98ed-644b417d2a08")]
     [InlineData("Age lt 99", "Age", "lt", "99")]
+    [InlineData("Age lte 99", "Age", "lte", "99")]
+    [InlineData("Age gt 99", "Age", "gt", "99")]
+    [InlineData("Age gte 99", "Age", "gte", "99")]
     public void Test_ParsingFilterStatement(string input, string expectedLeft, string expectedOperator, string expectedRight)
     {
         var lexer = new QueryLexer(input);
