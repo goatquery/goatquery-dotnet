@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 public sealed class QueryLexer
 {
@@ -63,6 +64,12 @@ public sealed class QueryLexer
 
                     if (IsDigit(token.Literal[0]))
                     {
+                        if (IsDateTime(token.Literal))
+                        {
+                            token.Type = TokenType.DATETIME;
+                            return token;
+                        }
+
                         token.Type = TokenType.INT;
                         return token;
                     }
@@ -78,6 +85,11 @@ public sealed class QueryLexer
         return token;
     }
 
+    private bool IsDateTime(string value)
+    {
+        return DateTime.TryParse(value, out _);
+    }
+
     private bool IsGuid(string value)
     {
         return Guid.TryParse(value, out _);
@@ -87,7 +99,7 @@ public sealed class QueryLexer
     {
         var currentPosition = _position;
 
-        while (IsLetter(_character) || IsDigit(_character))
+        while (IsLetter(_character) || IsDigit(_character) || _character == '-' || _character == ':' || _character == '.')
         {
             ReadCharacter();
         }
@@ -97,7 +109,7 @@ public sealed class QueryLexer
 
     private bool IsLetter(char ch)
     {
-        return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch == '-';
+        return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_';
     }
 
     private bool IsDigit(char ch)

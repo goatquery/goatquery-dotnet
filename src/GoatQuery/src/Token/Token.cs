@@ -6,6 +6,7 @@ public enum TokenType
     STRING,
     INT,
     GUID,
+    DATETIME,
     LPAREN,
     RPAREN,
 }

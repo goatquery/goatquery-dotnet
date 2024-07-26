@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 
+Randomizer.Seed = new Random(8675309);
+
 var builder = WebApplication.CreateBuilder(args);
 
 var postgreSqlContainer = new PostgreSqlBuilder()
@@ -37,7 +39,15 @@ using (var scope = app.Services.CreateScope())
             .RuleFor(x => x.Firstname, f => f.Person.FirstName)
             .RuleFor(x => x.Lastname, f => f.Person.LastName)
             .RuleFor(x => x.Age, f => f.Random.Int(0, 100))
-            .RuleFor(x => x.IsDeleted, f => f.Random.Bool());
+            .RuleFor(x => x.IsDeleted, f => f.Random.Bool())
+            .Rules((f, u) =>
+            {
+                var timeZone = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
+                var date = f.Date.Past().ToUniversalTime();
+
+                u.DateOfBirthUtc = date;
+                u.DateOfBirthTz = TimeZoneInfo.ConvertTimeFromUtc(date, timeZone);
+            });
 
         context.Users.AddRange(users.Generate(1_000));
         context.SaveChanges();

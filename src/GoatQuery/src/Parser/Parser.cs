@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using FluentResults;
 
@@ -139,7 +140,7 @@ public sealed class QueryParser
 
         var statement = new InfixExpression(_currentToken, identifier, _currentToken.Literal);
 
-        if (!PeekTokenIn(TokenType.STRING, TokenType.INT, TokenType.GUID))
+        if (!PeekTokenIn(TokenType.STRING, TokenType.INT, TokenType.GUID, TokenType.DATETIME))
         {
             return Result.Fail("Invalid value type within filter");
         }
@@ -151,7 +152,7 @@ public sealed class QueryParser
             return Result.Fail("Value must be a string when using 'contains' operand");
         }
 
-        if (statement.Operator.In(Keywords.Lt, Keywords.Lte, Keywords.Gt, Keywords.Gte) && _currentToken.Type != TokenType.INT)
+        if (statement.Operator.In(Keywords.Lt, Keywords.Lte, Keywords.Gt, Keywords.Gte) && !CurrentTokenIn(TokenType.INT, TokenType.DATETIME))
         {
             return Result.Fail($"Value must be an integer when using '{statement.Operator}' operand");
         }
@@ -171,6 +172,12 @@ public sealed class QueryParser
                 if (int.TryParse(_currentToken.Literal, out var intValue))
                 {
                     statement.Right = new IntegerLiteral(_currentToken, intValue);
+                }
+                break;
+            case TokenType.DATETIME:
+                if (DateTime.TryParse(_currentToken.Literal, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var dateTimeValue))
+                {
+                    statement.Right = new DateTimeLiteral(_currentToken, dateTimeValue);
                 }
                 break;
         }
@@ -196,9 +203,14 @@ public sealed class QueryParser
         return _currentToken.Type == token;
     }
 
-    private bool PeekTokenIn(params TokenType[] token)
+    private bool CurrentTokenIn(params TokenType[] tokens)
     {
-        return token.Contains(_peekToken.Type);
+        return tokens.Contains(_currentToken.Type);
+    }
+
+    private bool PeekTokenIn(params TokenType[] tokens)
+    {
+        return tokens.Contains(_peekToken.Type);
     }
 
     private bool PeekIdentifierIs(string identifier)
