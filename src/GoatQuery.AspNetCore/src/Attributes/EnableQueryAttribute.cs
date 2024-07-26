@@ -47,7 +47,7 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
         queryString.TryGetValue("count", out var countQuery);
         var countString = countQuery.ToString();
 
-        if (bool.TryParse(countString, out bool count) && !string.IsNullOrEmpty(countString))
+        if (!bool.TryParse(countString, out bool count) && !string.IsNullOrEmpty(countString))
         {
             context.Result = new BadRequestObjectResult(new { Message = "The query parameter 'Count' could not be parsed to a boolean" });
             return;
