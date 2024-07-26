@@ -103,6 +103,16 @@ public sealed class FilterTest
             "UserId eq e4c7772b-8947-4e46-98ed-644b417d2a08",
             new[] { _users["Harry"] }
         };
+
+        yield return new object[] {
+            "age lt 3",
+            new[] { _users["John"], _users["Jane"], _users["Apple"], _users["Harry"] }
+        };
+
+        yield return new object[] {
+            "age lt 1",
+            Array.Empty<User>()
+        };
     }
 
     [Theory]

@@ -130,7 +130,7 @@ public sealed class QueryParser
     {
         var identifier = new Identifier(_currentToken, _currentToken.Literal);
 
-        if (!PeekIdentifierIn(Keywords.Eq, Keywords.Ne, Keywords.Contains))
+        if (!PeekIdentifierIn(Keywords.Eq, Keywords.Ne, Keywords.Contains, Keywords.Lt))
         {
             return Result.Fail("Invalid conjunction within filter");
         }
@@ -148,7 +148,12 @@ public sealed class QueryParser
 
         if (statement.Operator.Equals(Keywords.Contains) && _currentToken.Type != TokenType.STRING)
         {
-            return Result.Fail("Value must be a string when using contains operand");
+            return Result.Fail("Value must be a string when using 'contains' operand");
+        }
+
+        if (statement.Operator.Equals(Keywords.Lt) && _currentToken.Type != TokenType.INT)
+        {
+            return Result.Fail("Value must be an integer when using 'lt' operand");
         }
 
         switch (_currentToken.Type)

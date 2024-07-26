@@ -54,6 +54,8 @@ public static class FilterEvaluator
                             var method = identifier.Value.GetType().GetMethod("Contains", new[] { value?.Value.GetType() });
 
                             return Expression.Call(property, method, value);
+                        case Keywords.Lt:
+                            return Expression.LessThan(property, value);
                         default:
                             return Result.Fail($"Unsupported operator: {exp.Operator}");
                     }

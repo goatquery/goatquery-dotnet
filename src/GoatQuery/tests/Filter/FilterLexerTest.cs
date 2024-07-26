@@ -180,6 +180,17 @@ public sealed class FilterLexerTest
                 new (TokenType.GUID, "e4c7772b-8947-4e46-98ed-644b417d2a08"),
             }
         };
+
+        yield return new object[]
+        {
+            "age lt 50",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "age"),
+                new (TokenType.IDENT, "lt"),
+                new (TokenType.INT, "50"),
+            }
+        };
     }
 
     [Theory]
