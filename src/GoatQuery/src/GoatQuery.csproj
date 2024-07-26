@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <RootNamespace>GoatQuery</RootNamespace>
+    <LangVersion>8.0</LangVersion>
 
     <PackageId>GoatQuery</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
