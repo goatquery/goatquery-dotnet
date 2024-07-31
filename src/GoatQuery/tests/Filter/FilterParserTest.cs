@@ -13,6 +13,12 @@ public sealed class FilterParserTest
     [InlineData("Age lte 99", "Age", "lte", "99")]
     [InlineData("Age gt 99", "Age", "gt", "99")]
     [InlineData("Age gte 99", "Age", "gte", "99")]
+    [InlineData("dateOfBirth eq 2000-01-01", "dateOfBirth", "eq", "2000-01-01")]
+    [InlineData("dateOfBirth lt 2000-01-01", "dateOfBirth", "lt", "2000-01-01")]
+    [InlineData("dateOfBirth lte 2000-01-01", "dateOfBirth", "lte", "2000-01-01")]
+    [InlineData("dateOfBirth gt 2000-01-01", "dateOfBirth", "gt", "2000-01-01")]
+    [InlineData("dateOfBirth gte 2000-01-01", "dateOfBirth", "gte", "2000-01-01")]
+    [InlineData("dateOfBirth eq 2023-01-30T09:29:55.1750906Z", "dateOfBirth", "eq", "2023-01-30T09:29:55.1750906Z")]
     public void Test_ParsingFilterStatement(string input, string expectedLeft, string expectedOperator, string expectedRight)
     {
         var lexer = new QueryLexer(input);

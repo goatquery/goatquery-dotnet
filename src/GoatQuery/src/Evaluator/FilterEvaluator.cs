@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq.Expressions;
 using FluentResults;
 
@@ -36,6 +37,9 @@ public static class FilterEvaluator
                             value = integerConstant.Value;
                             break;
                         case StringLiteral literal:
+                            value = Expression.Constant(literal.Value, property.Type);
+                            break;
+                        case DateTimeLiteral literal:
                             value = Expression.Constant(literal.Value, property.Type);
                             break;
                         default:
