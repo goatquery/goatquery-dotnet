@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq.Expressions;
 using FluentResults;
 
@@ -47,6 +48,9 @@ public static class FilterEvaluator
                         case StringLiteral literal:
                             value = Expression.Constant(literal.Value, property.Type);
                             break;
+                        case DateTimeLiteral literal:
+                            value = Expression.Constant(literal.Value, property.Type);
+                            break;
                         default:
                             return Result.Fail($"Unsupported literal type: {exp.Right.GetType().Name}");
                     }
@@ -63,6 +67,14 @@ public static class FilterEvaluator
                             var method = identifier.Value.GetType().GetMethod("Contains", new[] { value?.Value.GetType() });
 
                             return Expression.Call(property, method, value);
+                        case Keywords.Lt:
+                            return Expression.LessThan(property, value);
+                        case Keywords.Lte:
+                            return Expression.LessThanOrEqual(property, value);
+                        case Keywords.Gt:
+                            return Expression.GreaterThan(property, value);
+                        case Keywords.Gte:
+                            return Expression.GreaterThanOrEqual(property, value);
                         default:
                             return Result.Fail($"Unsupported operator: {exp.Operator}");
                     }

@@ -10,6 +10,16 @@ public sealed class FilterParserTest
     [InlineData("Name contains 'John'", "Name", "contains", "John")]
     [InlineData("Id eq e4c7772b-8947-4e46-98ed-644b417d2a08", "Id", "eq", "e4c7772b-8947-4e46-98ed-644b417d2a08")]
     [InlineData("Id eq 0.1121563052701180", "Id", "eq", "0.1121563052701180")]
+    [InlineData("Age lt 99", "Age", "lt", "99")]
+    [InlineData("Age lte 99", "Age", "lte", "99")]
+    [InlineData("Age gt 99", "Age", "gt", "99")]
+    [InlineData("Age gte 99", "Age", "gte", "99")]
+    [InlineData("dateOfBirth eq 2000-01-01", "dateOfBirth", "eq", "2000-01-01")]
+    [InlineData("dateOfBirth lt 2000-01-01", "dateOfBirth", "lt", "2000-01-01")]
+    [InlineData("dateOfBirth lte 2000-01-01", "dateOfBirth", "lte", "2000-01-01")]
+    [InlineData("dateOfBirth gt 2000-01-01", "dateOfBirth", "gt", "2000-01-01")]
+    [InlineData("dateOfBirth gte 2000-01-01", "dateOfBirth", "gte", "2000-01-01")]
+    [InlineData("dateOfBirth eq 2023-01-30T09:29:55.1750906Z", "dateOfBirth", "eq", "2023-01-30T09:29:55.1750906Z")]
     public void Test_ParsingFilterStatement(string input, string expectedLeft, string expectedOperator, string expectedRight)
     {
         var lexer = new QueryLexer(input);

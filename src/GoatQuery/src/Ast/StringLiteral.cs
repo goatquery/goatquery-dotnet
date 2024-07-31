@@ -39,3 +39,13 @@ public sealed class DecimalLiteral : QueryExpression
         Value = value;
     }
 }
+
+public sealed class DateTimeLiteral : QueryExpression
+{
+    public DateTime Value { get; set; }
+
+    public DateTimeLiteral(Token token, DateTime value) : base(token)
+    {
+        Value = value;
+    }
+}

@@ -7,6 +7,7 @@ public enum TokenType
     INT,
     DECIMAL,
     GUID,
+    DATETIME,
     LPAREN,
     RPAREN,
 }
@@ -18,6 +19,10 @@ public static class Keywords
     internal const string Eq = "eq";
     internal const string Ne = "ne";
     internal const string Contains = "contains";
+    internal const string Lt = "lt";
+    internal const string Lte = "lte";
+    internal const string Gt = "gt";
+    internal const string Gte = "gte";
     internal const string And = "and";
     internal const string Or = "or";
 }

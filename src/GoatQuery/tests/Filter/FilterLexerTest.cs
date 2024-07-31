@@ -202,6 +202,127 @@ public sealed class FilterLexerTest
                 new (TokenType.DECIMAL, "0.1121563052701180"),
             }
         };
+
+        yield return new object[]
+        {
+            "age lt 50",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "age"),
+                new (TokenType.IDENT, "lt"),
+                new (TokenType.INT, "50"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "age lte 50",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "age"),
+                new (TokenType.IDENT, "lte"),
+                new (TokenType.INT, "50"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "age gt 50",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "age"),
+                new (TokenType.IDENT, "gt"),
+                new (TokenType.INT, "50"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "age gte 50",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "age"),
+                new (TokenType.IDENT, "gte"),
+                new (TokenType.INT, "50"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "dateOfBirth eq 2000-01-01",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "dateOfBirth"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.DATETIME, "2000-01-01"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "dateOfBirth lt 2000-01-01",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "dateOfBirth"),
+                new (TokenType.IDENT, "lt"),
+                new (TokenType.DATETIME, "2000-01-01"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "dateOfBirth lte 2000-01-01",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "dateOfBirth"),
+                new (TokenType.IDENT, "lte"),
+                new (TokenType.DATETIME, "2000-01-01"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "dateOfBirth gt 2000-01-01",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "dateOfBirth"),
+                new (TokenType.IDENT, "gt"),
+                new (TokenType.DATETIME, "2000-01-01"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "dateOfBirth gte 2000-01-01",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "dateOfBirth"),
+                new (TokenType.IDENT, "gte"),
+                new (TokenType.DATETIME, "2000-01-01"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "dateOfBirth eq 2023-01-01T15:30:00Z",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "dateOfBirth"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.DATETIME, "2023-01-01T15:30:00Z"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "dateOfBirth eq 2023-01-30T09:29:55.1750906Z",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "dateOfBirth"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.DATETIME, "2023-01-30T09:29:55.1750906Z"),
+            }
+        };
     }
 
     [Theory]
