@@ -183,6 +183,105 @@ public sealed class FilterLexerTest
 
         yield return new object[]
         {
+            "id eq 10m",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.DECIMAL, "10m"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "id eq 10.50m",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.DECIMAL, "10.50m"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "id eq 10.50M",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.DECIMAL, "10.50M"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "id eq 10f",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.FLOAT, "10f"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "id ne 0.1121563052701180f",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "ne"),
+                new (TokenType.FLOAT, "0.1121563052701180f"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "id ne 0.1121563052701180F",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "ne"),
+                new (TokenType.FLOAT, "0.1121563052701180F"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "id eq 10d",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.DOUBLE, "10d"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "id eq 3.14159265359d",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.DOUBLE, "3.14159265359d"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "id eq 3.14159265359D",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "id"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.DOUBLE, "3.14159265359D"),
+            }
+        };
+
+        yield return new object[]
+        {
             "age lt 50",
             new KeyValuePair<TokenType, string>[]
             {

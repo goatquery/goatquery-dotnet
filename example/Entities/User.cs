@@ -7,6 +7,7 @@ public record User
     public string Lastname { get; set; } = string.Empty;
     public int Age { get; set; }
     public bool IsDeleted { get; set; }
+    public double Test { get; set; }
 
     [Column(TypeName = "timestamp with time zone")]
     public DateTime DateOfBirthUtc { get; set; }

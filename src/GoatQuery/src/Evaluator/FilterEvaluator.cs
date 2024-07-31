@@ -36,6 +36,15 @@ public static class FilterEvaluator
 
                             value = integerConstant.Value;
                             break;
+                        case DecimalLiteral literal:
+                            value = Expression.Constant(literal.Value, property.Type);
+                            break;
+                        case FloatLiteral literal:
+                            value = Expression.Constant(literal.Value, property.Type);
+                            break;
+                        case DoubleLiteral literal:
+                            value = Expression.Constant(literal.Value, property.Type);
+                            break;
                         case StringLiteral literal:
                             value = Expression.Constant(literal.Value, property.Type);
                             break;

@@ -30,6 +30,36 @@ public sealed class IntegerLiteral : QueryExpression
     }
 }
 
+public sealed class DecimalLiteral : QueryExpression
+{
+    public decimal Value { get; set; }
+
+    public DecimalLiteral(Token token, decimal value) : base(token)
+    {
+        Value = value;
+    }
+}
+
+public sealed class FloatLiteral : QueryExpression
+{
+    public float Value { get; set; }
+
+    public FloatLiteral(Token token, float value) : base(token)
+    {
+        Value = value;
+    }
+}
+
+public sealed class DoubleLiteral : QueryExpression
+{
+    public double Value { get; set; }
+
+    public DoubleLiteral(Token token, double value) : base(token)
+    {
+        Value = value;
+    }
+}
+
 public sealed class DateTimeLiteral : QueryExpression
 {
     public DateTime Value { get; set; }

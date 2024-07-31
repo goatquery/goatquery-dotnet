@@ -70,6 +70,24 @@ public sealed class QueryLexer
                             return token;
                         }
 
+                        if (token.Literal.EndsWith("f", StringComparison.OrdinalIgnoreCase))
+                        {
+                            token.Type = TokenType.FLOAT;
+                            return token;
+                        }
+
+                        if (token.Literal.EndsWith("m", StringComparison.OrdinalIgnoreCase))
+                        {
+                            token.Type = TokenType.DECIMAL;
+                            return token;
+                        }
+
+                        if (token.Literal.EndsWith("d", StringComparison.OrdinalIgnoreCase))
+                        {
+                            token.Type = TokenType.DOUBLE;
+                            return token;
+                        }
+
                         token.Type = TokenType.INT;
                         return token;
                     }
