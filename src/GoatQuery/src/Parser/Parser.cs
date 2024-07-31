@@ -140,7 +140,7 @@ public sealed class QueryParser
 
         var statement = new InfixExpression(_currentToken, identifier, _currentToken.Literal);
 
-        if (!PeekTokenIn(TokenType.STRING, TokenType.INT, TokenType.GUID, TokenType.DATETIME, TokenType.DECIMAL))
+        if (!PeekTokenIn(TokenType.STRING, TokenType.INT, TokenType.GUID, TokenType.DATETIME, TokenType.DECIMAL, TokenType.FLOAT, TokenType.DOUBLE))
         {
             return Result.Fail("Invalid value type within filter");
         }
@@ -152,7 +152,7 @@ public sealed class QueryParser
             return Result.Fail("Value must be a string when using 'contains' operand");
         }
 
-        if (statement.Operator.In(Keywords.Lt, Keywords.Lte, Keywords.Gt, Keywords.Gte) && !CurrentTokenIn(TokenType.INT, TokenType.DATETIME))
+        if (statement.Operator.In(Keywords.Lt, Keywords.Lte, Keywords.Gt, Keywords.Gte) && !CurrentTokenIn(TokenType.INT, TokenType.DECIMAL, TokenType.FLOAT, TokenType.DOUBLE, TokenType.DATETIME))
         {
             return Result.Fail($"Value must be an integer when using '{statement.Operator}' operand");
         }
@@ -174,10 +174,28 @@ public sealed class QueryParser
                     statement.Right = new IntegerLiteral(_currentToken, intValue);
                 }
                 break;
+            case TokenType.FLOAT:
+                var floatValueWithoutSuffixLiteral = _currentToken.Literal.TrimEnd('f');
+
+                if (float.TryParse(floatValueWithoutSuffixLiteral, out var floatValue))
+                {
+                    statement.Right = new FloatLiteral(_currentToken, floatValue);
+                }
+                break;
             case TokenType.DECIMAL:
-                if (decimal.TryParse(_currentToken.Literal, out var decimalValue))
+                var decimalValueWithoutSuffixLiteral = _currentToken.Literal.TrimEnd('m');
+
+                if (decimal.TryParse(decimalValueWithoutSuffixLiteral, out var decimalValue))
                 {
                     statement.Right = new DecimalLiteral(_currentToken, decimalValue);
+                }
+                break;
+            case TokenType.DOUBLE:
+                var doubleValueWithoutSuffixLiteral = _currentToken.Literal.TrimEnd('d');
+
+                if (double.TryParse(doubleValueWithoutSuffixLiteral, out var doubleValue))
+                {
+                    statement.Right = new DoubleLiteral(_currentToken, doubleValue);
                 }
                 break;
             case TokenType.DATETIME:

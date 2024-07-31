@@ -37,13 +37,13 @@ public static class FilterEvaluator
                             value = integerConstant.Value;
                             break;
                         case DecimalLiteral literal:
-                            var decimalConstant = GetDecimalExpressionConstant(literal.Value, property.Type);
-                            if (decimalConstant.IsFailed)
-                            {
-                                return Result.Fail(decimalConstant.Errors);
-                            }
-
-                            value = decimalConstant.Value;
+                            value = Expression.Constant(literal.Value, property.Type);
+                            break;
+                        case FloatLiteral literal:
+                            value = Expression.Constant(literal.Value, property.Type);
+                            break;
+                        case DoubleLiteral literal:
+                            value = Expression.Constant(literal.Value, property.Type);
                             break;
                         case StringLiteral literal:
                             value = Expression.Constant(literal.Value, property.Type);
@@ -124,34 +124,6 @@ public static class FilterEvaluator
                 Type t when t == typeof(ulong) => Convert.ToUInt64(value),
                 Type t when t == typeof(ushort) => Convert.ToUInt16(value),
                 Type t when t == typeof(sbyte) => Convert.ToSByte(value),
-                _ => throw new NotSupportedException($"Unsupported numeric type: {targetType.Name}")
-            };
-
-            return Expression.Constant(convertedValue, targetType);
-        }
-        catch (OverflowException)
-        {
-            return Result.Fail($"Value {value} is too large for type {targetType.Name}");
-        }
-        catch (Exception ex)
-        {
-            return Result.Fail($"Error converting {value} to {targetType.Name}: {ex.Message}");
-        }
-    }
-
-    private static Result<ConstantExpression> GetDecimalExpressionConstant(decimal value, Type targetType)
-    {
-        try
-        {
-            // Fetch the underlying type if it's nullable.
-            var underlyingType = Nullable.GetUnderlyingType(targetType);
-            var type = underlyingType ?? targetType;
-
-            object convertedValue = type switch
-            {
-                Type t when t == typeof(decimal) => value,
-                Type t when t == typeof(float) => Convert.ToSingle(value),
-                Type t when t == typeof(double) => Convert.ToDouble(value),
                 _ => throw new NotSupportedException($"Unsupported numeric type: {targetType.Name}")
             };
 

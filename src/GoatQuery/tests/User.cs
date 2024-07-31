@@ -5,7 +5,9 @@ public record User
     public int Age { get; set; }
     public Guid UserId { get; set; }
     public string Firstname { get; set; } = string.Empty;
-    public decimal? Balance { get; set; }
+    public decimal? BalanceDecimal { get; set; }
+    public double? BalanceDouble { get; set; }
+    public float? BalanceFloat { get; set; }
     public DateTime DateOfBirth { get; set; }
 }
 

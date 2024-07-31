@@ -62,17 +62,29 @@ public sealed class QueryLexer
                         return token;
                     }
 
-                    if (IsDigit(token.Literal[0]) && token.Literal.Contains("."))
-                    {
-                        token.Type = TokenType.DECIMAL;
-                        return token;
-                    }
-
                     if (IsDigit(token.Literal[0]))
                     {
                         if (IsDateTime(token.Literal))
                         {
                             token.Type = TokenType.DATETIME;
+                            return token;
+                        }
+
+                        if (token.Literal.EndsWith("f", StringComparison.OrdinalIgnoreCase))
+                        {
+                            token.Type = TokenType.FLOAT;
+                            return token;
+                        }
+
+                        if (token.Literal.EndsWith("m", StringComparison.OrdinalIgnoreCase))
+                        {
+                            token.Type = TokenType.DECIMAL;
+                            return token;
+                        }
+
+                        if (token.Literal.EndsWith("d", StringComparison.OrdinalIgnoreCase))
+                        {
+                            token.Type = TokenType.DOUBLE;
                             return token;
                         }
 

@@ -6,6 +6,8 @@ public enum TokenType
     STRING,
     INT,
     DECIMAL,
+    FLOAT,
+    DOUBLE,
     GUID,
     DATETIME,
     LPAREN,
