@@ -64,9 +64,9 @@ public static class FilterEvaluator
                         case Keywords.Contains:
                             var identifier = (Identifier)exp.Left;
 
-                            var method = identifier.Value.GetType().GetMethod("Contains", new[] { value?.Value.GetType() });
+                            var method = identifier.Value.GetType().GetMethod("Contains", new[] { value?.Value.GetType(), typeof(StringComparison) });
 
-                            return Expression.Call(property, method, value);
+                            return Expression.Call(property, method, value, Expression.Constant(StringComparison.OrdinalIgnoreCase));
                         case Keywords.Lt:
                             return Expression.LessThan(property, value);
                         case Keywords.Lte:

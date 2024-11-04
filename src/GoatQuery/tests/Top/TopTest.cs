@@ -70,7 +70,7 @@ public sealed class TopTest
     [InlineData(5)]
     [InlineData(100)]
     [InlineData(100_000)]
-    public void Test_TopWithMaxTopThrowsException(int top)
+    public void Test_TopWithMaxTopReturnsError(int top)
     {
         var users = new List<User>{
             new User { Age = 1, Firstname = "Jane" },

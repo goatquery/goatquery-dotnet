@@ -61,12 +61,12 @@ public sealed class FilterTest
 
         yield return new object[] {
             "firstName contains 'a'",
-            new[] { _users["Jane"], _users["Harry"] }
+            new[] { _users["Jane"], _users["Apple"], _users["Harry"] }
         };
 
         yield return new object[] {
             "Age ne 1 and firstName contains 'a'",
-            Array.Empty<User>()
+            new[] { _users["Apple"] }
         };
 
         yield return new object[] {
