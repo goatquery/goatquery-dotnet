@@ -221,7 +221,7 @@ public sealed class FilterTest
 
     [Theory]
     [InlineData("NonExistentProperty eq 'John'")]
-    public void Test_InvalidFilterThrowsException(string filter)
+    public void Test_InvalidFilterReturnsError(string filter)
     {
         var query = new Query
         {

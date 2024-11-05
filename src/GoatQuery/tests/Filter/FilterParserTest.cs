@@ -45,7 +45,7 @@ public sealed class FilterParserTest
     [InlineData("id contains 10")]
     [InlineData("id contaiins '10'")]
     [InlineData("id eq       John'")]
-    public void Test_ParsingInvalidFilterThrowsException(string input)
+    public void Test_ParsingInvalidFilterReturnsError(string input)
     {
         var lexer = new QueryLexer(input);
         var parser = new QueryParser(lexer);

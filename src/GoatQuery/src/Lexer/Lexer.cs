@@ -158,16 +158,4 @@ public sealed class QueryLexer
 
         return _input.Substring(currentPosition, _position - currentPosition);
     }
-
-    private string ReadNumber()
-    {
-        var currentPosition = _position;
-
-        while (IsDigit(_character))
-        {
-            ReadCharacter();
-        }
-
-        return _input.Substring(currentPosition, _position - currentPosition);
-    }
 }
