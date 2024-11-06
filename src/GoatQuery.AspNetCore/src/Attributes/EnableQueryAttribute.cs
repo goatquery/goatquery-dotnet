@@ -5,8 +5,13 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
 {
     private readonly QueryOptions? _options;
 
-    public EnableQueryAttribute(QueryOptions options)
+    public EnableQueryAttribute(int maxTop)
     {
+        var options = new QueryOptions()
+        {
+            MaxTop = maxTop
+        };
+
         _options = options;
     }
 
