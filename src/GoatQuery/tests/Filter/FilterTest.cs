@@ -175,6 +175,11 @@ public sealed class FilterTest
         };
 
         yield return new object[] {
+            "dateOfBirth eq 2020-05-09",
+            new[] { _users["Jane"] }
+        };
+
+        yield return new object[] {
             "dateOfBirth lt 2010-01-01",
             new[] { _users["John"], _users["Apple"], _users["Harry"], _users["Egg"] }
         };

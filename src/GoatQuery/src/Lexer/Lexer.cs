@@ -64,6 +64,12 @@ public sealed class QueryLexer
 
                     if (IsDigit(token.Literal[0]))
                     {
+                        if (IsDate(token.Literal))
+                        {
+                            token.Type = TokenType.DATE;
+                            return token;
+                        }
+
                         if (IsDateTime(token.Literal))
                         {
                             token.Type = TokenType.DATETIME;
@@ -101,6 +107,11 @@ public sealed class QueryLexer
         ReadCharacter();
 
         return token;
+    }
+
+    private bool IsDate(string value)
+    {
+        return DateTime.TryParseExact(value, new[] { "yyyy-MM-dd" }, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out _);
     }
 
     private bool IsDateTime(string value)

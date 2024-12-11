@@ -69,3 +69,13 @@ public sealed class DateTimeLiteral : QueryExpression
         Value = value;
     }
 }
+
+public sealed class DateLiteral : QueryExpression
+{
+    public DateTime Value { get; set; }
+
+    public DateLiteral(Token token, DateTime value) : base(token)
+    {
+        Value = value.Date;
+    }
+}
