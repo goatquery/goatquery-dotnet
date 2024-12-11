@@ -76,6 +76,6 @@ public sealed class DateLiteral : QueryExpression
 
     public DateLiteral(Token token, DateTime value) : base(token)
     {
-        Value = value.Date;
+        Value = value;
     }
 }
