@@ -52,7 +52,9 @@ public static class FilterEvaluator
                             value = Expression.Constant(literal.Value, property.Type);
                             break;
                         case DateLiteral literal:
-                            property = Expression.Property(property, "Date");
+                            property = property.Type == typeof(DateTime?) ?
+                                Expression.Property(Expression.Property(property, "Value"), "Date") :
+                                Expression.Property(property, "Date");
 
                             value = Expression.Constant(literal.Value.Date, property.Type);
                             break;

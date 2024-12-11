@@ -8,7 +8,7 @@ public record User
     public decimal? BalanceDecimal { get; set; }
     public double? BalanceDouble { get; set; }
     public float? BalanceFloat { get; set; }
-    public DateTime DateOfBirth { get; set; }
+    public DateTime? DateOfBirth { get; set; }
 }
 
 public sealed record CustomJsonPropertyUser : User
