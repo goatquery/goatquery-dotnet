@@ -10,6 +10,7 @@ public enum TokenType
     DOUBLE,
     GUID,
     DATETIME,
+    DATE,
     LPAREN,
     RPAREN,
 }

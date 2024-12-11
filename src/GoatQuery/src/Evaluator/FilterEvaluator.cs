@@ -51,6 +51,11 @@ public static class FilterEvaluator
                         case DateTimeLiteral literal:
                             value = Expression.Constant(literal.Value, property.Type);
                             break;
+                        case DateLiteral literal:
+                            property = Expression.Property(property, "Date");
+
+                            value = Expression.Constant(literal.Value.Date, property.Type);
+                            break;
                         default:
                             return Result.Fail($"Unsupported literal type: {exp.Right.GetType().Name}");
                     }

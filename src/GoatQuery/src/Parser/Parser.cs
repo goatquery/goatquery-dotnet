@@ -140,7 +140,7 @@ public sealed class QueryParser
 
         var statement = new InfixExpression(_currentToken, identifier, _currentToken.Literal);
 
-        if (!PeekTokenIn(TokenType.STRING, TokenType.INT, TokenType.GUID, TokenType.DATETIME, TokenType.DECIMAL, TokenType.FLOAT, TokenType.DOUBLE))
+        if (!PeekTokenIn(TokenType.STRING, TokenType.INT, TokenType.GUID, TokenType.DATETIME, TokenType.DECIMAL, TokenType.FLOAT, TokenType.DOUBLE, TokenType.DATE))
         {
             return Result.Fail("Invalid value type within filter");
         }
@@ -152,7 +152,7 @@ public sealed class QueryParser
             return Result.Fail("Value must be a string when using 'contains' operand");
         }
 
-        if (statement.Operator.In(Keywords.Lt, Keywords.Lte, Keywords.Gt, Keywords.Gte) && !CurrentTokenIn(TokenType.INT, TokenType.DECIMAL, TokenType.FLOAT, TokenType.DOUBLE, TokenType.DATETIME))
+        if (statement.Operator.In(Keywords.Lt, Keywords.Lte, Keywords.Gt, Keywords.Gte) && !CurrentTokenIn(TokenType.INT, TokenType.DECIMAL, TokenType.FLOAT, TokenType.DOUBLE, TokenType.DATETIME, TokenType.DATE))
         {
             return Result.Fail($"Value must be an integer when using '{statement.Operator}' operand");
         }
@@ -202,6 +202,12 @@ public sealed class QueryParser
                 if (DateTime.TryParse(_currentToken.Literal, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var dateTimeValue))
                 {
                     statement.Right = new DateTimeLiteral(_currentToken, dateTimeValue);
+                }
+                break;
+            case TokenType.DATE:
+                if (DateTime.TryParse(_currentToken.Literal, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var dateValue))
+                {
+                    statement.Right = new DateLiteral(_currentToken, dateValue);
                 }
                 break;
         }

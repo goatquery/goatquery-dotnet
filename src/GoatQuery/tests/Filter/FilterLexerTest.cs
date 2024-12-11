@@ -331,7 +331,7 @@ public sealed class FilterLexerTest
             {
                 new (TokenType.IDENT, "dateOfBirth"),
                 new (TokenType.IDENT, "eq"),
-                new (TokenType.DATETIME, "2000-01-01"),
+                new (TokenType.DATE, "2000-01-01"),
             }
         };
 
@@ -342,7 +342,7 @@ public sealed class FilterLexerTest
             {
                 new (TokenType.IDENT, "dateOfBirth"),
                 new (TokenType.IDENT, "lt"),
-                new (TokenType.DATETIME, "2000-01-01"),
+                new (TokenType.DATE, "2000-01-01"),
             }
         };
 
@@ -353,7 +353,7 @@ public sealed class FilterLexerTest
             {
                 new (TokenType.IDENT, "dateOfBirth"),
                 new (TokenType.IDENT, "lte"),
-                new (TokenType.DATETIME, "2000-01-01"),
+                new (TokenType.DATE, "2000-01-01"),
             }
         };
 
@@ -364,7 +364,7 @@ public sealed class FilterLexerTest
             {
                 new (TokenType.IDENT, "dateOfBirth"),
                 new (TokenType.IDENT, "gt"),
-                new (TokenType.DATETIME, "2000-01-01"),
+                new (TokenType.DATE, "2000-01-01"),
             }
         };
 
@@ -375,7 +375,7 @@ public sealed class FilterLexerTest
             {
                 new (TokenType.IDENT, "dateOfBirth"),
                 new (TokenType.IDENT, "gte"),
-                new (TokenType.DATETIME, "2000-01-01"),
+                new (TokenType.DATE, "2000-01-01"),
             }
         };
 
