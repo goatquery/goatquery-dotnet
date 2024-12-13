@@ -71,9 +71,14 @@ public static class FilterEvaluator
                         case Keywords.Contains:
                             var identifier = (Identifier)exp.Left;
 
-                            var method = identifier.Value.GetType().GetMethod("Contains", new[] { value?.Value.GetType(), typeof(StringComparison) });
+                            var toLowerMethod = identifier.Value.GetType().GetMethod("ToLower", Type.EmptyTypes);
 
-                            return Expression.Call(property, method, value, Expression.Constant(StringComparison.OrdinalIgnoreCase));
+                            var propertyToLower = Expression.Call(property, toLowerMethod);
+                            var valueToLower = Expression.Call(value, toLowerMethod);
+
+                            var containsMethod = identifier.Value.GetType().GetMethod("Contains", new[] { value?.Value.GetType() });
+
+                            return Expression.Call(propertyToLower, containsMethod, valueToLower);
                         case Keywords.Lt:
                             return Expression.LessThan(property, value);
                         case Keywords.Lte:
