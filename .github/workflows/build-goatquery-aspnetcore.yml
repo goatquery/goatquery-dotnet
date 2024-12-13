@@ -1,9 +1,9 @@
-name: test
+name: build GoatQuery.AspNetCore
 
 on: [push]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -19,7 +19,8 @@ jobs:
 
       - name: Install dependencies
         run: dotnet restore
-        working-directory: ./src/GoatQuery/tests
+        working-directory: ./src/GoatQuery.AspNetCore/src
 
-      - name: Test
-        run: dotnet test ./src/GoatQuery/tests
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+        working-directory: ./src/GoatQuery.AspNetCore/src

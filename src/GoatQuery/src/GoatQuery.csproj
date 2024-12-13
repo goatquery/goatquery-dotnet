@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <RootNamespace>GoatQuery</RootNamespace>
+    <LangVersion>8.0</LangVersion>
+
+    <PackageId>GoatQuery</PackageId>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/goatquery/src/GoatQuery</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/goatquery/goatquery-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Description>.NET Library to support paging, ordering, filtering, searching and selecting in REST APIs.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentResults" Version="3.16.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
+  </ItemGroup>
+
+</Project>

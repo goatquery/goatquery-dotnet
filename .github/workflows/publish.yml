@@ -19,10 +19,18 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
-      - name: Create the package
+      - name: Create GoatQuery package
         run: dotnet pack --configuration Release -p:Version=${{ github.event.release.tag_name }} *.csproj
-        working-directory: ./src
+        working-directory: ./src/GoatQuery/src
 
-      - name: Publish the package to Nuget
+      - name: Create GoatQuery.AspNetCore package
+        run: dotnet pack --configuration Release -p:Version=${{ github.event.release.tag_name }} *.csproj
+        working-directory: ./src/GoatQuery.AspNetCore/src
+
+      - name: Publish the GoatQuery package to Nuget
         run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
-        working-directory: ./src
+        working-directory: ./src/GoatQuery/src
+
+      - name: Publish the GoatQuery.AspNetCore package to Nuget
+        run: dotnet nuget push bin/Release/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+        working-directory: ./src/GoatQuery.AspNetCore/src
