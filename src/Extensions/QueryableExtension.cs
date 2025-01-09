@@ -48,7 +48,7 @@ public static class QueryableExtension
                 var operand = opts[1];
                 var value = opts[2].Replace("'", "\"");
 
-                string? propertyName = typeof(T).GetProperties().FirstOrDefault(x => x.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name == property)?.Name;
+                string? propertyName = typeof(T).GetProperties().FirstOrDefault(x => x.Name == property)?.Name;
 
                 if (!string.IsNullOrEmpty(propertyName))
                 {
