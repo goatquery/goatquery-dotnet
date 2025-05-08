@@ -55,13 +55,20 @@ public static class QueryableExtension
                     property = propertyName;
                 }
 
-                if (operand.Equals("contains", StringComparison.OrdinalIgnoreCase))
+                if (typeof(T).GetProperties().FirstOrDefault(x => x.Name.Equals(property, StringComparison.OrdinalIgnoreCase))?.PropertyType == typeof(string))
+                {
+                    if (operand.Equals("contains", StringComparison.OrdinalIgnoreCase))
+                    {
+                        where.Append($"{property}.ToLower().Contains({value}.ToLower())");
+                    }
+                    else
+                    {
+                        where.Append($"{property}.ToLower() {_filterOperations[operand]} {value}.ToLower()");
+                    }
+                }
+                else if (operand.Equals("contains", StringComparison.OrdinalIgnoreCase))
                 {
                     where.Append($"{property}.{_filterOperations[operand]}({value})");
-                }
-                else if (typeof(T).GetProperties().FirstOrDefault(x => x.Name.Equals(property, StringComparison.OrdinalIgnoreCase))?.PropertyType == typeof(string))
-                {
-                    where.Append($"{property}.ToLower() {_filterOperations[operand]} {value}.ToLower()");
                 }
                 else if (typeof(T).GetProperties().FirstOrDefault(x => x.Name.Equals(property, StringComparison.OrdinalIgnoreCase))?.PropertyType == typeof(Guid))
                 {
