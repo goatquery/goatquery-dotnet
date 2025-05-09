@@ -285,7 +285,7 @@ public class Tests : TestWithSqlite
         var sql = result.ToQueryString();
 
         var expectedSql = _context.Users.AsQueryable()
-            .Where(x => x.Firstname.Contains("goat"))
+            .Where(x => x.Firstname.ToLower().Contains("goat".ToLower()))
             .ToQueryString();
 
         Assert.Equal(expectedSql, sql);
@@ -300,7 +300,7 @@ public class Tests : TestWithSqlite
         var sql = result.ToQueryString();
 
         var expectedSql = _context.Users.AsQueryable()
-            .Where(x => x.Firstname.Contains("goat") && x.Lastname.ToLower() == "query".ToLower())
+            .Where(x => x.Firstname.ToLower().Contains("goat".ToLower()) && x.Lastname.ToLower() == "query".ToLower())
             .ToQueryString();
 
         Assert.Equal(expectedSql, sql);
@@ -315,7 +315,7 @@ public class Tests : TestWithSqlite
         var sql = result.ToQueryString();
 
         var expectedSql = _context.Users.AsQueryable()
-            .Where(x => x.Firstname.Contains("goat") || x.Lastname.ToLower() == "query".ToLower())
+            .Where(x => x.Firstname.ToLower().Contains("goat".ToLower()) || x.Lastname.ToLower() == "query".ToLower())
             .ToQueryString();
 
         Assert.Equal(expectedSql, sql);
