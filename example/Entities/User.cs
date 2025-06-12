@@ -8,6 +8,7 @@ public record User
     public int Age { get; set; }
     public bool IsDeleted { get; set; }
     public double Test { get; set; }
+    public int? NullableInt { get; set; }
 
     [Column(TypeName = "timestamp with time zone")]
     public DateTime DateOfBirthUtc { get; set; }

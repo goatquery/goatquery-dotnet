@@ -41,6 +41,7 @@ using (var scope = app.Services.CreateScope())
             .RuleFor(x => x.Age, f => f.Random.Int(0, 100))
             .RuleFor(x => x.IsDeleted, f => f.Random.Bool())
             .RuleFor(x => x.Test, f => f.Random.Double())
+            .RuleFor(x => x.NullableInt, f => f.Random.Bool() ? f.Random.Int(1, 100) : null)
             .Rules((f, u) =>
             {
                 var timeZone = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");

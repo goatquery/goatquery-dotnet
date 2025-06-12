@@ -62,6 +62,12 @@ public sealed class QueryLexer
                         return token;
                     }
 
+                    if (token.Literal.Equals(Keywords.Null, StringComparison.OrdinalIgnoreCase))
+                    {
+                        token.Type = TokenType.NULL;
+                        return token;
+                    }
+
                     if (IsDigit(token.Literal[0]))
                     {
                         if (IsDate(token.Literal))

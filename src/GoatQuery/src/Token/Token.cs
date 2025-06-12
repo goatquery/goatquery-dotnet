@@ -11,6 +11,7 @@ public enum TokenType
     GUID,
     DATETIME,
     DATE,
+    NULL,
     LPAREN,
     RPAREN,
 }
@@ -28,6 +29,7 @@ public static class Keywords
     internal const string Gte = "gte";
     internal const string And = "and";
     internal const string Or = "or";
+    internal const string Null = "null";
 }
 
 public sealed class Token

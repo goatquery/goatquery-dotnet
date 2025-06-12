@@ -10,6 +10,7 @@ public sealed class FilterTest
         ["Harry"] = new User { Age = 1, Firstname = "Harry", UserId = Guid.Parse("e4c7772b-8947-4e46-98ed-644b417d2a08"), DateOfBirth = DateTime.Parse("2002-08-01"), BalanceDecimal = 0.5372958205929493m },
         ["Doe"] = new User { Age = 3, Firstname = "Doe", UserId = Guid.Parse("58cdeca3-645b-457c-87aa-7d5f87734255"), DateOfBirth = DateTime.Parse("2023-07-26 12:00:30"), BalanceDecimal = null },
         ["Egg"] = new User { Age = 3, Firstname = "Egg", UserId = Guid.Parse("58cdeca3-645b-457c-87aa-7d5f87734255"), DateOfBirth = DateTime.Parse("2000-01-01 00:00:00"), BalanceDouble = 1334534453453433.33435443343231235652d },
+        ["NullUser"] = new User { Age = 4, Firstname = "NullUser", UserId = Guid.Parse("11111111-1111-1111-1111-111111111111"), DateOfBirth = null, BalanceDecimal = null, BalanceDouble = null, BalanceFloat = null },
     };
 
     public static IEnumerable<object[]> Parameters()
@@ -56,7 +57,7 @@ public sealed class FilterTest
 
         yield return new object[] {
             "Age ne 3",
-            new[] { _users["John"], _users["Jane"], _users["Apple"], _users["Harry"] }
+            new[] { _users["John"], _users["Jane"], _users["Apple"], _users["Harry"], _users["NullUser"] }
         };
 
         yield return new object[] {
@@ -121,12 +122,12 @@ public sealed class FilterTest
 
         yield return new object[] {
             "age gt 1",
-            new[] { _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
+            new[] { _users["John"], _users["Apple"], _users["Doe"], _users["Egg"], _users["NullUser"] }
         };
 
         yield return new object[] {
             "age gte 3",
-            new[] { _users["Doe"], _users["Egg"] }
+            new[] { _users["Doe"], _users["Egg"], _users["NullUser"] }
         };
 
         yield return new object[] {
@@ -207,6 +208,61 @@ public sealed class FilterTest
         yield return new object[] {
             "dateOfBirth gte 2000-01-01 and dateOfBirth lte 2020-05-09T15:29:59",
             new[] { _users["John"], _users["Harry"], _users["Egg"] }
+        };
+
+        yield return new object[] {
+            "balanceDecimal eq null",
+            new[] { _users["Apple"], _users["Doe"], _users["Egg"], _users["NullUser"] }
+        };
+
+        yield return new object[] {
+            "balanceDecimal ne null",
+            new[] { _users["John"], _users["Jane"], _users["Harry"] }
+        };
+
+        yield return new object[] {
+            "balanceDouble eq null",
+            new[] { _users["John"], _users["Jane"], _users["Apple"], _users["Harry"], _users["Doe"], _users["NullUser"] }
+        };
+
+        yield return new object[] {
+            "balanceDouble ne null",
+            new[] { _users["Egg"] }
+        };
+
+        yield return new object[] {
+            "balanceFloat eq null",
+            new[] { _users["John"], _users["Jane"], _users["Harry"], _users["Doe"], _users["Egg"], _users["NullUser"] }
+        };
+
+        yield return new object[] {
+            "balanceFloat ne null",
+            new[] { _users["Apple"] }
+        };
+
+        yield return new object[] {
+            "dateOfBirth eq null",
+            new[] { _users["NullUser"] }
+        };
+
+        yield return new object[] {
+            "dateOfBirth ne null",
+            new[] { _users["John"], _users["Jane"], _users["Apple"], _users["Harry"], _users["Doe"], _users["Egg"] }
+        };
+
+        yield return new object[] {
+            "balanceDecimal eq null and age gt 3",
+            new[] { _users["NullUser"] }
+        };
+
+        yield return new object[] {
+            "balanceDecimal ne null or age eq 4",
+            new[] { _users["John"], _users["Jane"], _users["Harry"], _users["NullUser"] }
+        };
+
+        yield return new object[] {
+            "firstname eq 'Doe' and balanceDecimal eq null",
+            new[] { _users["Doe"] }
         };
     }
 

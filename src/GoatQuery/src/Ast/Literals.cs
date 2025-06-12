@@ -79,3 +79,10 @@ public sealed class DateLiteral : QueryExpression
         Value = value;
     }
 }
+
+public sealed class NullLiteral : QueryExpression
+{
+    public NullLiteral(Token token) : base(token)
+    {
+    }
+}

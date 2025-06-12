@@ -400,6 +400,43 @@ public sealed class FilterLexerTest
                 new (TokenType.DATETIME, "2023-01-30T09:29:55.1750906Z"),
             }
         };
+
+        yield return new object[]
+        {
+            "balance eq null",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "balance"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.NULL, "null"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "balance ne NULL",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "balance"),
+                new (TokenType.IDENT, "ne"),
+                new (TokenType.NULL, "NULL"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "name eq 'test' and balance eq null",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "name"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.STRING, "test"),
+                new (TokenType.IDENT, "and"),
+                new (TokenType.IDENT, "balance"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.NULL, "null"),
+            }
+        };
     }
 
     [Theory]

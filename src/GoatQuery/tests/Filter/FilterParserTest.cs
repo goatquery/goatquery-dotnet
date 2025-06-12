@@ -22,6 +22,9 @@ public sealed class FilterParserTest
     [InlineData("dateOfBirth gt 2000-01-01", "dateOfBirth", "gt", "2000-01-01")]
     [InlineData("dateOfBirth gte 2000-01-01", "dateOfBirth", "gte", "2000-01-01")]
     [InlineData("dateOfBirth eq 2023-01-30T09:29:55.1750906Z", "dateOfBirth", "eq", "2023-01-30T09:29:55.1750906Z")]
+    [InlineData("balance eq null", "balance", "eq", "null")]
+    [InlineData("balance ne null", "balance", "ne", "null")]
+    [InlineData("name eq NULL", "name", "eq", "NULL")]
     public void Test_ParsingFilterStatement(string input, string expectedLeft, string expectedOperator, string expectedRight)
     {
         var lexer = new QueryLexer(input);
@@ -45,6 +48,11 @@ public sealed class FilterParserTest
     [InlineData("id contains 10")]
     [InlineData("id contaiins '10'")]
     [InlineData("id eq       John'")]
+    [InlineData("name contains null")]
+    [InlineData("age lt null")]
+    [InlineData("age gt null")]
+    [InlineData("age lte null")]
+    [InlineData("age gte null")]
     public void Test_ParsingInvalidFilterReturnsError(string input)
     {
         var lexer = new QueryLexer(input);

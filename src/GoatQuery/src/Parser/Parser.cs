@@ -140,7 +140,7 @@ public sealed class QueryParser
 
         var statement = new InfixExpression(_currentToken, identifier, _currentToken.Literal);
 
-        if (!PeekTokenIn(TokenType.STRING, TokenType.INT, TokenType.GUID, TokenType.DATETIME, TokenType.DECIMAL, TokenType.FLOAT, TokenType.DOUBLE, TokenType.DATE))
+        if (!PeekTokenIn(TokenType.STRING, TokenType.INT, TokenType.GUID, TokenType.DATETIME, TokenType.DECIMAL, TokenType.FLOAT, TokenType.DOUBLE, TokenType.DATE, TokenType.NULL))
         {
             return Result.Fail("Invalid value type within filter");
         }
@@ -150,6 +150,11 @@ public sealed class QueryParser
         if (statement.Operator.Equals(Keywords.Contains) && _currentToken.Type != TokenType.STRING)
         {
             return Result.Fail("Value must be a string when using 'contains' operand");
+        }
+
+        if (statement.Operator.Equals(Keywords.Contains) && _currentToken.Type == TokenType.NULL)
+        {
+            return Result.Fail("Cannot use 'contains' operand with null value");
         }
 
         if (statement.Operator.In(Keywords.Lt, Keywords.Lte, Keywords.Gt, Keywords.Gte) && !CurrentTokenIn(TokenType.INT, TokenType.DECIMAL, TokenType.FLOAT, TokenType.DOUBLE, TokenType.DATETIME, TokenType.DATE))
@@ -209,6 +214,9 @@ public sealed class QueryParser
                 {
                     statement.Right = new DateLiteral(_currentToken, dateValue);
                 }
+                break;
+            case TokenType.NULL:
+                statement.Right = new NullLiteral(_currentToken);
                 break;
         }
 
