@@ -54,8 +54,6 @@ public static class FilterEvaluator
                         case DateLiteral literal:
                             if (property.Type == typeof(DateTime?))
                             {
-                                // For nullable DateTime, we need to handle this differently in the operator switch
-                                // Just set up the date value for now
                                 value = Expression.Constant(literal.Value.Date, typeof(DateTime));
                             }
                             else
@@ -134,30 +132,16 @@ public static class FilterEvaluator
         return null;
     }
 
-    /// <summary>
-    /// Creates special nullable property comparisons for types that need property transformation.
-    /// Returns null if no special handling is needed.
-    /// </summary>
     private static Expression CreateNullableComparison(MemberExpression property, ConstantExpression value, QueryExpression rightExpression, string operatorKeyword)
     {
-        // Handle nullable DateTime with DateLiteral - requires .Date property access
         if (property.Type == typeof(DateTime?) && rightExpression is DateLiteral)
         {
             return CreateNullableDateComparison(property, value, operatorKeyword);
         }
 
-        // Future extensibility: Add other type transformations here
-        // if (property.Type == typeof(TimeOnly?) && rightExpression is TimeLiteral)
-        // {
-        //     return CreateNullableTimeComparison(property, value, operatorKeyword);
-        // }
-
         return null;
     }
 
-    /// <summary>
-    /// Creates nullable DateTime comparisons that safely access the .Date property.
-    /// </summary>
     private static Expression CreateNullableDateComparison(MemberExpression property, ConstantExpression value, string operatorKeyword)
     {
         var hasValueProperty = Expression.Property(property, "HasValue");
@@ -175,8 +159,6 @@ public static class FilterEvaluator
             _ => throw new ArgumentException($"Unsupported operator for nullable date comparison: {operatorKeyword}")
         };
 
-        // For inequality, we want: !HasValue OR HasValue && comparison != true
-        // For others, we want: HasValue && comparison == true
         return operatorKeyword == Keywords.Ne
             ? Expression.OrElse(Expression.Not(hasValueProperty), dateComparison)
             : Expression.AndAlso(hasValueProperty, dateComparison);
