@@ -406,4 +406,30 @@ public class Tests : TestWithSqlite
 
         Assert.Equal(expectedSql, sql);
     }
+
+    [Fact]
+    public void Test_QueryWithFilterFieldContainingOr()
+    {
+        var query = new Query() { Filter = "favoriteColor eq 'blue'" };
+
+        var (result, _) = _context.Users.AsQueryable().Apply(query, null);
+        var sql = result.ToQueryString();
+
+        var expectedSql = _context.Users.AsQueryable().Where(x => x.FavoriteColor.ToLower() == "blue".ToLower()).ToQueryString();
+
+        Assert.Equal(expectedSql, sql);
+    }
+
+    [Fact]
+    public void Test_QueryWithFilterFieldContainingAnd()
+    {
+        var query = new Query() { Filter = "favoriteColor eq 'blue' or brandPreference contains 'bueno'" };
+
+        var (result, _) = _context.Users.AsQueryable().Apply(query, null);
+        var sql = result.ToQueryString();
+
+        var expectedSql = _context.Users.AsQueryable().Where(x => x.FavoriteColor.ToLower() == "blue".ToLower() || x.BrandPreference.ToLower().Contains("bueno".ToLower())).ToQueryString();
+
+        Assert.Equal(expectedSql, sql);
+    }
 }

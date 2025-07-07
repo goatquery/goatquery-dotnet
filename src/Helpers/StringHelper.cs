@@ -17,7 +17,7 @@ public static class StringHelper
                 buffer.Append(character);
                 singleQuote = !singleQuote;
             }
-            else if (!singleQuote && (character == 'a' || character == 'o') && i + 1 < input.Length && (input.Substring(i, 3) == "and" || input.Substring(i, 2) == "or"))
+            else if (!singleQuote && (character == 'a' || character == 'o') && i > 0 && i + 1 < input.Length && (input.Substring(i - 1, 5) == " and " || input.Substring(i - 1, 4) == " or "))
             {
                 if (buffer.Length > 0)
                 {

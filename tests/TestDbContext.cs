@@ -15,6 +15,9 @@ public record User
     [Column("PersonSex", TypeName = "varchar(32)")]
     public string Gender { get; set; } = string.Empty;
     public int Age { get; set; }
+    public string FavoriteColor { get; set; } //contains 'or'
+    public string BrandPreference { get; set; } //contains 'and'
+
 }
 
 
