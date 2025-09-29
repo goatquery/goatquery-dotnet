@@ -7,59 +7,40 @@ using Xunit;
 public class DatabaseTestFixture : IAsyncLifetime
 {
     private PostgreSqlContainer? _postgresContainer;
-    private TestDbContext? _dbContext;
-
-    public TestDbContext DbContext => _dbContext ?? throw new InvalidOperationException("Database not initialized");
+    public TestDbContext DbContext { get; set; } = null!;
 
     public async Task InitializeAsync()
     {
-        // Create and start PostgreSQL container
         _postgresContainer = new PostgreSqlBuilder()
-            .WithImage("postgres:16-alpine")
-            .WithDatabase("testdb")
-            .WithUsername("test")
-            .WithPassword("test")
+            .WithImage("postgres:18-alpine")
             .Build();
 
         await _postgresContainer.StartAsync();
 
-        // Create DbContext with connection to container
         var connectionString = _postgresContainer.GetConnectionString();
         var optionsBuilder = new DbContextOptionsBuilder<TestDbContext>();
         optionsBuilder.UseNpgsql(connectionString);
 
-        // Enable EF Core logging
-        optionsBuilder.LogTo(
-            Console.WriteLine,
-            new[] { DbLoggerCategory.Database.Command.Name, DbLoggerCategory.Query.Name },
-            LogLevel.Information,
-            DbContextLoggerOptions.DefaultWithLocalTime | DbContextLoggerOptions.SingleLine
-        );
+        DbContext = new TestDbContext(optionsBuilder.Options);
 
-        optionsBuilder.EnableSensitiveDataLogging();
-        optionsBuilder.EnableDetailedErrors();
+        await DbContext.Database.EnsureCreatedAsync();
 
-        _dbContext = new TestDbContext(optionsBuilder.Options);
-
-        // Create database schema
-        await _dbContext.Database.EnsureCreatedAsync();
-
-        // Seed test data
         await SeedTestData();
     }
 
     private async Task SeedTestData()
     {
         var users = TestData.Users.Values.ToList();
-        await _dbContext.Users.AddRangeAsync(users);
-        await _dbContext.SaveChangesAsync();
+
+        await DbContext.Users.AddRangeAsync(users);
+        await DbContext.SaveChangesAsync();
     }
 
     public async Task DisposeAsync()
     {
-        if (_dbContext != null)
+        if (DbContext != null)
         {
-            await _dbContext.DisposeAsync();
+            await DbContext.DisposeAsync();
         }
 
         if (_postgresContainer != null)

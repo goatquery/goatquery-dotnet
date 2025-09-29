@@ -11,15 +11,11 @@ public record User
     public DateTime? DateOfBirth { get; set; }
     public bool IsEmailVerified { get; set; }
     public Company? Company { get; set; }
+
+    public Guid? ManagerId { get; set; }
     public User? Manager { get; set; }
     public IEnumerable<Address> Addresses { get; set; } = Array.Empty<Address>();
     public IEnumerable<string> Tags { get; set; } = Array.Empty<string>();
-}
-
-public sealed record CustomJsonPropertyUser : User
-{
-    [JsonPropertyName("last_name")]
-    public string Lastname { get; set; } = string.Empty;
 }
 
 public record Address
@@ -41,4 +37,10 @@ public record Company
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Department { get; set; } = string.Empty;
+}
+
+public sealed record CustomJsonPropertyUser : User
+{
+    [JsonPropertyName("last_name")]
+    public string Lastname { get; set; } = string.Empty;
 }

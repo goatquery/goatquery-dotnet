@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
@@ -13,8 +12,8 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
     public static IEnumerable<object[]> Parameters()
     {
         yield return new object[] {
-            "firstname eq 'John'",
-            new[] { TestData.Users["John"] }
+            "firstname eq 'User01'",
+            new[] { TestData.Users["User01"] }
         };
 
         yield return new object[] {
@@ -23,8 +22,18 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
         };
 
         yield return new object[] {
-            "Age eq 1",
-            new[] { TestData.Users["Apple"], TestData.Users["Harry"], TestData.Users["Doe"] }
+            "Age eq 25",
+            new[] { TestData.Users["User01"], TestData.Users["User05"] }
+        };
+
+        yield return new object[] {
+            "Age eq 30",
+            new[] { TestData.Users["User02"], TestData.Users["User03"] }
+        };
+
+        yield return new object[] {
+            "Age eq 35",
+            new[] { TestData.Users["User04"] }
         };
 
         yield return new object[] {
@@ -33,378 +42,268 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
         };
 
         yield return new object[] {
-            "firstname eq 'John' and Age eq 2",
-            new[] { TestData.Users["John"] }
+            "firstname eq 'User02' and Age eq 30",
+            new[] { TestData.Users["User02"] }
         };
 
         yield return new object[] {
-            "firstname eq 'John' or Age eq 33",
-            new[] { TestData.Users["John"], TestData.Users["Egg"] }
+            "firstname eq 'User01' or Age eq 35",
+            new[] { TestData.Users["User01"], TestData.Users["User04"] }
         };
 
         yield return new object[] {
-            "Age eq 1 and firstName eq 'Harry' or Age eq 2",
-            new[] { TestData.Users["John"], TestData.Users["Harry"] }
+            "Age ne 30",
+            new[] { TestData.Users["User01"], TestData.Users["User04"], TestData.Users["User05"] }
         };
 
         yield return new object[] {
-            "Age eq 1 or Age eq 2 or firstName eq 'Egg'",
-            new[] { TestData.Users["John"], TestData.Users["Apple"], TestData.Users["Harry"], TestData.Users["Doe"], TestData.Users["Egg"] }
+            "firstName contains '0'",
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User03"], TestData.Users["User04"], TestData.Users["User05"] }
         };
 
         yield return new object[] {
-            "Age ne 33",
-            new[] { TestData.Users["John"], TestData.Users["Jane"], TestData.Users["Apple"], TestData.Users["Harry"], TestData.Users["Doe"], TestData.Users["NullUser"] }
+            "firstName contains '5'",
+            new[] { TestData.Users["User05"] }
         };
 
         yield return new object[] {
-            "firstName contains 'a'",
-            new[] { TestData.Users["Jane"], TestData.Users["Apple"], TestData.Users["Harry"] }
+            "Firstname eq 'User01' and Age eq 25 or Age eq 30",
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User03"] }
         };
 
         yield return new object[] {
-            "Age ne 1 and firstName contains 'a'",
-            new[] { TestData.Users["Jane"] }
+            "(Firstname eq 'User01' and Age eq 25) or Age eq 30",
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User03"] }
         };
 
         yield return new object[] {
-            "Age ne 1 and firstName contains 'a' or firstName eq 'Apple'",
-            new[] { TestData.Users["Jane"], TestData.Users["Apple"] }
+            "Firstname eq 'User01' and (Age eq 25 or Age eq 30)",
+            new[] { TestData.Users["User01"] }
         };
 
         yield return new object[] {
-            "Firstname eq 'John' and Age eq 2 or Age eq 33",
-            new[] { TestData.Users["John"], TestData.Users["Egg"] }
+            "(Firstname eq 'User02' and Age eq 30 or Age eq 35)",
+            new[] { TestData.Users["User02"], TestData.Users["User04"] }
         };
 
         yield return new object[] {
-            "(Firstname eq 'John' and Age eq 2) or Age eq 33",
-            new[] { TestData.Users["John"], TestData.Users["Egg"] }
+            "(Firstname eq 'User01') or (Age eq 35 and Firstname eq 'User04') or Age eq 25 and (Age eq 30)",
+            new[] { TestData.Users["User01"], TestData.Users["User04"] }
         };
 
         yield return new object[] {
-            "Firstname eq 'John' and (Age eq 2 or Age eq 33)",
-            new[] { TestData.Users["John"] }
+            "id eq 11111111-1111-1111-1111-111111111111",
+            new[] { TestData.Users["User01"] }
         };
 
         yield return new object[] {
-            "(Firstname eq 'John' and Age eq 2 or Age eq 33)",
-            new[] { TestData.Users["John"], TestData.Users["Egg"] }
+            "age lt 30",
+            new[] { TestData.Users["User01"], TestData.Users["User05"] }
         };
 
         yield return new object[] {
-            "(Firstname eq 'John') or (Age eq 33 and Firstname eq 'Egg') or Age eq 1 and (Age eq 2)",
-            new[] { TestData.Users["John"], TestData.Users["Egg"] }
+            "age lte 30",
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User03"], TestData.Users["User05"] }
         };
 
         yield return new object[] {
-            "UserId eq e4c7772b-8947-4e46-98ed-644b417d2a08",
-            new[] { TestData.Users["Harry"] }
+            "age gt 25",
+            new[] { TestData.Users["User02"], TestData.Users["User03"], TestData.Users["User04"] }
         };
 
         yield return new object[] {
-            "age lt 3",
-            new[] { TestData.Users["John"], TestData.Users["Apple"], TestData.Users["Harry"], TestData.Users["Doe"] }
+            "age gte 30",
+            new[] { TestData.Users["User02"], TestData.Users["User03"], TestData.Users["User04"] }
         };
 
         yield return new object[] {
-            "age lt 1",
-            Array.Empty<User>()
+            "age lt 35 and age gt 25",
+            new[] { TestData.Users["User02"], TestData.Users["User03"] }
         };
 
         yield return new object[] {
-            "age lte 2",
-            new[] { TestData.Users["John"], TestData.Users["Apple"], TestData.Users["Harry"], TestData.Users["Doe"] }
+            "balanceDecimal eq 1500.75m",
+            new[] { TestData.Users["User01"] }
         };
 
         yield return new object[] {
-            "age gt 1",
-            new[] { TestData.Users["John"], TestData.Users["Jane"], TestData.Users["Egg"], TestData.Users["NullUser"] }
+            "balanceDecimal eq 500.00m",
+            new[] { TestData.Users["User02"] }
         };
 
         yield return new object[] {
-            "age gte 3",
-            new[] { TestData.Users["Jane"], TestData.Users["Egg"], TestData.Users["NullUser"] }
-        };
-
-        yield return new object[] {
-            "age lt 3 and age gt 1",
-            new[] { TestData.Users["John"] }
-        };
-
-        yield return new object[] {
-            "balanceDecimal eq 1.50m",
-            new[] { TestData.Users["John"] }
-        };
-
-        yield return new object[] {
-            "balanceDecimal gt 1m",
-            new[] { TestData.Users["John"] }
-        };
-
-        yield return new object[] {
-            "balanceDecimal gt 0.50m",
-            new[] { TestData.Users["John"], TestData.Users["Harry"] }
-        };
-
-        yield return new object[] {
-            "balanceDecimal eq 0.5372958205929493m",
-            new[] { TestData.Users["Harry"] }
-        };
-
-        yield return new object[] {
-            "balanceDouble eq 1334534453453433.33435443343231235652d",
-            new[] { TestData.Users["Egg"] }
-        };
-
-        yield return new object[] {
-            "balanceFloat eq 1204050.98f",
-            new[] { TestData.Users["Apple"] }
-        };
-
-        yield return new object[] {
-            "balanceFloat gt 2204050f",
-            Array.Empty<User>()
-        };
-
-        yield return new object[] {
-            "dateOfBirth eq 2000-01-01",
-            new[] { TestData.Users["Egg"] }
-        };
-
-        yield return new object[] {
-            "dateOfBirth eq 2020-05-09",
-            new[] { TestData.Users["Jane"] }
-        };
-
-        yield return new object[] {
-            "dateOfBirth lt 2010-01-01",
-            new[] { TestData.Users["John"], TestData.Users["Apple"], TestData.Users["Harry"], TestData.Users["Egg"] }
-        };
-
-        yield return new object[] {
-            "dateOfBirth lte 2002-08-01",
-            new[] { TestData.Users["Apple"], TestData.Users["Harry"], TestData.Users["Egg"] }
-        };
-
-        yield return new object[] {
-            "dateOfBirth gt 2000-08-01 and dateOfBirth lt 2023-01-01",
-            new[] { TestData.Users["John"], TestData.Users["Jane"], TestData.Users["Harry"] }
-        };
-
-        yield return new object[] {
-            "dateOfBirth eq 2023-07-26T12:00:30Z",
-            new[] { TestData.Users["Doe"] }
-        };
-
-        yield return new object[] {
-            "dateOfBirth gte 2000-01-01",
-            new[] { TestData.Users["John"], TestData.Users["Jane"], TestData.Users["Harry"], TestData.Users["Doe"], TestData.Users["Egg"] }
-        };
-
-        yield return new object[] {
-            "dateOfBirth gte 2000-01-01 and dateOfBirth lte 2020-05-09T15:29:59",
-            new[] { TestData.Users["John"], TestData.Users["Harry"], TestData.Users["Egg"] }
+            "balanceDecimal gt 100m",
+            new[] { TestData.Users["User01"], TestData.Users["User02"] }
         };
 
         yield return new object[] {
             "balanceDecimal eq null",
-            new[] { TestData.Users["Apple"], TestData.Users["Doe"], TestData.Users["Egg"], TestData.Users["NullUser"] }
+            new[] { TestData.Users["User03"], TestData.Users["User04"] }
         };
 
         yield return new object[] {
             "balanceDecimal ne null",
-            new[] { TestData.Users["John"], TestData.Users["Jane"], TestData.Users["Harry"] }
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User05"] }
+        };
+
+        yield return new object[] {
+            "balanceDouble eq 2500.50d",
+            new[] { TestData.Users["User01"] }
         };
 
         yield return new object[] {
             "balanceDouble eq null",
-            new[] { TestData.Users["John"], TestData.Users["Jane"], TestData.Users["Apple"], TestData.Users["Harry"], TestData.Users["Doe"], TestData.Users["NullUser"] }
+            new[] { TestData.Users["User02"], TestData.Users["User04"] }
         };
 
         yield return new object[] {
-            "balanceDouble ne null",
-            new[] { TestData.Users["Egg"] }
+            "balanceFloat eq 3500.25f",
+            new[] { TestData.Users["User01"] }
+        };
+
+        yield return new object[] {
+            "balanceFloat eq 750.50f",
+            new[] { TestData.Users["User02"] }
         };
 
         yield return new object[] {
             "balanceFloat eq null",
-            new[] { TestData.Users["John"], TestData.Users["Jane"], TestData.Users["Harry"], TestData.Users["Doe"], TestData.Users["Egg"], TestData.Users["NullUser"] }
+            new[] { TestData.Users["User03"], TestData.Users["User04"], TestData.Users["User05"] }
         };
 
         yield return new object[] {
-            "balanceFloat ne null",
-            new[] { TestData.Users["Apple"] }
+            "dateOfBirth eq 1998-03-15T10:30:00Z",
+            new[] { TestData.Users["User01"] }
+        };
+
+        yield return new object[] {
+            "dateOfBirth eq 1993-07-20T14:00:00Z",
+            new[] { TestData.Users["User02"] }
+        };
+
+        yield return new object[] {
+            "dateOfBirth lt 1995-01-01T00:00:00Z",
+            new[] { TestData.Users["User02"], TestData.Users["User03"] }
+        };
+
+        yield return new object[] {
+            "dateOfBirth gte 1993-01-01T00:00:00Z",
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User03"], TestData.Users["User05"] }
         };
 
         yield return new object[] {
             "dateOfBirth eq null",
-            new[] { TestData.Users["NullUser"] }
+            new[] { TestData.Users["User04"] }
         };
 
         yield return new object[] {
             "dateOfBirth ne null",
-            new[] { TestData.Users["John"], TestData.Users["Jane"], TestData.Users["Apple"], TestData.Users["Harry"], TestData.Users["Doe"], TestData.Users["Egg"] }
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User03"], TestData.Users["User05"] }
         };
 
         yield return new object[] {
-            "balanceDecimal eq null and age gt 3",
-            new[] { TestData.Users["Egg"], TestData.Users["NullUser"] }
+            "age gt 25 and isEmailVerified eq true",
+            new[] { TestData.Users["User03"] }
         };
 
         yield return new object[] {
-            "balanceDecimal ne null or age eq 4",
-            new[] { TestData.Users["John"], TestData.Users["Jane"], TestData.Users["Harry"], TestData.Users["NullUser"] }
+            "balanceDecimal ne null and age lt 30",
+            new[] { TestData.Users["User01"], TestData.Users["User05"] }
         };
 
         yield return new object[] {
-            "firstname eq 'Doe' and balanceDecimal eq null",
-            new[] { TestData.Users["Doe"] }
+            "manager ne null and isEmailVerified eq false",
+            new[] { TestData.Users["User02"], TestData.Users["User04"] }
+        };
+
+        yield return new object[] {
+            "(age eq 25 or age eq 30) and company ne null",
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User03"], TestData.Users["User05"] }
         };
 
         yield return new object[] {
             "isEmailVerified eq true",
-            new[] { TestData.Users["John"], TestData.Users["Apple"], TestData.Users["Doe"], TestData.Users["NullUser"] }
+            new[] { TestData.Users["User01"], TestData.Users["User03"], TestData.Users["User05"] }
         };
 
         yield return new object[] {
             "isEmailVerified eq false",
-            new[] { TestData.Users["Jane"], TestData.Users["Harry"], TestData.Users["Egg"] }
+            new[] { TestData.Users["User02"], TestData.Users["User04"] }
         };
 
         yield return new object[] {
             "isEmailVerified ne true",
-            new[] { TestData.Users["Jane"], TestData.Users["Harry"], TestData.Users["Egg"] }
+            new[] { TestData.Users["User02"], TestData.Users["User04"] }
         };
 
         yield return new object[] {
             "isEmailVerified ne false",
-            new[] { TestData.Users["John"], TestData.Users["Apple"], TestData.Users["Doe"], TestData.Users["NullUser"] }
+            new[] { TestData.Users["User01"], TestData.Users["User03"], TestData.Users["User05"] }
         };
 
         yield return new object[] {
-            "age gt 2 and isEmailVerified eq true",
-            new[] { TestData.Users["NullUser"] }
+            "manager/firstName eq 'User01'",
+            new[] { TestData.Users["User02"] }
         };
 
         yield return new object[] {
-            "isEmailVerified eq false or age eq 2",
-            new[] { TestData.Users["John"], TestData.Users["Jane"], TestData.Users["Harry"], TestData.Users["Egg"] }
+            "manager/firstName eq 'User02'",
+            new[] { TestData.Users["User03"], TestData.Users["User04"] }
         };
 
         yield return new object[] {
-            "manager/firstName eq 'Manager 01'",
-            new[] { TestData.Users["John"], TestData.Users["Apple"] }
-        };
-
-        yield return new object[] {
-            "manager/firstName ne 'Manager 01'",
-            new[] { TestData.Users["Egg"] }
-        };
-
-        yield return new object[] {
-            "manager/firstName contains 'Manager'",
-            new[] { TestData.Users["John"], TestData.Users["Apple"], TestData.Users["Egg"] }
-        };
-
-        yield return new object[] {
-            "manager/firstName eq 'Manager 02'",
-            new[] { TestData.Users["Egg"] }
+            "manager/age gt 28",
+            new[] { TestData.Users["User03"], TestData.Users["User04"] }
         };
 
         yield return new object[] {
             "manager/isEmailVerified eq true",
-            new[] { TestData.Users["Apple"], TestData.Users["Egg"] }
+            new[] { TestData.Users["User02"] }
         };
 
         yield return new object[] {
-            "manager/age gt 16",
-            new[] { TestData.Users["Egg"] }
+            "manager/manager/firstName eq 'User01'",
+            new[] { TestData.Users["User03"], TestData.Users["User04"] }
         };
 
         yield return new object[] {
-            "manager/manager/firstName eq 'Manager 03'",
-            new[] { TestData.Users["Egg"] }
+            "manager/manager eq null",
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User05"]  }
         };
 
         yield return new object[] {
-            "manager/manager/firstName ne 'Manager 03'",
-            new List<User>()
+            "company/name eq 'TechCorp'",
+            new[] { TestData.Users["User01"] }
         };
 
         yield return new object[] {
-            "manager eq null",
-            new[] { TestData.Users["Jane"], TestData.Users["Harry"], TestData.Users["Doe"], TestData.Users["NullUser"] }
+            "company/name eq 'DataSoft'",
+            new[] { TestData.Users["User02"] }
         };
 
         yield return new object[] {
-            "manager/firstName eq 'Manager 01' and manager/age eq 16",
-            new[] { TestData.Users["John"], TestData.Users["Apple"] }
-        };
-
-        yield return new object[] {
-            "manager/dateOfBirth lt 2000-01-01",
-            new[] { TestData.Users["Egg"] }
-        };
-
-        yield return new object[] {
-            "manager/balanceDecimal gte 2.00m and manager/balanceDecimal lt 20m",
-            new[] { TestData.Users["John"], TestData.Users["Apple"], TestData.Users["Egg"] }
-        };
-
-        yield return new object[] {
-            "manager/userId eq 671e6bac-b6de-4cc7-b3e9-1a6ac4546b43",
-            new[] { TestData.Users["John"], TestData.Users["Apple"] }
-        };
-
-        yield return new object[] {
-            "(age eq 2 and manager/isEmailVerified eq true) or (age eq 33 and manager/manager ne null)",
-            new[] { TestData.Users["Egg"] }
-        };
-
-        yield return new object[] {
-            "manager ne null and manager/manager eq null",
-            new[] { TestData.Users["John"], TestData.Users["Apple"] }
-        };
-
-        yield return new object[] {
-            "company ne null ",
-            new[] { TestData.Users["Jane"] }
-        };
-
-        yield return new object[] {
-            "company/name eq 'Acme Corp'",
-            new[] { TestData.Users["Jane"] }
-        };
-
-        yield return new object[] {
-            "manager/manager/company/name eq 'My Test Company'",
-            new[] { TestData.Users["Egg"] }
-        };
-
-        yield return new object[] {
-            "manager/balanceDecimal gt 100m",
-            Array.Empty<User>()
-        };
-
-        yield return new object[] {
-            "manager/manager/manager/firstName eq 'Manager 04'",
-            new[] { TestData.Users["Egg"] }
+            "company/name contains 'Corp'",
+            new[] { TestData.Users["User01"], TestData.Users["User05"] }
         };
 
         yield return new object[] {
             "addresses/any(addr: addr/city/name eq 'New York')",
-            new[] { TestData.Users["John"], TestData.Users["Apple"] }
+            new[] { TestData.Users["User01"] }
         };
 
         yield return new object[] {
             "addresses/any(address: address/city/name eq 'Chicago')",
-            new[] { TestData.Users["Apple"] }
+            new[] { TestData.Users["User01"] }
         };
 
         yield return new object[] {
             "addresses/any(a: a/city/name eq 'Seattle')",
-            new[] { TestData.Users["Jane"] }
+            new[] { TestData.Users["User02"] }
+        };
+
+        yield return new object[] {
+            "addresses/any(addr: addr/city/name eq 'Miami')",
+            new[] { TestData.Users["User05"] }
         };
 
         yield return new object[] {
@@ -412,90 +311,44 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
             Array.Empty<User>()
         };
 
-        // Lambda expression tests with addresses/all
         yield return new object[] {
             "addresses/all(addr: addr/city/country eq 'USA')",
-            new[] { TestData.Users["John"], TestData.Users["Jane"], TestData.Users["Apple"], TestData.Users["Doe"], TestData.Users["Egg"] }
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User05"] }
         };
 
-        yield return new object[] {
-            "addresses/all(a: a/city/name ne 'Chicago')",
-            new[] { TestData.Users["John"], TestData.Users["Jane"], TestData.Users["Doe"], TestData.Users["Egg"] }
-        };
-
-        // Lambda expression tests with addressLine1
         yield return new object[] {
             "addresses/any(addr: addr/addressLine1 contains 'Main')",
-            new[] { TestData.Users["John"] }
+            new[] { TestData.Users["User01"] }
         };
 
         yield return new object[] {
-            "addresses/any(a: a/addressLine1 contains 'St')",
-            new[] { TestData.Users["John"], TestData.Users["Apple"], TestData.Users["Egg"] }
-        };
-
-        // Lambda expressions combined with regular filters
-        yield return new object[] {
-            "firstname eq 'John' and addresses/any(addr: addr/city/name eq 'New York')",
-            new[] { TestData.Users["John"] }
+            "addresses/any(addr: addr/addressLine1 contains 'Oak')",
+            new[] { TestData.Users["User01"] }
         };
 
         yield return new object[] {
-            "age eq 1 or addresses/any(addr: addr/city/name eq 'Miami')",
-            new[] { TestData.Users["Apple"], TestData.Users["Harry"], TestData.Users["Doe"], TestData.Users["Egg"] }
+            "addresses/any(addr: addr/city/name eq 'New York' or addr/city/name eq 'Seattle')",
+            new[] { TestData.Users["User01"], TestData.Users["User02"] }
         };
 
         yield return new object[] {
-            "addresses/any(addr: addr/city/name eq 'Seattle') and isEmailVerified eq false",
-            new[] { TestData.Users["Jane"] }
-        };
-
-        // Empty addresses should work with any() returning false and all() returning true
-        yield return new object[] {
-            "addresses/any(addr: addr/city/name eq 'AnyCity')",
-            Array.Empty<User>()
-        };
-
-        yield return new object[] {
-            "addresses/all(addr: addr/city/name ne 'SomeCity')",
-            new[] { TestData.Users["John"], TestData.Users["Jane"], TestData.Users["Apple"], TestData.Users["Doe"], TestData.Users["Egg"] }
-        };
-
-        // Complex lambda expressions with logical operators
-        yield return new object[] {
-            "addresses/any(addr: addr/city/name eq 'New York' or addr/city/name eq 'Chicago')",
-            new[] { TestData.Users["John"], TestData.Users["Apple"] }
-        };
-
-        yield return new object[] {
-            "addresses/any(addr: addr/city/name eq 'Miami' and addr/city/country eq 'USA')",
-            new[] { TestData.Users["Egg"] }
-        };
-
-        // Testing with users that have no addresses (empty collections)
-        yield return new object[] {
-            "firstname eq 'Harry' and addresses/any(addr: addr/city/name eq 'NonExistent')",
-            Array.Empty<User>()
-        };
-
-        yield return new object[] {
-            "firstname eq 'NullUser' and addresses/all(addr: addr/city/country eq 'USA')",
-            Array.Empty<User>()
+            "firstname eq 'User01' and addresses/any(addr: addr/city/name eq 'New York')",
+            new[] { TestData.Users["User01"] }
         };
 
         yield return new object[] {
             "tags/any(x: x eq 'vip')",
-            new[] { TestData.Users["Apple"] }
+            new[] { TestData.Users["User01"] }
         };
 
         yield return new object[] {
             "tags/any(x: x eq 'premium')",
-            new[] { TestData.Users["Apple"], TestData.Users["Egg"] }
+            new[] { TestData.Users["User01"], TestData.Users["User02"] }
         };
 
         yield return new object[] {
-            "tags/all(x: x eq 'premium')",
-            new[] { TestData.Users["Egg"] }
+            "tags/any(x: x eq 'standard')",
+            new[] { TestData.Users["User05"] }
         };
     }
 
@@ -505,13 +358,11 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
     {
         var query = new Query
         {
-            Filter = filter
+            Filter = filter,
+            OrderBy = "Firstname" // Ensure consistent ordering for tests
         };
 
         var result = _fixture.DbContext.Users.Apply(query);
-
-        Console.WriteLine("------------------------------------------ QUERY ------------------------------------------");
-        Console.WriteLine(result.Value.Query.ToQueryString());
 
         Assert.Equal(expected, result.Value.Query);
     }

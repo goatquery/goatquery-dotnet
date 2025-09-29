@@ -1,173 +1,157 @@
 public static class TestData
 {
+    private static readonly Guid User01Id = Guid.Parse("11111111-1111-1111-1111-111111111111");
+    private static readonly Guid User02Id = Guid.Parse("22222222-2222-2222-2222-222222222222");
+    private static readonly Guid User03Id = Guid.Parse("33333333-3333-3333-3333-333333333333");
+    private static readonly Guid User04Id = Guid.Parse("44444444-4444-4444-4444-444444444444");
+    private static readonly Guid User05Id = Guid.Parse("55555555-5555-5555-5555-555555555555");
+
     public static readonly Dictionary<string, User> Users = new Dictionary<string, User>
     {
-        ["John"] = new User
+        ["User01"] = new User
         {
-            Age = 2,
-            Firstname = "John",
-            DateOfBirth = DateTime.Parse("2004-01-31 23:59:59").ToUniversalTime(),
-            BalanceDecimal = 1.50m,
+            Id = User01Id,
+            Age = 25,
+            Firstname = "User01",
+            DateOfBirth = DateTime.SpecifyKind(DateTime.Parse("1998-03-15 10:30:00"), DateTimeKind.Utc),
+            BalanceDecimal = 1500.75m,
+            BalanceDouble = 2500.50d,
+            BalanceFloat = 3500.25f,
             IsEmailVerified = true,
-            Addresses = new[]
-            {
-                new Address
-                {
-                    AddressLine1 = "123 Main St",
-                    City = new City { Name = "New York", Country = "USA" }
-                },
-                new Address
-                {
-                    AddressLine1 = "456 Oak Ave",
-                    City = new City { Name = "Boston", Country = "USA" }
-                }
-            },
-            Manager = new User
-            {
-                Age = 16,
-                Firstname = "Manager 01",
-                DateOfBirth = DateTime.Parse("2000-01-01 00:00:00").ToUniversalTime(),
-                BalanceDecimal = 2.00m,
-                IsEmailVerified = false
-            }
-        },
-        ["Jane"] = new User
-        {
-            Age = 9,
-            Firstname = "Jane",
-            DateOfBirth = DateTime.Parse("2020-05-09 15:30:00").ToUniversalTime(),
-            BalanceDecimal = 0,
-            IsEmailVerified = false,
-            Addresses = new[]
-            {
-                new Address
-                {
-                    AddressLine1 = "789 Pine Rd",
-                    City = new City { Name = "Seattle", Country = "USA" }
-                }
-            },
+            ManagerId = null,
             Company = new Company
             {
-                Name = "Acme Corp",
-                Department = "Sales"
-            }
-        },
-        ["Apple"] = new User
-        {
-            Age = 1,
-            Firstname = "Apple",
-            DateOfBirth = DateTime.Parse("1980-12-31 00:00:01").ToUniversalTime(),
-            BalanceFloat = 1204050.98f,
-            IsEmailVerified = true,
-            Addresses = new[]
-            {
+                Id = Guid.NewGuid(),
+                Name = "TechCorp",
+                Department = "Engineering"
+            },
+            Addresses =
+            [
                 new Address
                 {
-                    AddressLine1 = "321 Elm St",
-                    City = new City { Name = "Chicago", Country = "USA" }
+                    Id = Guid.NewGuid(),
+                    AddressLine1 = "123 Main St",
+                    City = new City
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "New York",
+                        Country = "USA"
+                    }
                 },
                 new Address
                 {
-                    AddressLine1 = "654 Maple Dr",
-                    City = new City { Name = "New York", Country = "USA" }
-                }
-            },
-            Manager = new User
-            {
-                Age = 16,
-                Firstname = "Manager 01",
-                DateOfBirth = DateTime.Parse("2000-01-01 00:00:00").ToUniversalTime(),
-                BalanceDecimal = 2.00m,
-                IsEmailVerified = true
-            },
-            Tags = ["vip", "premium"]
-        },
-        ["Harry"] = new User
-        {
-            Age = 1,
-            Firstname = "Harry",
-            DateOfBirth = DateTime.Parse("2002-08-01").ToUniversalTime(),
-            BalanceDecimal = 0.5372958205929493m,
-            IsEmailVerified = false,
-            Addresses = Array.Empty<Address>()
-        },
-        ["Doe"] = new User
-        {
-            Age = 1,
-            Firstname = "Doe",
-            DateOfBirth = DateTime.Parse("2023-07-26 12:00:30").ToUniversalTime(),
-            BalanceDecimal = null,
-            IsEmailVerified = true,
-            Addresses = new[]
-            {
-                new Address
-                {
-                    AddressLine1 = "999 Broadway",
-                    City = new City { Name = "Los Angeles", Country = "USA" }
-                }
-            }
-        },
-        ["Egg"] = new User
-        {
-            Age = 33,
-            Firstname = "Egg",
-            DateOfBirth = DateTime.Parse("2000-01-01 00:00:00").ToUniversalTime(),
-            BalanceDouble = 1334534453453433.33435443343231235652d,
-            IsEmailVerified = false,
-            Addresses = new[]
-            {
-                new Address
-                {
-                    AddressLine1 = "777 First Ave",
-                    City = new City { Name = "Miami", Country = "USA" }
-                },
-                new Address
-                {
-                    AddressLine1 = "888 Second St",
-                    City = new City { Name = "Orlando", Country = "USA" }
-                }
-            },
-            Manager = new User
-            {
-                Age = 18,
-                Firstname = "Manager 02",
-                DateOfBirth = DateTime.Parse("1999-04-21 00:00:00").ToUniversalTime(),
-                BalanceDecimal = 19.00m,
-                IsEmailVerified = true,
-                Manager = new User
-                {
-                    Age = 30,
-                    Firstname = "Manager 03",
-                    DateOfBirth = DateTime.Parse("1993-04-21 00:00:00").ToUniversalTime(),
-                    BalanceDecimal = 29.00m,
-                    IsEmailVerified = true,
-                    Manager = new User
+                    Id = Guid.NewGuid(),
+                    AddressLine1 = "456 Oak Ave",
+                    City = new City
                     {
-                        Age = 40,
-                        Firstname = "Manager 04",
-                        DateOfBirth = DateTime.Parse("1983-04-21 00:00:00").ToUniversalTime(),
-                        BalanceDecimal = 39.00m,
-                        IsEmailVerified = true
-                    },
-                    Company = new Company
-                    {
-                        Name = "My Test Company",
-                        Department = "Development"
+                        Id = Guid.NewGuid(),
+                        Name = "Chicago",
+                        Country = "USA"
                     }
                 }
+            ],
+            Tags = ["vip", "premium"]
+        },
+        ["User02"] = new User
+        {
+            Id = User02Id,
+            Age = 30,
+            Firstname = "User02",
+            DateOfBirth = DateTime.SpecifyKind(DateTime.Parse("1993-07-20 14:00:00"), DateTimeKind.Utc),
+            BalanceDecimal = 500.00m,
+            BalanceDouble = null,
+            BalanceFloat = 750.50f,
+            IsEmailVerified = false,
+            ManagerId = User01Id,
+            Company = new Company
+            {
+                Id = Guid.NewGuid(),
+                Name = "DataSoft",
+                Department = "Development"
             },
+            Addresses =
+            [
+                new Address
+                {
+                    Id = Guid.NewGuid(),
+                    AddressLine1 = "789 Pine St",
+                    City = new City
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "Seattle",
+                        Country = "USA"
+                    }
+                }
+            ],
             Tags = ["premium"]
         },
-        ["NullUser"] = new User
+        ["User03"] = new User
         {
-            Age = 4,
-            Firstname = "NullUser",
+            Id = User03Id,
+            Age = 30,
+            Firstname = "User03",
+            DateOfBirth = DateTime.SpecifyKind(DateTime.Parse("1993-11-10 09:15:00"), DateTimeKind.Utc),
+            BalanceDecimal = null,
+            BalanceDouble = 1000.00d,
+            BalanceFloat = null,
+            IsEmailVerified = true,
+            ManagerId = User02Id,
+            Company = new Company
+            {
+                Id = Guid.NewGuid(),
+                Name = "Tech Solutions",
+                Department = "Sales"
+            },
+            Addresses = Array.Empty<Address>(),
+            Tags = Array.Empty<string>()
+        },
+        ["User04"] = new User
+        {
+            Id = User04Id,
+            Age = 35,
+            Firstname = "User04",
             DateOfBirth = null,
             BalanceDecimal = null,
             BalanceDouble = null,
             BalanceFloat = null,
-            IsEmailVerified = true,
-            Addresses = Array.Empty<Address>()
+            IsEmailVerified = false,
+            ManagerId = User02Id,
+            Company = null,
+            Addresses = Array.Empty<Address>(),
+            Tags = Array.Empty<string>()
         },
+        ["User05"] = new User
+        {
+            Id = User05Id,
+            Age = 25,
+            Firstname = "User05",
+            DateOfBirth = DateTime.SpecifyKind(DateTime.Parse("1998-12-25 18:45:00"), DateTimeKind.Utc),
+            BalanceDecimal = 0.00m,
+            BalanceDouble = 0.00d,
+            BalanceFloat = null,
+            IsEmailVerified = true,
+            ManagerId = null,
+            Company = new Company
+            {
+                Id = Guid.NewGuid(),
+                Name = "WebCorp",
+                Department = "Marketing"
+            },
+            Addresses =
+            [
+                new Address
+                {
+                    Id = Guid.NewGuid(),
+                    AddressLine1 = "999 Broadway",
+                    City = new City
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "Miami",
+                        Country = "USA"
+                    }
+                }
+            ],
+            Tags = ["standard"]
+        }
     };
 }
