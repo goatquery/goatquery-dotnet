@@ -175,7 +175,6 @@ public static class PropertyMappingTreeBuilder
         if (type.IsPrimitive || PrimitiveTypes.Contains(type))
             return true;
 
-        // Handle nullable types
         var underlyingType = Nullable.GetUnderlyingType(type);
         return underlyingType != null && (underlyingType.IsPrimitive || PrimitiveTypes.Contains(underlyingType));
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json.Serialization;
 using FluentResults;
 
 public static class FilterEvaluator
@@ -127,11 +128,6 @@ public static class FilterEvaluator
         return (MemberExpression)current;
     }
 
-    private static bool IsNullableReferenceType(Type type)
-    {
-        return !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
-    }
-
     private static bool IsPrimitiveType(Type type)
     {
         return type.IsPrimitive || type == typeof(string) || type == typeof(decimal) ||
@@ -226,13 +222,13 @@ public static class FilterEvaluator
     {
         return literal switch
         {
-            IntegerLiteral intLit => CreateIntegerConstant(intLit.Value, expression),
+            IntegerLiteral intLit => CreateIntegerOrEnumConstant(intLit.Value, expression.Type),
             DateLiteral dateLit => Result.Ok(CreateDateConstant(dateLit, expression)),
             GuidLiteral guidLit => Result.Ok(Expression.Constant(guidLit.Value, expression.Type)),
             DecimalLiteral decLit => Result.Ok(Expression.Constant(decLit.Value, expression.Type)),
             FloatLiteral floatLit => Result.Ok(Expression.Constant(floatLit.Value, expression.Type)),
             DoubleLiteral dblLit => Result.Ok(Expression.Constant(dblLit.Value, expression.Type)),
-            StringLiteral strLit => Result.Ok(Expression.Constant(strLit.Value, expression.Type)),
+            StringLiteral strLit => CreateStringOrEnumConstant(strLit.Value, expression.Type),
             DateTimeLiteral dtLit => Result.Ok(Expression.Constant(dtLit.Value, expression.Type)),
             BooleanLiteral boolLit => Result.Ok(Expression.Constant(boolLit.Value, expression.Type)),
             NullLiteral _ => Result.Ok(Expression.Constant(null, expression.Type)),
@@ -246,11 +242,6 @@ public static class FilterEvaluator
         if (constantResult.IsFailed) return Result.Fail(constantResult.Errors);
 
         return Result.Ok((constantResult.Value, property));
-    }
-
-    private static Result<ConstantExpression> CreateIntegerConstant(int value, Expression expression)
-    {
-        return GetIntegerExpressionConstant(value, expression.Type);
     }
 
     private static ConstantExpression CreateDateConstant(DateLiteral dateLiteral, Expression expression)
@@ -563,9 +554,7 @@ public static class FilterEvaluator
     {
         try
         {
-            // Fetch the underlying type if it's nullable.
-            var underlyingType = Nullable.GetUnderlyingType(targetType);
-            var type = underlyingType ?? targetType;
+            var type = GetNonNullableType(targetType);
 
             object convertedValue = type switch
             {
@@ -586,9 +575,76 @@ public static class FilterEvaluator
         {
             return Result.Fail($"Value {value} is too large for type {targetType.Name}");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return Result.Fail($"Error converting {value} to {targetType.Name}: {ex.Message}");
+            return Result.Fail($"Error converting {value} to {targetType.Name}");
         }
+    }
+
+    private static Result<ConstantExpression> CreateIntegerOrEnumConstant(int value, Type targetType)
+    {
+        var actualType = GetNonNullableType(targetType);
+
+        if (actualType.IsEnum)
+        {
+            return ConvertIntegerToEnum(value, actualType, targetType);
+        }
+
+        return GetIntegerExpressionConstant(value, targetType);
+    }
+
+    private static Result<ConstantExpression> ConvertIntegerToEnum(int value, Type actualType, Type targetType)
+    {
+        try
+        {
+            var enumValue = Enum.ToObject(actualType, value);
+
+            return Result.Ok(Expression.Constant(enumValue, targetType));
+        }
+        catch (Exception)
+        {
+            return Result.Fail($"Error converting {value} to enum type {targetType.Name}");
+        }
+    }
+
+    private static Result<ConstantExpression> CreateStringOrEnumConstant(string value, Type targetType)
+    {
+        var actualType = GetNonNullableType(targetType);
+
+        if (actualType.IsEnum)
+        {
+            return ConvertStringToEnum(value, actualType, targetType);
+        }
+
+        return Result.Ok(Expression.Constant(value, targetType));
+    }
+
+    private static Result<ConstantExpression> ConvertStringToEnum(string value, Type actualType, Type targetType)
+    {
+        try
+        {
+            var enumValue = Enum.Parse(actualType, value, true);
+
+            return Result.Ok(Expression.Constant(enumValue, targetType));
+        }
+        catch (Exception)
+        {
+            foreach (var field in actualType.GetFields(BindingFlags.Public | BindingFlags.Static))
+            {
+                var memberNameAttribute = field.GetCustomAttribute<JsonStringEnumMemberNameAttribute>();
+
+                if (memberNameAttribute != null && memberNameAttribute.Name.Equals(value, StringComparison.Ordinal))
+                {
+                    return Result.Ok(Expression.Constant(field.GetValue(null), targetType));
+                }
+            }
+
+            return Result.Fail($"Value '{value}' is not a valid member of enum {actualType.Name}");
+        }
+    }
+
+    private static Type GetNonNullableType(Type type)
+    {
+        return Nullable.GetUnderlyingType(type) ?? type;
     }
 }

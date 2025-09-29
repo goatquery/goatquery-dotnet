@@ -523,6 +523,109 @@ public sealed class FilterLexerTest
                 new (TokenType.RPAREN, ")"),
             }
         };
+
+        yield return new object[]
+        {
+            "status eq 0",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "status"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.INT, "0"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "status eq 1",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "status"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.INT, "1"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "status ne 0",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "status"),
+                new (TokenType.IDENT, "ne"),
+                new (TokenType.INT, "0"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "gender eq 'Male'",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "gender"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.STRING, "Male"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "gender eq 'Female'",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "gender"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.STRING, "Female"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "gender eq 'Alternative'",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "gender"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.STRING, "Alternative"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "gender ne 'Male'",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "gender"),
+                new (TokenType.IDENT, "ne"),
+                new (TokenType.STRING, "Male"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "gender eq null",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "gender"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.NULL, "null"),
+            }
+        };
+
+        yield return new object[]
+        {
+            "gender eq 'Male' and status eq 0",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "gender"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.STRING, "Male"),
+                new (TokenType.IDENT, "and"),
+                new (TokenType.IDENT, "status"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.INT, "0"),
+            }
+        };
     }
 
     [Theory]

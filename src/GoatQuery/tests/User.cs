@@ -4,6 +4,8 @@ public record User
 {
     public Guid Id { get; set; }
     public int Age { get; set; }
+    public Gender? Gender { get; set; }
+    public Status Status { get; set; }
     public string Firstname { get; set; } = string.Empty;
     public decimal? BalanceDecimal { get; set; }
     public double? BalanceDouble { get; set; }
@@ -43,4 +45,20 @@ public sealed record CustomJsonPropertyUser : User
 {
     [JsonPropertyName("last_name")]
     public string Lastname { get; set; } = string.Empty;
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum Gender
+{
+    Male,
+    Female,
+    [JsonStringEnumMemberName("Alternative")]
+    Other
+}
+
+
+public enum Status
+{
+    Active,
+    Inactive,
 }
