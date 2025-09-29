@@ -2,11 +2,16 @@
 
 A .NET library for parsing query parameters into LINQ expressions. Enables database-level filtering, sorting, and pagination from HTTP query strings.
 
+> [!NOTE]
+> This project only supports Entity Framework Linq currently.
+
 ## Installation
 
 ```bash
 dotnet add package GoatQuery
-dotnet add package GoatQuery.AspNetCore  # For ASP.NET Core integration
+
+# Or for ASP.NET Core integration please install this instead.
+dotnet add package GoatQuery.AspNetCore
 ```
 
 ## Quick Start
