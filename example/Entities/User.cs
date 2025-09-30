@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 public record User
 {
@@ -6,6 +7,7 @@ public record User
     public string Firstname { get; set; } = string.Empty;
     public string Lastname { get; set; } = string.Empty;
     public int Age { get; set; }
+    public Gender Gender { get; set; }
     public bool IsDeleted { get; set; }
     public bool IsEmailVerified { get; set; }
     public double Test { get; set; }
@@ -41,4 +43,13 @@ public record Company
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Department { get; set; } = string.Empty;
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum Gender
+{
+    Male,
+    Female,
+    [JsonStringEnumMemberName("Alternative")]
+    Other
 }

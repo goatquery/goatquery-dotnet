@@ -350,6 +350,96 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
             "tags/any(x: x eq 'standard')",
             new[] { TestData.Users["User05"] }
         };
+
+        yield return new object[] {
+            "status eq 0",
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User05"] }
+        };
+
+        yield return new object[] {
+            "status eq 1",
+            new[] { TestData.Users["User03"], TestData.Users["User04"] }
+        };
+
+        yield return new object[] {
+            "status ne 0",
+            new[] { TestData.Users["User03"], TestData.Users["User04"] }
+        };
+
+        yield return new object[] {
+            "status ne 1",
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User05"] }
+        };
+
+        yield return new object[] {
+            "gender eq 'Male'",
+            new[] { TestData.Users["User01"], TestData.Users["User05"] }
+        };
+
+        yield return new object[] {
+            "gender eq 'male'",
+            new[] { TestData.Users["User01"], TestData.Users["User05"] }
+        };
+
+        yield return new object[] {
+            "gender eq 'Female'",
+            new[] { TestData.Users["User02"] }
+        };
+
+        yield return new object[] {
+            "gender eq 'Alternative'",
+            new[] { TestData.Users["User03"] }
+        };
+
+        yield return new object[] {
+            "gender ne 'Male'",
+            new[] { TestData.Users["User02"], TestData.Users["User03"], TestData.Users["User04"] }
+        };
+
+        yield return new object[] {
+            "gender ne 'Female'",
+            new[] { TestData.Users["User01"], TestData.Users["User03"], TestData.Users["User04"], TestData.Users["User05"] }
+        };
+
+        yield return new object[] {
+            "gender eq null",
+            new[] { TestData.Users["User04"] }
+        };
+
+        yield return new object[] {
+            "gender ne null",
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User03"], TestData.Users["User05"] }
+        };
+
+        yield return new object[] {
+            "gender eq 'Male' and age eq 25",
+            new[] { TestData.Users["User01"], TestData.Users["User05"] }
+        };
+
+        yield return new object[] {
+            "status eq 0 and age gt 25",
+            new[] { TestData.Users["User02"] }
+        };
+
+        yield return new object[] {
+            "gender eq 'Female' or status eq 1",
+            new[] { TestData.Users["User02"], TestData.Users["User03"], TestData.Users["User04"] }
+        };
+
+        yield return new object[] {
+            "gender eq 'Male' or gender eq 'Female'",
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User05"] }
+        };
+
+        yield return new object[] {
+            "(gender eq 'Male' and status eq 0) or age eq 30",
+            new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User03"], TestData.Users["User05"] }
+        };
+
+        yield return new object[] {
+            "gender ne null and status eq 1",
+            new[] { TestData.Users["User03"] }
+        };
     }
 
     [Theory]

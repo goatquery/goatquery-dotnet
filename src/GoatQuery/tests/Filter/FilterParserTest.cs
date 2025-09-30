@@ -191,7 +191,7 @@ public sealed class FilterParserTest
     [InlineData("tags/all(item: item contains 'test')", "tags", "all", "item", "item", "contains", "test")]
     [InlineData("categories/any(c: c eq 'electronics')", "categories", "any", "c", "c", "eq", "electronics")]
     [InlineData("items/all(i: i ne null)", "items", "all", "i", "i", "ne", "null")]
-    public void Test_ParsingQueryLambdaExpression(string input, string expectedProperty, string expectedFunction, 
+    public void Test_ParsingQueryLambdaExpression(string input, string expectedProperty, string expectedFunction,
         string expectedParameter, string expectedLambdaLeft, string expectedLambdaOperator, string expectedLambdaRight)
     {
         var lexer = new QueryLexer(input);
@@ -249,7 +249,7 @@ public sealed class FilterParserTest
         // Verify lambda body contains nested property access
         var bodyExpression = lambda.Body as InfixExpression;
         Assert.NotNull(bodyExpression);
-        
+
         var propertyPath = bodyExpression.Left as PropertyPath;
         Assert.NotNull(propertyPath);
         Assert.Equal(expectedNestedProperty, propertyPath.Segments);
@@ -308,9 +308,9 @@ public sealed class FilterParserTest
         // Verify lambda body contains complex expressions with logical operators
         var bodyExpression = lambda.Body as InfixExpression;
         Assert.NotNull(bodyExpression);
-        
+
         // The body should have logical operators (and/or)
-        Assert.True(bodyExpression.Operator.Equals("and", StringComparison.OrdinalIgnoreCase) || 
+        Assert.True(bodyExpression.Operator.Equals("and", StringComparison.OrdinalIgnoreCase) ||
                    bodyExpression.Operator.Equals("or", StringComparison.OrdinalIgnoreCase));
     }
 
@@ -331,5 +331,94 @@ public sealed class FilterParserTest
 
         Assert.True(result.IsFailed);
     }
-    
+
+    [Theory]
+    [InlineData("status eq 0", "status", "eq", "0")]
+    [InlineData("status eq 1", "status", "eq", "1")]
+    [InlineData("status ne 0", "status", "ne", "0")]
+    [InlineData("status ne 1", "status", "ne", "1")]
+    public void Test_ParsingEnumWithIntegerValue(string input, string expectedLeft, string expectedOperator, string expectedRight)
+    {
+        var lexer = new QueryLexer(input);
+        var parser = new QueryParser(lexer);
+
+        var program = parser.ParseFilter();
+
+        var expression = program.Value.Expression;
+        Assert.NotNull(expression);
+
+        Assert.Equal(expectedLeft, expression.Left.TokenLiteral());
+        Assert.Equal(expectedOperator, expression.Operator);
+        Assert.Equal(expectedRight, expression.Right.TokenLiteral());
+    }
+
+    [Theory]
+    [InlineData("gender eq 'Male'", "gender", "eq", "Male")]
+    [InlineData("gender eq 'Female'", "gender", "eq", "Female")]
+    [InlineData("gender eq 'Alternative'", "gender", "eq", "Alternative")]
+    [InlineData("gender ne 'Male'", "gender", "ne", "Male")]
+    [InlineData("gender ne 'Female'", "gender", "ne", "Female")]
+    public void Test_ParsingEnumWithStringValue(string input, string expectedLeft, string expectedOperator, string expectedRight)
+    {
+        var lexer = new QueryLexer(input);
+        var parser = new QueryParser(lexer);
+
+        var program = parser.ParseFilter();
+
+        var expression = program.Value.Expression;
+        Assert.NotNull(expression);
+
+        Assert.Equal(expectedLeft, expression.Left.TokenLiteral());
+        Assert.Equal(expectedOperator, expression.Operator);
+        Assert.Equal(expectedRight, expression.Right.TokenLiteral());
+    }
+
+    [Theory]
+    [InlineData("gender eq null", "gender", "eq", "null")]
+    [InlineData("gender ne null", "gender", "ne", "null")]
+    public void Test_ParsingNullableEnum(string input, string expectedLeft, string expectedOperator, string expectedRight)
+    {
+        var lexer = new QueryLexer(input);
+        var parser = new QueryParser(lexer);
+
+        var program = parser.ParseFilter();
+
+        var expression = program.Value.Expression;
+        Assert.NotNull(expression);
+
+        Assert.Equal(expectedLeft, expression.Left.TokenLiteral());
+        Assert.Equal(expectedOperator, expression.Operator);
+        Assert.Equal(expectedRight, expression.Right.TokenLiteral());
+    }
+
+    [Fact]
+    public void Test_ParsingEnumWithLogicalOperators()
+    {
+        var input = "gender eq 'Male' and status eq 0";
+
+        var lexer = new QueryLexer(input);
+        var parser = new QueryParser(lexer);
+
+        var program = parser.ParseFilter();
+
+        var expression = program.Value.Expression;
+        Assert.NotNull(expression);
+
+        var left = expression.Left as InfixExpression;
+        Assert.NotNull(left);
+
+        Assert.Equal("gender", left.Left.TokenLiteral());
+        Assert.Equal("eq", left.Operator);
+        Assert.Equal("Male", left.Right.TokenLiteral());
+
+        Assert.Equal("and", expression.Operator);
+
+        var right = expression.Right as InfixExpression;
+        Assert.NotNull(right);
+
+        Assert.Equal("status", right.Left.TokenLiteral());
+        Assert.Equal("eq", right.Operator);
+        Assert.Equal("0", right.Right.TokenLiteral());
+    }
+
 }
