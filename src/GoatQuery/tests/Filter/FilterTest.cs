@@ -440,6 +440,11 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
             "gender ne null and status eq 1",
             new[] { TestData.Users["User03"] }
         };
+
+        yield return new object[] {
+            "firstname eq 'user01'",
+            new[] { TestData.Users["User01"] }
+        };
     }
 
     [Theory]

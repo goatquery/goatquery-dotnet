@@ -202,8 +202,8 @@ public static class FilterEvaluator
     {
         return operatorKeyword switch
         {
-            Keywords.Eq => Expression.Equal(expression, value),
-            Keywords.Ne => Expression.NotEqual(expression, value),
+            Keywords.Eq => CreateEqualityExpression(expression, value, isEqual: true),
+            Keywords.Ne => CreateEqualityExpression(expression, value, isEqual: false),
             Keywords.Contains => CreateContainsExpression(expression, value),
             Keywords.Lt => Expression.LessThan(expression, value),
             Keywords.Lte => Expression.LessThanOrEqual(expression, value),
@@ -261,6 +261,24 @@ public static class FilterEvaluator
         var expressionToLower = Expression.Call(expression, StringToLowerMethod);
         var valueToLower = Expression.Call(value, StringToLowerMethod);
         return Expression.Call(expressionToLower, StringContainsMethod, valueToLower);
+    }
+
+    private static Expression CreateEqualityExpression(Expression expression, ConstantExpression value, bool isEqual)
+    {
+        // For string comparisons, make them case-insensitive
+        if (expression.Type == typeof(string))
+        {
+            var expressionToLower = Expression.Call(expression, StringToLowerMethod);
+            var valueToLower = Expression.Call(value, StringToLowerMethod);
+            return isEqual
+                ? Expression.Equal(expressionToLower, valueToLower)
+                : Expression.NotEqual(expressionToLower, valueToLower);
+        }
+
+        // For non-string types, use standard equality
+        return isEqual
+            ? Expression.Equal(expression, value)
+            : Expression.NotEqual(expression, value);
     }
 
     private static Result<Expression> EvaluateInfixExpression(InfixExpression exp, FilterEvaluationContext context)
