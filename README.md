@@ -51,6 +51,7 @@ public IActionResult GetUsers() => Ok(dbContext.Users);
 GET /api/users?filter=age gt 18 and isActive eq true
 GET /api/users?filter=addresses/any(x: x/city eq 'London')
 GET /api/users?orderby=lastName asc, firstName desc
+GET /api/users?orderby=company/name asc
 GET /api/users?filter=tags/any(x: x eq 'premium')
 GET /api/users?top=10&skip=20&count=true
 GET /api/users?search=john
@@ -58,78 +59,103 @@ GET /api/users?search=john
 
 ## Filtering
 
-### Basic Operators
+### Operators
 
 - **Comparison**: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`
 - **Logical**: `and`, `or`
 - **String**: `contains`
 
-### Lambda Expressions
+### Data Types
 
-Filter collections using `any()` and `all()` with lambda expressions:
+| Type | Example |
+|------|---------|
+| String | `'value'`, `'it\'s escaped'`, `'back\\slash'` |
+| Integer | `42` |
+| Float | `3.14f` |
+| Decimal | `2.5m` |
+| Double | `1.0d` |
+| Boolean | `true`, `false` |
+| DateTime | `2023-12-25T10:30:00Z` |
+| DateTimeOffset | `2023-12-25T10:30:00+05:00` |
+| Date | `2023-12-25` |
+| GUID | `123e4567-e89b-12d3-a456-426614174000` |
+| Enum | `'Active'` (string) or `1` (integer) |
+| Null | `null` |
 
-```csharp
-// Users with any address in London
-"addresses/any(x: x/city eq 'London')"
-
-// Users where all addresses are verified
-"addresses/all(x: x/isVerified eq true)"
-
-// Complex nested conditions
-"addresses/any(x: x/city eq 'London' and x/isActive eq true)"
-
-// Nested collection filtering
-"orders/any(o: o/items/any(i: i/price gt 100))"
-```
+String literals support backslash escaping: `\'` for a literal single quote, `\\` for a literal backslash.
 
 ### Property Path Navigation
 
 Access nested properties using forward slash (`/`) syntax:
 
-```csharp
-// Navigate to nested properties
-"profile/address/city eq 'London'"
-
-// Works with collections and lambda expressions
-"user/addresses/any(x: x/country/name eq 'UK')"
+```
+filter=company/name eq 'TechCorp'
+filter=profile/address/city eq 'London'
+filter=user/addresses/any(x: x/country/name eq 'UK')
 ```
 
-### Data Types
+### Lambda Expressions
 
-- String: `'value'`
-- Numbers: `42`, `3.14f`, `2.5m`, `1.0d`
-- Boolean: `true`, `false`
-- DateTime: `2023-12-25T10:30:00Z`, `2023-12-25`
-- GUID: `123e4567-e89b-12d3-a456-426614174000`
-- Null: `null`
+Filter collections using `any()` and `all()`:
+
+```
+// any() - true if at least one element matches
+addresses/any(x: x/city eq 'London')
+
+// all() - true if all elements match (requires non-empty collection)
+addresses/all(x: x/isVerified eq true)
+
+// Nested lambda expressions
+orders/any(o: o/items/any(i: i/price gt 100))
+
+// Primitive array filtering
+tags/any(x: x eq 'premium')
+scores/any(x: x gt 80)
+```
+
+### Null Safety
+
+String comparisons (`eq`, `ne`, `contains`) are null-safe. When a string property is `null` in the database:
+
+- `eq` and `contains` **exclude** null rows (null does not equal any value)
+- `ne` **includes** null rows (null is "not equal" to any value)
 
 ### Examples
 
-```csharp
-// Basic filtering
-"age gt 18"
-"firstName eq 'John' and isActive ne false"
-"salary ge 50000 or department eq 'Engineering'"
-"name contains 'smith'"
-
-// Lambda expressions
-"addresses/any(x: x/city eq 'London')"
-"orders/all(o: o/status eq 'completed')"
-"tags/any(x: x eq 'premium')"
-"categories/all(x: x contains 'tech')"
-
-// Nested properties
-"profile/address/city eq 'London'"
-"company/department/name contains 'Engineering'"
-
-// Complex combinations
-"age gt 25 and addresses/any(x: x/country eq 'US' and x/isActive eq true)"
-"isActive eq true and tags/any(x: x eq 'premium') and scores/all(x: x gt 70)"
 ```
+age gt 18
+firstName eq 'John' and isActive ne false
+name contains 'smith'
+status eq 'Active'
+createdAt gte 2023-01-01T00:00:00Z
+addresses/any(x: x/city eq 'London' and x/isActive eq true)
+age gt 25 and tags/any(x: x eq 'premium')
+```
+
+## Ordering
+
+Sort by one or more properties, including nested properties:
+
+```
+GET /api/users?orderby=lastName asc
+GET /api/users?orderby=lastName asc, firstName desc
+GET /api/users?orderby=company/name asc
+GET /api/users?orderby=company/name asc, age desc
+```
+
+Default direction is ascending when omitted.
 
 ## Property Mapping
 
-Supports `JsonPropertyName` attributes for both simple and nested properties:
+Properties in query strings are resolved in this order:
+
+1. `[JsonPropertyName]` attribute
+2. `QueryOptions.PropertyNamingPolicy` (if configured)
+3. CLR property name
+
+Property names are matched **case-insensitively**.
+
+### Using JsonPropertyName
 
 ```csharp
 public class UserDto
@@ -137,101 +163,44 @@ public class UserDto
     [JsonPropertyName("first_name")]
     public string FirstName { get; set; }
 
-    public int Age { get; set; }  // Maps to "age"
-
-    public List<AddressDto> Addresses { get; set; }  // Collection properties
-
-    public ProfileDto Profile { get; set; }  // Nested objects
-}
-
-public class AddressDto
-{
-    [JsonPropertyName("street_address")]
-    public string StreetAddress { get; set; }
-
-    public string City { get; set; }
-
-    [JsonPropertyName("is_verified")]
-    public bool IsVerified { get; set; }
+    public int Age { get; set; }
 }
 ```
-
-**Query Examples:**
 
 ```
 filter=first_name eq 'John' and age gt 18
-filter=addresses/any(x: x/street_address contains 'Main St')
-filter=profile/address/city eq 'London'
 ```
 
-## Advanced Features
+### Using PropertyNamingPolicy
 
-### Lambda Expression Support
-
-GoatQuery supports sophisticated collection filtering using lambda expressions:
-
-#### Any/All Operations
+Apply a global naming policy instead of decorating every property:
 
 ```csharp
-// any() - true if at least one element matches
-"addresses/any(x: x/city eq 'London')"
+var options = new QueryOptions
+{
+    PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+};
 
-// all() - true if all elements match (requires non-empty collection)
-"addresses/all(x: x/isVerified eq true)"
+var result = dbContext.Users.Apply(query, options: options);
 ```
 
-#### Nested Lambda Expressions
-
-```csharp
-// Multi-level collection filtering
-"orders/any(o: o/items/any(i: i/price gt 100 and i/category eq 'Electronics'))"
-
-// Complex nested conditions
-"departments/any(d: d/employees/all(e: e/isActive eq true and e/salary gt 50000))"
+```
+filter=first_name eq 'John' and date_of_birth gt 1990-01-01
 ```
 
-#### Lambda with Property Navigation
+## Configuration
+
+Configure query behaviour through `QueryOptions`:
 
 ```csharp
-// Navigate through nested objects within lambdas
-"addresses/any(x: x/country/code eq 'US' and x/state/name eq 'California')"
-```
+var options = new QueryOptions
+{
+    MaxTop = 100,                   // Maximum allowed top value
+    MaxPropertyMappingDepth = 5,    // Max depth for nested property resolution (default: 5)
+    PropertyNamingPolicy = JsonNamingPolicy.CamelCase  // Global property naming policy
+};
 
-#### Primitive Array Filtering
-
-Filter arrays of primitive types (strings, numbers, etc.) directly:
-
-```csharp
-// Filter by tags (string array)
-"tags/any(x: x eq 'vip')"
-"tags/any(x: x contains 'premium')"
-"tags/all(x: x eq 'active')"
-
-// Filter by numeric arrays
-"scores/any(x: x gt 80)"
-"ratings/all(x: x ge 4.5)"
-
-// Combined with other filters
-"age gt 18 and tags/any(x: x eq 'premium')"
-```
-
-**Supported primitive types:**
-
-- `string[]`: `tags/any(x: x eq 'premium')`
-- `int[]`: `scores/any(x: x gt 90)`
-- `decimal[]`: `prices/all(x: x lt 100m)`
-- `DateTime[]`: `dates/any(x: x gt 2023-01-01)`
-- `bool[]`: `flags/all(x: x eq true)`
-
-This enables powerful filtering scenarios like user categorization, product tagging, content classification, and multi-criteria matching directly from query parameters.
-
-### Null Safety
-
-GoatQuery automatically generates null-safe expressions for property navigation:
-
-```csharp
-// Input: "profile/address/city eq 'London'"
-// Generated: user.Profile != null && user.Profile.Address != null && user.Profile.Address.City == "London"
+var result = dbContext.Users.Apply(query, options: options);
 ```
 
 ## Search
@@ -257,7 +226,21 @@ var result = users.Apply(query, new UserSearchBinder());
 [HttpGet]
 [EnableQuery<UserDto>(maxTop: 100)]
 public IActionResult GetUsers() => Ok(dbContext.Users);
+
+// With custom depth
+[EnableQuery<UserDto>(maxTop: 100, maxPropertyMappingDepth: 3)]
 ```
+
+`EnableQuery` automatically resolves `JsonNamingPolicy` from your configured `JsonOptions` in DI. If you've configured a naming policy globally:
+
+```csharp
+builder.Services.Configure<JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+});
+```
+
+The action filter will use that policy for property resolution without additional configuration.
 
 ### Manual Processing
 
