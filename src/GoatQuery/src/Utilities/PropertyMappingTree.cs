@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FluentResults;
 
 public sealed class PropertyMappingTree
 {
@@ -33,6 +35,38 @@ public sealed class PropertyMappingTree
     internal void AddProperty(string jsonPropertyName, PropertyMappingNode node)
     {
         ((Dictionary<string, PropertyMappingNode>)Properties)[jsonPropertyName] = node;
+    }
+
+    public Result<Expression> WalkPropertyPath(
+        IReadOnlyList<string> segments,
+        Expression startExpression,
+        string errorContext = "path"
+    )
+    {
+        var current = startExpression;
+        var currentMappingTree = this;
+
+        for (int i = 0; i < segments.Count; i++)
+        {
+            var segment = segments[i];
+
+            if (!currentMappingTree.TryGetProperty(segment, out var propertyNode))
+                return Result.Fail($"Invalid property '{segment}' in {errorContext}");
+
+            current = Expression.Property(current, propertyNode.ActualPropertyName);
+
+            if (i < segments.Count - 1)
+            {
+                if (!propertyNode.HasNestedMapping)
+                    return Result.Fail(
+                        $"Property '{segment}' does not support nested navigation in {errorContext}"
+                    );
+
+                currentMappingTree = propertyNode.NestedMapping;
+            }
+        }
+
+        return Result.Ok(current);
     }
 }
 

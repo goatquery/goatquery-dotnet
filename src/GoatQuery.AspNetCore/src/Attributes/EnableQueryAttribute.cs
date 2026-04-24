@@ -106,16 +106,10 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
             var jsonOptions = context.HttpContext.RequestServices.GetService<
                 IOptions<JsonOptions>
             >();
-            var namingPolicy = jsonOptions?.Value?.JsonSerializerOptions?.PropertyNamingPolicy;
-            if (namingPolicy is not null)
-            {
-                applyOptions = new QueryOptions()
-                {
-                    MaxTop = applyOptions.MaxTop,
-                    MaxPropertyMappingDepth = applyOptions.MaxPropertyMappingDepth,
-                    PropertyNamingPolicy = namingPolicy,
-                };
-            }
+            applyOptions.PropertyNamingPolicy = jsonOptions
+                ?.Value
+                ?.JsonSerializerOptions
+                ?.PropertyNamingPolicy;
         }
 
         var applyResult = queryable.Apply(query, searchBinder, applyOptions);

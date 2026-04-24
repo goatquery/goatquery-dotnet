@@ -46,34 +46,11 @@ public static class OrderByEvaluator
         PropertyMappingTree propertyMappingTree
     )
     {
-        Expression current = parameterExpression;
-        var currentMappingTree = propertyMappingTree;
-
-        foreach (
-            var (segment, isLast) in statement.Segments.Select(
-                (s, i) => (s, i == statement.Segments.Count - 1)
-            )
-        )
-        {
-            if (!currentMappingTree.TryGetProperty(segment, out var propertyNode))
-            {
-                return Result.Fail($"Invalid property '{segment}' within orderby");
-            }
-
-            current = Expression.Property(current, propertyNode.ActualPropertyName);
-
-            if (!isLast)
-            {
-                if (!propertyNode.HasNestedMapping)
-                    return Result.Fail(
-                        $"Property '{segment}' does not support nested navigation in orderby"
-                    );
-
-                currentMappingTree = propertyNode.NestedMapping;
-            }
-        }
-
-        return Result.Ok(current);
+        return propertyMappingTree.WalkPropertyPath(
+            statement.Segments,
+            parameterExpression,
+            "orderby"
+        );
     }
 
     private static string GetOrderByMethodName(OrderByDirection direction, bool isAlreadyOrdered)

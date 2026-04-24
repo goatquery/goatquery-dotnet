@@ -106,31 +106,14 @@ public static class FilterEvaluator
         PropertyMappingTree propertyMappingTree
     )
     {
-        var current = startExpression;
-        var currentMappingTree = propertyMappingTree;
-
-        foreach (
-            var (segment, isLast) in propertyPath.Segments.Select(
-                (s, i) => (s, i == propertyPath.Segments.Count - 1)
-            )
-        )
-        {
-            if (!currentMappingTree.TryGetProperty(segment, out var propertyNode))
-                return Result.Fail($"Invalid property '{segment}' in path");
-
-            current = Expression.Property(current, propertyNode.ActualPropertyName);
-
-            // Navigate to nested mapping for next segment
-            if (!isLast)
-            {
-                if (!propertyNode.HasNestedMapping)
-                    return Result.Fail($"Property '{segment}' does not support nested navigation");
-
-                currentMappingTree = propertyNode.NestedMapping;
-            }
-        }
-
-        return Result.Ok((MemberExpression)current);
+        var result = propertyMappingTree.WalkPropertyPath(
+            propertyPath.Segments,
+            startExpression,
+            "path"
+        );
+        if (result.IsFailed)
+            return Result.Fail(result.Errors);
+        return Result.Ok((MemberExpression)result.Value);
     }
 
     private static Result<MemberExpression> ResolvePropertyPathForCollection(
@@ -139,33 +122,14 @@ public static class FilterEvaluator
         PropertyMappingTree propertyMappingTree
     )
     {
-        var current = baseExpression;
-        var currentMappingTree = propertyMappingTree;
-
-        for (int i = 0; i < propertyPath.Segments.Count; i++)
-        {
-            var segment = propertyPath.Segments[i];
-
-            if (!currentMappingTree.TryGetProperty(segment, out var propertyNode))
-                return Result.Fail(
-                    $"Invalid property '{segment}' in lambda expression property path"
-                );
-
-            current = Expression.Property(current, propertyNode.ActualPropertyName);
-
-            // Navigate to nested mapping for next segment
-            if (i < propertyPath.Segments.Count - 1)
-            {
-                if (!propertyNode.HasNestedMapping)
-                    return Result.Fail(
-                        $"Property '{segment}' does not support nested navigation in lambda expression"
-                    );
-
-                currentMappingTree = propertyNode.NestedMapping;
-            }
-        }
-
-        return (MemberExpression)current;
+        var result = propertyMappingTree.WalkPropertyPath(
+            propertyPath.Segments,
+            baseExpression,
+            "lambda expression property path"
+        );
+        if (result.IsFailed)
+            return Result.Fail(result.Errors);
+        return Result.Ok((MemberExpression)result.Value);
     }
 
     private static bool IsPrimitiveType(Type type)
@@ -390,14 +354,14 @@ public static class FilterEvaluator
         {
             var expressionToLower = Expression.Call(expression, StringToLowerMethod);
             var valueToLower = Expression.Call(value, StringToLowerMethod);
-            var nullCheck = Expression.NotEqual(
-                expression,
-                Expression.Constant(null, typeof(string))
-            );
 
             if (isEqual)
             {
                 // eq: (expression != null && expression.ToLower() == value.ToLower())
+                var nullCheck = Expression.NotEqual(
+                    expression,
+                    Expression.Constant(null, typeof(string))
+                );
                 return Expression.AndAlso(
                     nullCheck,
                     Expression.Equal(expressionToLower, valueToLower)
@@ -777,29 +741,12 @@ public static class FilterEvaluator
         int maxPropertyMappingDepth
     )
     {
-        var current = startExpression;
-        var currentMappingTree = PropertyMappingTreeBuilder.BuildMappingTree(
+        var mappingTree = PropertyMappingTreeBuilder.BuildMappingTree(
             elementType,
             maxPropertyMappingDepth
         );
 
-        foreach (var segment in segments)
-        {
-            if (!currentMappingTree.TryGetProperty(segment, out var propertyNode))
-            {
-                return Result.Fail($"Invalid property '{segment}' in lambda property path");
-            }
-
-            current = Expression.Property(current, propertyNode.ActualPropertyName);
-
-            // Update mapping tree for nested navigation
-            if (propertyNode.HasNestedMapping)
-            {
-                currentMappingTree = propertyNode.NestedMapping;
-            }
-        }
-
-        return Result.Ok(current);
+        return mappingTree.WalkPropertyPath(segments, startExpression, "lambda property path");
     }
 
     private static Type GetCollectionElementType(Type collectionType)
