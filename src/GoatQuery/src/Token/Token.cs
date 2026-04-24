@@ -16,7 +16,7 @@ public enum TokenType
     LPAREN,
     RPAREN,
     SLASH,
-    COLON
+    COLON,
 }
 
 public static class Keywords

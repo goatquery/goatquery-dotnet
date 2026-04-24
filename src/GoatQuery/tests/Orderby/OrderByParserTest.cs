@@ -10,7 +10,7 @@ public sealed class OrderByParserTest
             new OrderByStatement[]
             {
                 new OrderByStatement(new Token(TokenType.IDENT, "ID"), OrderByDirection.Descending),
-            }
+            },
         };
 
         yield return new object[]
@@ -19,7 +19,7 @@ public sealed class OrderByParserTest
             new OrderByStatement[]
             {
                 new OrderByStatement(new Token(TokenType.IDENT, "id"), OrderByDirection.Ascending),
-            }
+            },
         };
 
         yield return new object[]
@@ -27,8 +27,11 @@ public sealed class OrderByParserTest
             "Name",
             new OrderByStatement[]
             {
-                new OrderByStatement(new Token(TokenType.IDENT, "Name"), OrderByDirection.Ascending),
-            }
+                new OrderByStatement(
+                    new Token(TokenType.IDENT, "Name"),
+                    OrderByDirection.Ascending
+                ),
+            },
         };
 
         yield return new object[]
@@ -37,8 +40,11 @@ public sealed class OrderByParserTest
             new OrderByStatement[]
             {
                 new OrderByStatement(new Token(TokenType.IDENT, "id"), OrderByDirection.Ascending),
-                new OrderByStatement(new Token(TokenType.IDENT, "name"), OrderByDirection.Descending)
-            }
+                new OrderByStatement(
+                    new Token(TokenType.IDENT, "name"),
+                    OrderByDirection.Descending
+                ),
+            },
         };
 
         yield return new object[]
@@ -47,11 +53,20 @@ public sealed class OrderByParserTest
             new OrderByStatement[]
             {
                 new OrderByStatement(new Token(TokenType.IDENT, "id"), OrderByDirection.Ascending),
-                new OrderByStatement(new Token(TokenType.IDENT, "name"), OrderByDirection.Descending),
+                new OrderByStatement(
+                    new Token(TokenType.IDENT, "name"),
+                    OrderByDirection.Descending
+                ),
                 new OrderByStatement(new Token(TokenType.IDENT, "age"), OrderByDirection.Ascending),
-                new OrderByStatement(new Token(TokenType.IDENT, "address"), OrderByDirection.Ascending),
-                new OrderByStatement(new Token(TokenType.IDENT, "postcode"), OrderByDirection.Descending)
-            }
+                new OrderByStatement(
+                    new Token(TokenType.IDENT, "address"),
+                    OrderByDirection.Ascending
+                ),
+                new OrderByStatement(
+                    new Token(TokenType.IDENT, "postcode"),
+                    OrderByDirection.Descending
+                ),
+            },
         };
 
         yield return new object[]
@@ -59,22 +74,27 @@ public sealed class OrderByParserTest
             "address1Line10 asc, asc asc, desc desc",
             new OrderByStatement[]
             {
-                new OrderByStatement(new Token(TokenType.IDENT, "address1Line10"), OrderByDirection.Ascending),
+                new OrderByStatement(
+                    new Token(TokenType.IDENT, "address1Line10"),
+                    OrderByDirection.Ascending
+                ),
                 new OrderByStatement(new Token(TokenType.IDENT, "asc"), OrderByDirection.Ascending),
-                new OrderByStatement(new Token(TokenType.IDENT, "desc"), OrderByDirection.Descending),
-            }
+                new OrderByStatement(
+                    new Token(TokenType.IDENT, "desc"),
+                    OrderByDirection.Descending
+                ),
+            },
         };
 
-        yield return new object[]
-        {
-            "",
-            new OrderByStatement[] { }
-        };
+        yield return new object[] { "", new OrderByStatement[] { } };
     }
 
     [Theory]
     [MemberData(nameof(Parameters))]
-    public void Test_ParsingMultipleOrderByStatement(string input, IEnumerable<OrderByStatement> expected)
+    public void Test_ParsingMultipleOrderByStatement(
+        string input,
+        IEnumerable<OrderByStatement> expected
+    )
     {
         var lexer = new QueryLexer(input);
         var parser = new QueryParser(lexer);

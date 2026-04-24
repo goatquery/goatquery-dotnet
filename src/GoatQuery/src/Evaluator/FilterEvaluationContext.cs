@@ -9,7 +9,11 @@ internal class FilterEvaluationContext
     public int MaxPropertyMappingDepth { get; }
     public Stack<LambdaScope> LambdaScopes { get; } = new Stack<LambdaScope>();
 
-    public FilterEvaluationContext(ParameterExpression rootParameter, PropertyMappingTree propertyMappingTree, int maxPropertyMappingDepth)
+    public FilterEvaluationContext(
+        ParameterExpression rootParameter,
+        PropertyMappingTree propertyMappingTree,
+        int maxPropertyMappingDepth
+    )
     {
         RootParameter = rootParameter;
         PropertyMappingTree = propertyMappingTree;
@@ -19,14 +23,20 @@ internal class FilterEvaluationContext
     public bool IsInLambdaScope => LambdaScopes.Count > 0;
     public LambdaScope CurrentLambda => LambdaScopes.Peek();
 
-    public void EnterLambdaScope(string parameterName, ParameterExpression parameter, Type elementType)
+    public void EnterLambdaScope(
+        string parameterName,
+        ParameterExpression parameter,
+        Type elementType
+    )
     {
-        LambdaScopes.Push(new LambdaScope
-        {
-            ParameterName = parameterName,
-            Parameter = parameter,
-            ElementType = elementType
-        });
+        LambdaScopes.Push(
+            new LambdaScope
+            {
+                ParameterName = parameterName,
+                Parameter = parameter,
+                ElementType = elementType,
+            }
+        );
     }
 
     public void ExitLambdaScope() => LambdaScopes.Pop();

@@ -4,13 +4,13 @@ public sealed class InfixExpression : QueryExpression
     public string Operator { get; set; } = string.Empty;
     public QueryExpression Right { get; set; } = default;
 
-    public InfixExpression(Token token, QueryExpression left, string op) : base(token)
+    public InfixExpression(Token token, QueryExpression left, string op)
+        : base(token)
     {
         Left = left;
         Operator = op;
     }
 
-    public InfixExpression(Token token) : base(token)
-    {
-    }
+    public InfixExpression(Token token)
+        : base(token) { }
 }

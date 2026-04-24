@@ -24,7 +24,10 @@ public sealed class PropertyMappingTree
             return false;
         }
 
-        return ((Dictionary<string, PropertyMappingNode>)Properties).TryGetValue(jsonPropertyName, out node);
+        return ((Dictionary<string, PropertyMappingNode>)Properties).TryGetValue(
+            jsonPropertyName,
+            out node
+        );
     }
 
     internal void AddProperty(string jsonPropertyName, PropertyMappingNode node)
@@ -47,10 +50,13 @@ public sealed class PropertyMappingNode
         string actualPropertyName,
         Type propertyType,
         bool isCollection = false,
-        Type collectionElementType = null)
+        Type collectionElementType = null
+    )
     {
-        JsonPropertyName = jsonPropertyName ?? throw new ArgumentNullException(nameof(jsonPropertyName));
-        ActualPropertyName = actualPropertyName ?? throw new ArgumentNullException(nameof(actualPropertyName));
+        JsonPropertyName =
+            jsonPropertyName ?? throw new ArgumentNullException(nameof(jsonPropertyName));
+        ActualPropertyName =
+            actualPropertyName ?? throw new ArgumentNullException(nameof(actualPropertyName));
         PropertyType = propertyType ?? throw new ArgumentNullException(nameof(propertyType));
         IsCollection = isCollection;
         CollectionElementType = collectionElementType;
@@ -63,24 +69,52 @@ public static class PropertyMappingTreeBuilder
 {
     private static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>
     {
-        typeof(string), typeof(decimal), typeof(DateTime),
-        typeof(DateTimeOffset), typeof(TimeSpan), typeof(Guid)
+        typeof(string),
+        typeof(decimal),
+        typeof(DateTime),
+        typeof(DateTimeOffset),
+        typeof(TimeSpan),
+        typeof(Guid),
     };
 
-    public static PropertyMappingTree BuildMappingTree<T>(int maxDepth, JsonNamingPolicy namingPolicy = null)
+    public static PropertyMappingTree BuildMappingTree<T>(
+        int maxDepth,
+        JsonNamingPolicy namingPolicy = null
+    )
     {
         return BuildMappingTree(typeof(T), maxDepth, namingPolicy);
     }
 
-    public static PropertyMappingTree BuildMappingTree(Type type, int maxDepth, JsonNamingPolicy namingPolicy = null)
+    public static PropertyMappingTree BuildMappingTree(
+        Type type,
+        int maxDepth,
+        JsonNamingPolicy namingPolicy = null
+    )
     {
-        if (type == null) throw new ArgumentNullException(nameof(type));
-        if (maxDepth <= 0) throw new ArgumentOutOfRangeException(nameof(maxDepth), "Max depth must be greater than 0");
+        if (type == null)
+            throw new ArgumentNullException(nameof(type));
+        if (maxDepth <= 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(maxDepth),
+                "Max depth must be greater than 0"
+            );
 
-        return BuildMappingTreeInternal(type, maxDepth, currentDepth: 0, new List<Type>(), namingPolicy);
+        return BuildMappingTreeInternal(
+            type,
+            maxDepth,
+            currentDepth: 0,
+            new List<Type>(),
+            namingPolicy
+        );
     }
 
-    private static PropertyMappingTree BuildMappingTreeInternal(Type type, int maxDepth, int currentDepth, List<Type> typePath, JsonNamingPolicy namingPolicy)
+    private static PropertyMappingTree BuildMappingTreeInternal(
+        Type type,
+        int maxDepth,
+        int currentDepth,
+        List<Type> typePath,
+        JsonNamingPolicy namingPolicy
+    )
     {
         var tree = new PropertyMappingTree(type);
 
@@ -100,7 +134,14 @@ public static class PropertyMappingTreeBuilder
         return tree;
     }
 
-    private static void BuildPropertiesForTree(PropertyMappingTree tree, Type type, int maxDepth, int currentDepth, List<Type> typePath, JsonNamingPolicy namingPolicy)
+    private static void BuildPropertiesForTree(
+        PropertyMappingTree tree,
+        Type type,
+        int maxDepth,
+        int currentDepth,
+        List<Type> typePath,
+        JsonNamingPolicy namingPolicy
+    )
     {
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
@@ -109,21 +150,28 @@ public static class PropertyMappingTreeBuilder
             var node = CreatePropertyNode(property, namingPolicy);
             var typeToProcess = node.CollectionElementType ?? node.PropertyType;
 
-            if (ShouldCreateNestedMapping(typeToProcess) && CanNavigateToType(typeToProcess, typePath, maxDepth))
+            if (
+                ShouldCreateNestedMapping(typeToProcess)
+                && CanNavigateToType(typeToProcess, typePath, maxDepth)
+            )
             {
                 node.NestedMapping = BuildMappingTreeInternal(
                     typeToProcess,
                     maxDepth,
                     currentDepth + 1,
                     new List<Type>(typePath),
-                    namingPolicy);
+                    namingPolicy
+                );
             }
 
             tree.AddProperty(node.JsonPropertyName, node);
         }
     }
 
-    private static PropertyMappingNode CreatePropertyNode(PropertyInfo property, JsonNamingPolicy namingPolicy)
+    private static PropertyMappingNode CreatePropertyNode(
+        PropertyInfo property,
+        JsonNamingPolicy namingPolicy
+    )
     {
         var jsonPropertyName = GetJsonPropertyName(property, namingPolicy);
         var (isCollection, elementType) = GetCollectionInfo(property.PropertyType);
@@ -133,7 +181,8 @@ public static class PropertyMappingTreeBuilder
             property.Name,
             property.PropertyType,
             isCollection,
-            elementType);
+            elementType
+        );
     }
 
     private static bool CanNavigateToType(Type type, List<Type> typePath, int maxDepth)
@@ -168,10 +217,10 @@ public static class PropertyMappingTreeBuilder
 
     private static bool ShouldCreateNestedMapping(Type type)
     {
-        return !IsPrimitiveType(type) &&
-               type != typeof(object) &&
-               !type.IsAbstract &&
-               !type.IsInterface;
+        return !IsPrimitiveType(type)
+            && type != typeof(object)
+            && !type.IsAbstract
+            && !type.IsInterface;
     }
 
     private static bool IsPrimitiveType(Type type)
@@ -180,6 +229,7 @@ public static class PropertyMappingTreeBuilder
             return true;
 
         var underlyingType = Nullable.GetUnderlyingType(type);
-        return underlyingType != null && (underlyingType.IsPrimitive || PrimitiveTypes.Contains(underlyingType));
+        return underlyingType != null
+            && (underlyingType.IsPrimitive || PrimitiveTypes.Contains(underlyingType));
     }
 }

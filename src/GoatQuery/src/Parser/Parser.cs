@@ -87,17 +87,16 @@ public sealed class QueryParser
             return Result.Fail(expression.Errors);
         }
 
-        var statement = new ExpressionStatement(_currentToken)
-        {
-            Expression = expression.Value
-        };
+        var statement = new ExpressionStatement(_currentToken) { Expression = expression.Value };
 
         return statement;
     }
 
     private Result<InfixExpression> ParseExpression(int precedence = 0)
     {
-        var left = CurrentTokenIs(TokenType.LPAREN) ? ParseGroupedExpression() : ParseFilterStatement();
+        var left = CurrentTokenIs(TokenType.LPAREN)
+            ? ParseGroupedExpression()
+            : ParseFilterStatement();
         if (left.IsFailed)
         {
             return left;
@@ -165,11 +164,24 @@ public sealed class QueryParser
                 }
 
                 // Check if this is a lambda function (any/all followed by parenthesis)
-                if ((_currentToken.Literal.Equals(Keywords.Any, StringComparison.OrdinalIgnoreCase) ||
-                     _currentToken.Literal.Equals(Keywords.All, StringComparison.OrdinalIgnoreCase)) &&
-                    _peekToken.Type == TokenType.LPAREN)
+                if (
+                    (
+                        _currentToken.Literal.Equals(
+                            Keywords.Any,
+                            StringComparison.OrdinalIgnoreCase
+                        )
+                        || _currentToken.Literal.Equals(
+                            Keywords.All,
+                            StringComparison.OrdinalIgnoreCase
+                        )
+                    )
+                    && _peekToken.Type == TokenType.LPAREN
+                )
                 {
-                    var lambdaResult = ParseLambdaExpression(new PropertyPath(startToken, segments), _currentToken.Literal);
+                    var lambdaResult = ParseLambdaExpression(
+                        new PropertyPath(startToken, segments),
+                        _currentToken.Literal
+                    );
                     if (lambdaResult.IsFailed)
                     {
                         return Result.Fail(lambdaResult.Errors);
@@ -198,7 +210,17 @@ public sealed class QueryParser
             return new InfixExpression(_currentToken, leftExpression, string.Empty);
         }
 
-        if (!PeekIdentifierIn(Keywords.Eq, Keywords.Ne, Keywords.Contains, Keywords.Lt, Keywords.Lte, Keywords.Gt, Keywords.Gte))
+        if (
+            !PeekIdentifierIn(
+                Keywords.Eq,
+                Keywords.Ne,
+                Keywords.Contains,
+                Keywords.Lt,
+                Keywords.Lte,
+                Keywords.Gt,
+                Keywords.Gte
+            )
+        )
         {
             return Result.Fail("Invalid conjunction within filter");
         }
@@ -207,7 +229,20 @@ public sealed class QueryParser
 
         var statement = new InfixExpression(_currentToken, leftExpression, _currentToken.Literal);
 
-        if (!PeekTokenIn(TokenType.STRING, TokenType.INT, TokenType.GUID, TokenType.DATETIME, TokenType.DECIMAL, TokenType.FLOAT, TokenType.DOUBLE, TokenType.DATE, TokenType.NULL, TokenType.BOOLEAN))
+        if (
+            !PeekTokenIn(
+                TokenType.STRING,
+                TokenType.INT,
+                TokenType.GUID,
+                TokenType.DATETIME,
+                TokenType.DECIMAL,
+                TokenType.FLOAT,
+                TokenType.DOUBLE,
+                TokenType.DATE,
+                TokenType.NULL,
+                TokenType.BOOLEAN
+            )
+        )
         {
             return Result.Fail("Invalid value type within filter");
         }
@@ -224,9 +259,21 @@ public sealed class QueryParser
             return Result.Fail("Cannot use 'contains' operand with null value");
         }
 
-        if (statement.Operator.In(Keywords.Lt, Keywords.Lte, Keywords.Gt, Keywords.Gte) && !CurrentTokenIn(TokenType.INT, TokenType.DECIMAL, TokenType.FLOAT, TokenType.DOUBLE, TokenType.DATETIME, TokenType.DATE))
+        if (
+            statement.Operator.In(Keywords.Lt, Keywords.Lte, Keywords.Gt, Keywords.Gte)
+            && !CurrentTokenIn(
+                TokenType.INT,
+                TokenType.DECIMAL,
+                TokenType.FLOAT,
+                TokenType.DOUBLE,
+                TokenType.DATETIME,
+                TokenType.DATE
+            )
+        )
         {
-            return Result.Fail($"Value must be a numeric or date type when using '{statement.Operator}' operand");
+            return Result.Fail(
+                $"Value must be a numeric or date type when using '{statement.Operator}' operand"
+            );
         }
 
         statement.Right = ParseLiteral(_currentToken);
@@ -234,10 +281,13 @@ public sealed class QueryParser
         return statement;
     }
 
-    private Result<QueryLambdaExpression> ParseLambdaExpression(QueryExpression property, string function)
+    private Result<QueryLambdaExpression> ParseLambdaExpression(
+        QueryExpression property,
+        string function
+    )
     {
         var startToken = _currentToken;
-        
+
         // Consume opening parenthesis
         if (!PeekTokenIs(TokenType.LPAREN))
         {
@@ -276,7 +326,7 @@ public sealed class QueryParser
 
         var lambda = new QueryLambdaExpression(startToken, property, function, parameter)
         {
-            Body = bodyResult.Value
+            Body = bodyResult.Value,
         };
 
         return lambda;
@@ -286,33 +336,43 @@ public sealed class QueryParser
     {
         return token.Type switch
         {
-            TokenType.GUID => Guid.TryParse(token.Literal, out var guidValue) 
-                ? new GuidLiteral(token, guidValue) 
+            TokenType.GUID => Guid.TryParse(token.Literal, out var guidValue)
+                ? new GuidLiteral(token, guidValue)
                 : null,
             TokenType.STRING => new StringLiteral(token, token.Literal),
-            TokenType.INT => int.TryParse(token.Literal, out var intValue) 
-                ? new IntegerLiteral(token, intValue) 
+            TokenType.INT => int.TryParse(token.Literal, out var intValue)
+                ? new IntegerLiteral(token, intValue)
                 : null,
-            TokenType.FLOAT => float.TryParse(token.Literal.TrimEnd('f'), out var floatValue) 
-                ? new FloatLiteral(token, floatValue) 
+            TokenType.FLOAT => float.TryParse(token.Literal.TrimEnd('f'), out var floatValue)
+                ? new FloatLiteral(token, floatValue)
                 : null,
-            TokenType.DECIMAL => decimal.TryParse(token.Literal.TrimEnd('m'), out var decimalValue) 
-                ? new DecimalLiteral(token, decimalValue) 
+            TokenType.DECIMAL => decimal.TryParse(token.Literal.TrimEnd('m'), out var decimalValue)
+                ? new DecimalLiteral(token, decimalValue)
                 : null,
-            TokenType.DOUBLE => double.TryParse(token.Literal.TrimEnd('d'), out var doubleValue) 
-                ? new DoubleLiteral(token, doubleValue) 
+            TokenType.DOUBLE => double.TryParse(token.Literal.TrimEnd('d'), out var doubleValue)
+                ? new DoubleLiteral(token, doubleValue)
                 : null,
-            TokenType.DATETIME => DateTime.TryParse(token.Literal, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var dateTimeValue) 
-                ? new DateTimeLiteral(token, dateTimeValue) 
+            TokenType.DATETIME => DateTime.TryParse(
+                token.Literal,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AdjustToUniversal,
+                out var dateTimeValue
+            )
+                ? new DateTimeLiteral(token, dateTimeValue)
                 : null,
-            TokenType.DATE => DateTime.TryParse(token.Literal, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var dateValue) 
-                ? new DateLiteral(token, dateValue) 
+            TokenType.DATE => DateTime.TryParse(
+                token.Literal,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AdjustToUniversal,
+                out var dateValue
+            )
+                ? new DateLiteral(token, dateValue)
                 : null,
             TokenType.NULL => new NullLiteral(token),
-            TokenType.BOOLEAN => bool.TryParse(token.Literal, out var boolValue) 
-                ? new BooleanLiteral(token, boolValue) 
+            TokenType.BOOLEAN => bool.TryParse(token.Literal, out var boolValue)
+                ? new BooleanLiteral(token, boolValue)
                 : null,
-            _ => null
+            _ => null,
         };
     }
 
@@ -351,16 +411,19 @@ public sealed class QueryParser
 
     private bool PeekIdentifierIs(string identifier)
     {
-        return _peekToken.Type == TokenType.IDENT && _peekToken.Literal.Equals(identifier, StringComparison.OrdinalIgnoreCase);
+        return _peekToken.Type == TokenType.IDENT
+            && _peekToken.Literal.Equals(identifier, StringComparison.OrdinalIgnoreCase);
     }
 
     private bool PeekIdentifierIn(params string[] identifier)
     {
-        return _peekToken.Type == TokenType.IDENT && identifier.Contains(_peekToken.Literal, StringComparer.OrdinalIgnoreCase);
+        return _peekToken.Type == TokenType.IDENT
+            && identifier.Contains(_peekToken.Literal, StringComparer.OrdinalIgnoreCase);
     }
 
     private bool CurrentIdentifierIs(string identifier)
     {
-        return _currentToken.Type == TokenType.IDENT && _currentToken.Literal.Equals(identifier, StringComparison.OrdinalIgnoreCase);
+        return _currentToken.Type == TokenType.IDENT
+            && _currentToken.Literal.Equals(identifier, StringComparison.OrdinalIgnoreCase);
     }
 }

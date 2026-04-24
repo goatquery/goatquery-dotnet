@@ -80,7 +80,13 @@ public sealed class QueryLexer
 
     private bool IsDate(string value)
     {
-        return DateTime.TryParseExact(value, new[] { "yyyy-MM-dd" }, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out _);
+        return DateTime.TryParseExact(
+            value,
+            new[] { "yyyy-MM-dd" },
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.AdjustToUniversal,
+            out _
+        );
     }
 
     private bool IsDateTime(string value)
@@ -107,38 +113,52 @@ public sealed class QueryLexer
 
     private bool IsIdentifierCharacter()
     {
-        return IsLetter(_character) || IsDigit(_character) || 
-               _character == '-' || _character == '.';
+        return IsLetter(_character)
+            || IsDigit(_character)
+            || _character == '-'
+            || _character == '.';
     }
 
     private string ReadNumericOrDateTime()
     {
         var startPosition = _position;
-        
+
         // Read digits, and datetime/numeric characters (colons, dashes, dots, etc.)
         while (_character != char.MinValue && IsNumericOrDateTimeCharacter())
         {
             ReadCharacter();
         }
-        
+
         return _input.Substring(startPosition, _position - startPosition);
     }
 
     private bool IsNumericOrDateTimeCharacter()
     {
-        return IsDigit(_character) || 
-               _character == '-' || 
-               _character == ':' || 
-               _character == '.' || 
-               _character == 'T' ||  // DateTime separator
-               _character == 'Z' ||  // UTC indicator
-               _character == '+' ||  // Timezone offset
-               _character == 'f' || _character == 'F' ||  // Float suffix
-               _character == 'm' || _character == 'M' ||  // Decimal suffix  
-               _character == 'd' || _character == 'D' ||  // Double suffix
-               _character == 'l' || _character == 'L' ||  // Long suffix
-               ('a' <= _character && _character <= 'f') ||  // GUID hex chars
-               ('A' <= _character && _character <= 'F');   // GUID hex chars (uppercase)
+        return IsDigit(_character)
+            || _character == '-'
+            || _character == ':'
+            || _character == '.'
+            || _character == 'T'
+            || // DateTime separator
+            _character == 'Z'
+            || // UTC indicator
+            _character == '+'
+            || // Timezone offset
+            _character == 'f'
+            || _character == 'F'
+            || // Float suffix
+            _character == 'm'
+            || _character == 'M'
+            || // Decimal suffix
+            _character == 'd'
+            || _character == 'D'
+            || // Double suffix
+            _character == 'l'
+            || _character == 'L'
+            || // Long suffix
+            ('a' <= _character && _character <= 'f')
+            || // GUID hex chars
+            ('A' <= _character && _character <= 'F'); // GUID hex chars (uppercase)
     }
 
     private TokenType ClassifyIdentifier(string literal)
@@ -149,8 +169,10 @@ public sealed class QueryLexer
         if (literal.Equals(Keywords.Null, StringComparison.OrdinalIgnoreCase))
             return TokenType.NULL;
 
-        if (literal.Equals(Keywords.True, StringComparison.OrdinalIgnoreCase) ||
-            literal.Equals(Keywords.False, StringComparison.OrdinalIgnoreCase))
+        if (
+            literal.Equals(Keywords.True, StringComparison.OrdinalIgnoreCase)
+            || literal.Equals(Keywords.False, StringComparison.OrdinalIgnoreCase)
+        )
             return TokenType.BOOLEAN;
 
         return TokenType.IDENT;
@@ -165,7 +187,7 @@ public sealed class QueryLexer
         // Check for date patterns before datetime (more specific first)
         if (IsDate(literal))
             return TokenType.DATE;
-            
+
         // Check for datetime patterns (since they contain colons)
         if (IsDateTime(literal))
             return TokenType.DATETIME;
@@ -173,21 +195,19 @@ public sealed class QueryLexer
         // Check numeric suffixes
         if (literal.EndsWith("f", StringComparison.OrdinalIgnoreCase))
             return TokenType.FLOAT;
-            
+
         if (literal.EndsWith("m", StringComparison.OrdinalIgnoreCase))
             return TokenType.DECIMAL;
-            
+
         if (literal.EndsWith("d", StringComparison.OrdinalIgnoreCase))
             return TokenType.DOUBLE;
-            
+
         if (literal.EndsWith("l", StringComparison.OrdinalIgnoreCase))
             return TokenType.INT; // Our existing INT type for simplicity
-        
+
         // Default to integer
         return TokenType.INT;
     }
-    
-
 
     private bool IsLetter(char ch)
     {

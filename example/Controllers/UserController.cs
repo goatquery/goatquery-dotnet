@@ -22,8 +22,8 @@ public class UsersController : ControllerBase
     [EnableQuery<UserDto>(maxTop: 10)]
     public ActionResult<IEnumerable<UserDto>> Get()
     {
-        var users = _db.Users
-            .Include(x => x.Company)
+        var users = _db
+            .Users.Include(x => x.Company)
             .Include(x => x.Addresses)
                 .ThenInclude(x => x.City)
             .Include(x => x.Manager)

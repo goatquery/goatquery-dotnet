@@ -15,7 +15,10 @@ public static class TestData
             Firstname = "User01",
             Gender = Gender.Male,
             Status = Status.Active,
-            DateOfBirth = DateTime.SpecifyKind(DateTime.Parse("1998-03-15 10:30:00"), DateTimeKind.Utc),
+            DateOfBirth = DateTime.SpecifyKind(
+                DateTime.Parse("1998-03-15 10:30:00"),
+                DateTimeKind.Utc
+            ),
             BalanceDecimal = 1500.75m,
             BalanceDouble = 2500.50d,
             BalanceFloat = 3500.25f,
@@ -25,7 +28,7 @@ public static class TestData
             {
                 Id = Guid.NewGuid(),
                 Name = "TechCorp",
-                Department = "Engineering"
+                Department = "Engineering",
             },
             Addresses =
             [
@@ -37,8 +40,8 @@ public static class TestData
                     {
                         Id = Guid.NewGuid(),
                         Name = "New York",
-                        Country = "USA"
-                    }
+                        Country = "USA",
+                    },
                 },
                 new Address
                 {
@@ -48,11 +51,11 @@ public static class TestData
                     {
                         Id = Guid.NewGuid(),
                         Name = "Chicago",
-                        Country = "USA"
-                    }
-                }
+                        Country = "USA",
+                    },
+                },
             ],
-            Tags = ["vip", "premium"]
+            Tags = ["vip", "premium"],
         },
         ["User02"] = new User
         {
@@ -61,7 +64,10 @@ public static class TestData
             Firstname = "User02",
             Gender = Gender.Female,
             Status = Status.Active,
-            DateOfBirth = DateTime.SpecifyKind(DateTime.Parse("1993-07-20 14:00:00"), DateTimeKind.Utc),
+            DateOfBirth = DateTime.SpecifyKind(
+                DateTime.Parse("1993-07-20 14:00:00"),
+                DateTimeKind.Utc
+            ),
             BalanceDecimal = 500.00m,
             BalanceDouble = null,
             BalanceFloat = 750.50f,
@@ -71,7 +77,7 @@ public static class TestData
             {
                 Id = Guid.NewGuid(),
                 Name = "DataSoft",
-                Department = "Development"
+                Department = "Development",
             },
             Addresses =
             [
@@ -83,11 +89,11 @@ public static class TestData
                     {
                         Id = Guid.NewGuid(),
                         Name = "Seattle",
-                        Country = "USA"
-                    }
-                }
+                        Country = "USA",
+                    },
+                },
             ],
-            Tags = ["premium"]
+            Tags = ["premium"],
         },
         ["User03"] = new User
         {
@@ -96,7 +102,10 @@ public static class TestData
             Firstname = "User03",
             Gender = Gender.Other,
             Status = Status.Inactive,
-            DateOfBirth = DateTime.SpecifyKind(DateTime.Parse("1993-11-10 09:15:00"), DateTimeKind.Utc),
+            DateOfBirth = DateTime.SpecifyKind(
+                DateTime.Parse("1993-11-10 09:15:00"),
+                DateTimeKind.Utc
+            ),
             BalanceDecimal = null,
             BalanceDouble = 1000.00d,
             BalanceFloat = null,
@@ -106,10 +115,10 @@ public static class TestData
             {
                 Id = Guid.NewGuid(),
                 Name = "Tech Solutions",
-                Department = "Sales"
+                Department = "Sales",
             },
             Addresses = Array.Empty<Address>(),
-            Tags = Array.Empty<string>()
+            Tags = Array.Empty<string>(),
         },
         ["User04"] = new User
         {
@@ -126,7 +135,7 @@ public static class TestData
             ManagerId = User02Id,
             Company = null,
             Addresses = Array.Empty<Address>(),
-            Tags = Array.Empty<string>()
+            Tags = Array.Empty<string>(),
         },
         ["User05"] = new User
         {
@@ -135,7 +144,10 @@ public static class TestData
             Firstname = "User05",
             Gender = Gender.Male,
             Status = Status.Active,
-            DateOfBirth = DateTime.SpecifyKind(DateTime.Parse("1998-12-25 18:45:00"), DateTimeKind.Utc),
+            DateOfBirth = DateTime.SpecifyKind(
+                DateTime.Parse("1998-12-25 18:45:00"),
+                DateTimeKind.Utc
+            ),
             BalanceDecimal = 0.00m,
             BalanceDouble = 0.00d,
             BalanceFloat = null,
@@ -145,7 +157,7 @@ public static class TestData
             {
                 Id = Guid.NewGuid(),
                 Name = "WebCorp",
-                Department = "Marketing"
+                Department = "Marketing",
             },
             Addresses =
             [
@@ -157,11 +169,11 @@ public static class TestData
                     {
                         Id = Guid.NewGuid(),
                         Name = "Miami",
-                        Country = "USA"
-                    }
-                }
+                        Country = "USA",
+                    },
+                },
             ],
-            Tags = ["standard"]
-        }
+            Tags = ["standard"],
+        },
     };
 }

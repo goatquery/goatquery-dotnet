@@ -11,9 +11,7 @@ public class DatabaseTestFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        _postgresContainer = new PostgreSqlBuilder()
-            .WithImage("postgres:18-alpine")
-            .Build();
+        _postgresContainer = new PostgreSqlBuilder().WithImage("postgres:18-alpine").Build();
 
         await _postgresContainer.StartAsync();
 

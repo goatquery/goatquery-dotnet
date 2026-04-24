@@ -12,7 +12,7 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
         var options = new QueryOptions()
         {
             MaxTop = maxTop,
-            MaxPropertyMappingDepth = maxPropertyMappingDepth
+            MaxPropertyMappingDepth = maxPropertyMappingDepth,
         };
 
         _options = options;
@@ -25,10 +25,12 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
     public override void OnActionExecuted(ActionExecutedContext context)
     {
         var result = context.Result as ObjectResult;
-        if (result is null) return;
+        if (result is null)
+            return;
 
         var queryable = result.Value as IQueryable<T>;
-        if (queryable is null) return;
+        if (queryable is null)
+            return;
 
         var queryString = context.HttpContext.Request.Query;
 
@@ -37,7 +39,9 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
 
         if (!int.TryParse(topQuery.ToString(), out int top) && !string.IsNullOrEmpty(topQuery))
         {
-            context.Result = new BadRequestObjectResult(new { Message = "The query parameter 'Top' could not be parsed to an integer" });
+            context.Result = new BadRequestObjectResult(
+                new { Message = "The query parameter 'Top' could not be parsed to an integer" }
+            );
             return;
         }
 
@@ -47,7 +51,9 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
 
         if (!int.TryParse(skipString, out int skip) && !string.IsNullOrEmpty(skipQuery))
         {
-            context.Result = new BadRequestObjectResult(new { Message = "The query parameter 'Skip' could not be parsed to an integer" });
+            context.Result = new BadRequestObjectResult(
+                new { Message = "The query parameter 'Skip' could not be parsed to an integer" }
+            );
             return;
         }
 
@@ -57,7 +63,9 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
 
         if (!bool.TryParse(countString, out bool count) && !string.IsNullOrEmpty(countString))
         {
-            context.Result = new BadRequestObjectResult(new { Message = "The query parameter 'Count' could not be parsed to a boolean" });
+            context.Result = new BadRequestObjectResult(
+                new { Message = "The query parameter 'Count' could not be parsed to a boolean" }
+            );
             return;
         }
 
@@ -78,14 +86,16 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
             Count = count,
             OrderBy = orderbyQuery.ToString(),
             Search = search,
-            Filter = filterQuery.ToString()
+            Filter = filterQuery.ToString(),
         };
 
         ISearchBinder<T>? searchBinder = null;
 
         if (!string.IsNullOrEmpty(search))
         {
-            searchBinder = context.HttpContext.RequestServices.GetService(typeof(ISearchBinder<T>)) as ISearchBinder<T>;
+            searchBinder =
+                context.HttpContext.RequestServices.GetService(typeof(ISearchBinder<T>))
+                as ISearchBinder<T>;
         }
 
         var applyOptions = _options ?? new QueryOptions();
@@ -93,7 +103,9 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
         // Auto-resolve JsonNamingPolicy from DI if not explicitly set
         if (applyOptions.PropertyNamingPolicy is null)
         {
-            var jsonOptions = context.HttpContext.RequestServices.GetService<IOptions<JsonOptions>>();
+            var jsonOptions = context.HttpContext.RequestServices.GetService<
+                IOptions<JsonOptions>
+            >();
             var namingPolicy = jsonOptions?.Value?.JsonSerializerOptions?.PropertyNamingPolicy;
             if (namingPolicy is not null)
             {
@@ -101,7 +113,7 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
                 {
                     MaxTop = applyOptions.MaxTop,
                     MaxPropertyMappingDepth = applyOptions.MaxPropertyMappingDepth,
-                    PropertyNamingPolicy = namingPolicy
+                    PropertyNamingPolicy = namingPolicy,
                 };
             }
         }
@@ -110,10 +122,14 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
         if (applyResult.IsFailed)
         {
             var message = string.Join(", ", applyResult.Errors.Select(x => x.Message));
-            context.Result = new BadRequestObjectResult(new { message, errors = applyResult.Errors });
+            context.Result = new BadRequestObjectResult(
+                new { message, errors = applyResult.Errors }
+            );
             return;
         }
 
-        context.Result = new OkObjectResult(new PagedResponse<T>(applyResult.Value.Query.ToList(), applyResult.Value.Count));
+        context.Result = new OkObjectResult(
+            new PagedResponse<T>(applyResult.Value.Query.ToList(), applyResult.Value.Count)
+        );
     }
 }

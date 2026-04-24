@@ -8,7 +8,12 @@ public sealed class FilterParserTest
     [InlineData("Age eq 21", "Age", "eq", "21")]
     [InlineData("Age ne 10", "Age", "ne", "10")]
     [InlineData("Name contains 'John'", "Name", "contains", "John")]
-    [InlineData("Id eq e4c7772b-8947-4e46-98ed-644b417d2a08", "Id", "eq", "e4c7772b-8947-4e46-98ed-644b417d2a08")]
+    [InlineData(
+        "Id eq e4c7772b-8947-4e46-98ed-644b417d2a08",
+        "Id",
+        "eq",
+        "e4c7772b-8947-4e46-98ed-644b417d2a08"
+    )]
     [InlineData("Id eq 3.14159265359f", "Id", "eq", "3.14159265359f")]
     [InlineData("Id eq 3.14159265359m", "Id", "eq", "3.14159265359m")]
     [InlineData("Id eq 3.14159265359d", "Id", "eq", "3.14159265359d")]
@@ -21,13 +26,23 @@ public sealed class FilterParserTest
     [InlineData("dateOfBirth lte 2000-01-01", "dateOfBirth", "lte", "2000-01-01")]
     [InlineData("dateOfBirth gt 2000-01-01", "dateOfBirth", "gt", "2000-01-01")]
     [InlineData("dateOfBirth gte 2000-01-01", "dateOfBirth", "gte", "2000-01-01")]
-    [InlineData("dateOfBirth eq 2023-01-30T09:29:55.1750906Z", "dateOfBirth", "eq", "2023-01-30T09:29:55.1750906Z")]
+    [InlineData(
+        "dateOfBirth eq 2023-01-30T09:29:55.1750906Z",
+        "dateOfBirth",
+        "eq",
+        "2023-01-30T09:29:55.1750906Z"
+    )]
     [InlineData("balance eq null", "balance", "eq", "null")]
     [InlineData("balance ne null", "balance", "ne", "null")]
     [InlineData("name eq NULL", "name", "eq", "NULL")]
     [InlineData(@"Name eq 'O\'Brien'", "Name", "eq", "O'Brien")]
     [InlineData(@"Name eq 'back\\slash'", "Name", "eq", @"back\slash")]
-    public void Test_ParsingFilterStatement(string input, string expectedLeft, string expectedOperator, string expectedRight)
+    public void Test_ParsingFilterStatement(
+        string input,
+        string expectedLeft,
+        string expectedOperator,
+        string expectedRight
+    )
     {
         var lexer = new QueryLexer(input);
         var parser = new QueryParser(lexer);
@@ -168,9 +183,24 @@ public sealed class FilterParserTest
     }
 
     [Theory]
-    [InlineData("manager/firstName eq 'John'", new string[] { "manager", "firstName" }, "eq", "John")]
-    [InlineData("manager/manager/firstName eq 'John'", new string[] { "manager", "manager", "firstName" }, "eq", "John")]
-    public void Test_ParsingFilterStatementWithNestedProperty(string input, string[] expectedLeft, string expectedOperator, string expectedRight)
+    [InlineData(
+        "manager/firstName eq 'John'",
+        new string[] { "manager", "firstName" },
+        "eq",
+        "John"
+    )]
+    [InlineData(
+        "manager/manager/firstName eq 'John'",
+        new string[] { "manager", "manager", "firstName" },
+        "eq",
+        "John"
+    )]
+    public void Test_ParsingFilterStatementWithNestedProperty(
+        string input,
+        string[] expectedLeft,
+        string expectedOperator,
+        string expectedRight
+    )
     {
         var lexer = new QueryLexer(input);
         var parser = new QueryParser(lexer);
@@ -190,11 +220,34 @@ public sealed class FilterParserTest
 
     [Theory]
     [InlineData("tags/any(t: t eq 'tag 2')", "tags", "any", "t", "t", "eq", "tag 2")]
-    [InlineData("tags/all(item: item contains 'test')", "tags", "all", "item", "item", "contains", "test")]
-    [InlineData("categories/any(c: c eq 'electronics')", "categories", "any", "c", "c", "eq", "electronics")]
+    [InlineData(
+        "tags/all(item: item contains 'test')",
+        "tags",
+        "all",
+        "item",
+        "item",
+        "contains",
+        "test"
+    )]
+    [InlineData(
+        "categories/any(c: c eq 'electronics')",
+        "categories",
+        "any",
+        "c",
+        "c",
+        "eq",
+        "electronics"
+    )]
     [InlineData("items/all(i: i ne null)", "items", "all", "i", "i", "ne", "null")]
-    public void Test_ParsingQueryLambdaExpression(string input, string expectedProperty, string expectedFunction,
-        string expectedParameter, string expectedLambdaLeft, string expectedLambdaOperator, string expectedLambdaRight)
+    public void Test_ParsingQueryLambdaExpression(
+        string input,
+        string expectedProperty,
+        string expectedFunction,
+        string expectedParameter,
+        string expectedLambdaLeft,
+        string expectedLambdaOperator,
+        string expectedLambdaRight
+    )
     {
         var lexer = new QueryLexer(input);
         var parser = new QueryParser(lexer);
@@ -224,10 +277,33 @@ public sealed class FilterParserTest
     }
 
     [Theory]
-    [InlineData("addresses/any(address: address/city eq 'New York')", "addresses", "any", "address", new string[] { "address", "city" }, "eq", "New York")]
-    [InlineData("orders/all(order: order/status eq 'completed')", "orders", "all", "order", new string[] { "order", "status" }, "eq", "completed")]
-    public void Test_ParsingQueryLambdaExpressionWithNestedProperty(string input, string expectedProperty, string expectedFunction,
-        string expectedParameter, string[] expectedNestedProperty, string expectedOperator, string expectedValue)
+    [InlineData(
+        "addresses/any(address: address/city eq 'New York')",
+        "addresses",
+        "any",
+        "address",
+        new string[] { "address", "city" },
+        "eq",
+        "New York"
+    )]
+    [InlineData(
+        "orders/all(order: order/status eq 'completed')",
+        "orders",
+        "all",
+        "order",
+        new string[] { "order", "status" },
+        "eq",
+        "completed"
+    )]
+    public void Test_ParsingQueryLambdaExpressionWithNestedProperty(
+        string input,
+        string expectedProperty,
+        string expectedFunction,
+        string expectedParameter,
+        string[] expectedNestedProperty,
+        string expectedOperator,
+        string expectedValue
+    )
     {
         var lexer = new QueryLexer(input);
         var parser = new QueryParser(lexer);
@@ -263,7 +339,10 @@ public sealed class FilterParserTest
     [InlineData("name eq 'John' and tags/any(t: t eq 'important')", "and")]
     [InlineData("age gt 18 or categories/all(c: c ne null)", "or")]
     [InlineData("tags/any(t: t contains 'work') and status eq 'active'", "and")]
-    public void Test_ParsingQueryLambdaExpressionWithLogicalOperators(string input, string expectedLogicalOperator)
+    public void Test_ParsingQueryLambdaExpressionWithLogicalOperators(
+        string input,
+        string expectedLogicalOperator
+    )
     {
         var lexer = new QueryLexer(input);
         var parser = new QueryParser(lexer);
@@ -286,7 +365,12 @@ public sealed class FilterParserTest
     [Theory]
     [InlineData("tags/any(t: t eq 'tag1' and t ne 'tag2')", "tags", "any", "t")]
     [InlineData("items/all(i: i/price gt 100 or i/discount lt 0.1)", "items", "all", "i")]
-    public void Test_ParsingComplexQueryLambdaExpression(string input, string expectedProperty, string expectedFunction, string expectedParameter)
+    public void Test_ParsingComplexQueryLambdaExpression(
+        string input,
+        string expectedProperty,
+        string expectedFunction,
+        string expectedParameter
+    )
     {
         var lexer = new QueryLexer(input);
         var parser = new QueryParser(lexer);
@@ -312,18 +396,20 @@ public sealed class FilterParserTest
         Assert.NotNull(bodyExpression);
 
         // The body should have logical operators (and/or)
-        Assert.True(bodyExpression.Operator.Equals("and", StringComparison.OrdinalIgnoreCase) ||
-                   bodyExpression.Operator.Equals("or", StringComparison.OrdinalIgnoreCase));
+        Assert.True(
+            bodyExpression.Operator.Equals("and", StringComparison.OrdinalIgnoreCase)
+                || bodyExpression.Operator.Equals("or", StringComparison.OrdinalIgnoreCase)
+        );
     }
 
     [Theory]
-    [InlineData("tags/any(t: t eq)")]                    // Missing right operand
-    [InlineData("tags/any(t t eq 'test')")]              // Missing colon
-    [InlineData("tags/any( : t eq 'test')")]             // Missing parameter name
-    [InlineData("tags/any(t:)")]                         // Missing lambda body
-    [InlineData("tags/any")]                             // Missing parentheses
-    [InlineData("tags/any()")]                           // Empty lambda
-    [InlineData("tags/invalid(t: t eq 'test')")]         // Invalid function name
+    [InlineData("tags/any(t: t eq)")] // Missing right operand
+    [InlineData("tags/any(t t eq 'test')")] // Missing colon
+    [InlineData("tags/any( : t eq 'test')")] // Missing parameter name
+    [InlineData("tags/any(t:)")] // Missing lambda body
+    [InlineData("tags/any")] // Missing parentheses
+    [InlineData("tags/any()")] // Empty lambda
+    [InlineData("tags/invalid(t: t eq 'test')")] // Invalid function name
     public void Test_ParsingInvalidQueryLambdaExpression(string input)
     {
         var lexer = new QueryLexer(input);
@@ -339,7 +425,12 @@ public sealed class FilterParserTest
     [InlineData("status eq 1", "status", "eq", "1")]
     [InlineData("status ne 0", "status", "ne", "0")]
     [InlineData("status ne 1", "status", "ne", "1")]
-    public void Test_ParsingEnumWithIntegerValue(string input, string expectedLeft, string expectedOperator, string expectedRight)
+    public void Test_ParsingEnumWithIntegerValue(
+        string input,
+        string expectedLeft,
+        string expectedOperator,
+        string expectedRight
+    )
     {
         var lexer = new QueryLexer(input);
         var parser = new QueryParser(lexer);
@@ -360,7 +451,12 @@ public sealed class FilterParserTest
     [InlineData("gender eq 'Alternative'", "gender", "eq", "Alternative")]
     [InlineData("gender ne 'Male'", "gender", "ne", "Male")]
     [InlineData("gender ne 'Female'", "gender", "ne", "Female")]
-    public void Test_ParsingEnumWithStringValue(string input, string expectedLeft, string expectedOperator, string expectedRight)
+    public void Test_ParsingEnumWithStringValue(
+        string input,
+        string expectedLeft,
+        string expectedOperator,
+        string expectedRight
+    )
     {
         var lexer = new QueryLexer(input);
         var parser = new QueryParser(lexer);
@@ -378,7 +474,12 @@ public sealed class FilterParserTest
     [Theory]
     [InlineData("gender eq null", "gender", "eq", "null")]
     [InlineData("gender ne null", "gender", "ne", "null")]
-    public void Test_ParsingNullableEnum(string input, string expectedLeft, string expectedOperator, string expectedRight)
+    public void Test_ParsingNullableEnum(
+        string input,
+        string expectedLeft,
+        string expectedOperator,
+        string expectedRight
+    )
     {
         var lexer = new QueryLexer(input);
         var parser = new QueryParser(lexer);
@@ -422,5 +523,4 @@ public sealed class FilterParserTest
         Assert.Equal("eq", right.Operator);
         Assert.Equal("0", right.Right.TokenLiteral());
     }
-
 }

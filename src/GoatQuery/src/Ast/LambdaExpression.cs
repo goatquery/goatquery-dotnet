@@ -5,7 +5,13 @@ public sealed class QueryLambdaExpression : QueryExpression
     public string Parameter { get; }
     public QueryExpression Body { get; set; }
 
-    public QueryLambdaExpression(Token token, QueryExpression property, string function, string parameter) : base(token)
+    public QueryLambdaExpression(
+        Token token,
+        QueryExpression property,
+        string function,
+        string parameter
+    )
+        : base(token)
     {
         Property = property;
         Function = function;

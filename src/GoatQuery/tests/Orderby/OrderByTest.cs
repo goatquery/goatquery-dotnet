@@ -9,7 +9,7 @@ public sealed class OrderByTest
         ["Apple"] = new User { Age = 2, Firstname = "Apple" },
         ["Harry"] = new User { Age = 1, Firstname = "Harry" },
         ["Doe"] = new User { Age = 3, Firstname = "Doe" },
-        ["Egg"] = new User { Age = 3, Firstname = "Egg" }
+        ["Egg"] = new User { Age = 3, Firstname = "Egg" },
     };
 
     public static IEnumerable<object[]> Parameters()
@@ -17,73 +17,169 @@ public sealed class OrderByTest
         yield return new object[]
         {
             "age desc, firstname asc",
-            new[] { _users["Doe"], _users["Egg"], _users["Apple"], _users["John"], _users["Harry"], _users["Jane"] }
+            new[]
+            {
+                _users["Doe"],
+                _users["Egg"],
+                _users["Apple"],
+                _users["John"],
+                _users["Harry"],
+                _users["Jane"],
+            },
         };
 
         yield return new object[]
         {
             "age desc, firstname desc",
-            new[] { _users["Egg"], _users["Doe"], _users["John"], _users["Apple"], _users["Jane"], _users["Harry"] }
+            new[]
+            {
+                _users["Egg"],
+                _users["Doe"],
+                _users["John"],
+                _users["Apple"],
+                _users["Jane"],
+                _users["Harry"],
+            },
         };
 
         yield return new object[]
         {
             "age desc",
-            new[] { _users["Doe"], _users["Egg"], _users["John"], _users["Apple"], _users["Jane"], _users["Harry"] }
+            new[]
+            {
+                _users["Doe"],
+                _users["Egg"],
+                _users["John"],
+                _users["Apple"],
+                _users["Jane"],
+                _users["Harry"],
+            },
         };
 
         yield return new object[]
         {
             "Age asc",
-            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
+            new[]
+            {
+                _users["Jane"],
+                _users["Harry"],
+                _users["John"],
+                _users["Apple"],
+                _users["Doe"],
+                _users["Egg"],
+            },
         };
 
         yield return new object[]
         {
             "age",
-            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
+            new[]
+            {
+                _users["Jane"],
+                _users["Harry"],
+                _users["John"],
+                _users["Apple"],
+                _users["Doe"],
+                _users["Egg"],
+            },
         };
 
         yield return new object[]
         {
             "age asc",
-            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
+            new[]
+            {
+                _users["Jane"],
+                _users["Harry"],
+                _users["John"],
+                _users["Apple"],
+                _users["Doe"],
+                _users["Egg"],
+            },
         };
 
         yield return new object[]
         {
             "Age asc",
-            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
+            new[]
+            {
+                _users["Jane"],
+                _users["Harry"],
+                _users["John"],
+                _users["Apple"],
+                _users["Doe"],
+                _users["Egg"],
+            },
         };
 
         yield return new object[]
         {
             "aGe asc",
-            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
+            new[]
+            {
+                _users["Jane"],
+                _users["Harry"],
+                _users["John"],
+                _users["Apple"],
+                _users["Doe"],
+                _users["Egg"],
+            },
         };
 
         yield return new object[]
         {
             "AGe asc",
-            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
+            new[]
+            {
+                _users["Jane"],
+                _users["Harry"],
+                _users["John"],
+                _users["Apple"],
+                _users["Doe"],
+                _users["Egg"],
+            },
         };
 
         yield return new object[]
         {
             "aGE Asc",
-            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
+            new[]
+            {
+                _users["Jane"],
+                _users["Harry"],
+                _users["John"],
+                _users["Apple"],
+                _users["Doe"],
+                _users["Egg"],
+            },
         };
 
         yield return new object[]
         {
             "age aSc",
-            new[] { _users["Jane"], _users["Harry"], _users["John"], _users["Apple"], _users["Doe"], _users["Egg"] }
+            new[]
+            {
+                _users["Jane"],
+                _users["Harry"],
+                _users["John"],
+                _users["Apple"],
+                _users["Doe"],
+                _users["Egg"],
+            },
         };
 
         yield return new object[]
         {
             "",
-            new[] { _users["John"], _users["Jane"], _users["Apple"], _users["Harry"], _users["Doe"], _users["Egg"] }
+            new[]
+            {
+                _users["John"],
+                _users["Jane"],
+                _users["Apple"],
+                _users["Harry"],
+                _users["Doe"],
+                _users["Egg"],
+            },
         };
     }
 
@@ -91,10 +187,7 @@ public sealed class OrderByTest
     [MemberData(nameof(Parameters))]
     public void Test_OrderBy(string orderby, IEnumerable<User> expected)
     {
-        var query = new Query
-        {
-            OrderBy = orderby
-        };
+        var query = new Query { OrderBy = orderby };
 
         var result = _users.Values.AsQueryable().Apply(query);
 
@@ -104,39 +197,54 @@ public sealed class OrderByTest
     [Fact]
     public void Test_OrderBy_WithCustomJsonPropertyName()
     {
-        var users = new List<CustomJsonPropertyUser>{
+        var users = new List<CustomJsonPropertyUser>
+        {
             new CustomJsonPropertyUser { Lastname = "John" },
             new CustomJsonPropertyUser { Lastname = "Jane" },
             new CustomJsonPropertyUser { Lastname = "Apple" },
             new CustomJsonPropertyUser { Lastname = "Harry" },
             new CustomJsonPropertyUser { Lastname = "Doe" },
-            new CustomJsonPropertyUser { Lastname = "Egg" }
+            new CustomJsonPropertyUser { Lastname = "Egg" },
         }.AsQueryable();
 
-        var query = new Query
-        {
-            OrderBy = "last_name asc"
-        };
+        var query = new Query { OrderBy = "last_name asc" };
 
         var result = users.Apply(query);
 
-        Assert.Equal(new List<CustomJsonPropertyUser>{
-            new CustomJsonPropertyUser { Lastname = "Apple" },
-            new CustomJsonPropertyUser { Lastname = "Doe" },
-            new CustomJsonPropertyUser { Lastname = "Egg" },
-            new CustomJsonPropertyUser { Lastname = "Harry" },
-            new CustomJsonPropertyUser { Lastname = "Jane" },
-            new CustomJsonPropertyUser { Lastname = "John" },
-        }, result.Value.Query);
+        Assert.Equal(
+            new List<CustomJsonPropertyUser>
+            {
+                new CustomJsonPropertyUser { Lastname = "Apple" },
+                new CustomJsonPropertyUser { Lastname = "Doe" },
+                new CustomJsonPropertyUser { Lastname = "Egg" },
+                new CustomJsonPropertyUser { Lastname = "Harry" },
+                new CustomJsonPropertyUser { Lastname = "Jane" },
+                new CustomJsonPropertyUser { Lastname = "John" },
+            },
+            result.Value.Query
+        );
     }
 
     [Fact]
     public void Test_OrderBy_NestedProperty()
     {
-        var users = new List<User>{
-            new User { Firstname = "A", Company = new Company { Name = "Zebra" } },
-            new User { Firstname = "B", Company = new Company { Name = "Alpha" } },
-            new User { Firstname = "C", Company = new Company { Name = "Middle" } },
+        var users = new List<User>
+        {
+            new User
+            {
+                Firstname = "A",
+                Company = new Company { Name = "Zebra" },
+            },
+            new User
+            {
+                Firstname = "B",
+                Company = new Company { Name = "Alpha" },
+            },
+            new User
+            {
+                Firstname = "C",
+                Company = new Company { Name = "Middle" },
+            },
         }.AsQueryable();
 
         var query = new Query { OrderBy = "company/name asc" };
@@ -152,10 +260,23 @@ public sealed class OrderByTest
     [Fact]
     public void Test_OrderBy_NestedProperty_Descending()
     {
-        var users = new List<User>{
-            new User { Firstname = "A", Company = new Company { Name = "Zebra" } },
-            new User { Firstname = "B", Company = new Company { Name = "Alpha" } },
-            new User { Firstname = "C", Company = new Company { Name = "Middle" } },
+        var users = new List<User>
+        {
+            new User
+            {
+                Firstname = "A",
+                Company = new Company { Name = "Zebra" },
+            },
+            new User
+            {
+                Firstname = "B",
+                Company = new Company { Name = "Alpha" },
+            },
+            new User
+            {
+                Firstname = "C",
+                Company = new Company { Name = "Middle" },
+            },
         }.AsQueryable();
 
         var query = new Query { OrderBy = "company/name desc" };
@@ -171,10 +292,26 @@ public sealed class OrderByTest
     [Fact]
     public void Test_OrderBy_NestedProperty_WithFlatProperty()
     {
-        var users = new List<User>{
-            new User { Firstname = "A", Age = 30, Company = new Company { Name = "Zebra" } },
-            new User { Firstname = "B", Age = 25, Company = new Company { Name = "Zebra" } },
-            new User { Firstname = "C", Age = 20, Company = new Company { Name = "Alpha" } },
+        var users = new List<User>
+        {
+            new User
+            {
+                Firstname = "A",
+                Age = 30,
+                Company = new Company { Name = "Zebra" },
+            },
+            new User
+            {
+                Firstname = "B",
+                Age = 25,
+                Company = new Company { Name = "Zebra" },
+            },
+            new User
+            {
+                Firstname = "C",
+                Age = 20,
+                Company = new Company { Name = "Alpha" },
+            },
         }.AsQueryable();
 
         var query = new Query { OrderBy = "company/name asc, age desc" };
@@ -190,7 +327,8 @@ public sealed class OrderByTest
     [Fact]
     public void Test_OrderBy_WithJsonNamingPolicy_SnakeCaseLower()
     {
-        var users = new List<CamelCaseUser>{
+        var users = new List<CamelCaseUser>
+        {
             new CamelCaseUser { FirstName = "Charlie" },
             new CamelCaseUser { FirstName = "Alice" },
             new CamelCaseUser { FirstName = "Bob" },
@@ -199,7 +337,7 @@ public sealed class OrderByTest
         var query = new Query { OrderBy = "first_name asc" };
         var options = new QueryOptions
         {
-            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower,
         };
         var result = users.Apply(query, null, options);
 

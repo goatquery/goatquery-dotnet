@@ -14,19 +14,17 @@ public sealed class TopTest
     [InlineData(100_000, 6)]
     public void Test_Top(int top, int expectedCount)
     {
-        var users = new List<User>{
+        var users = new List<User>
+        {
             new User { Age = 1, Firstname = "Jane" },
             new User { Age = 1, Firstname = "Harry" },
             new User { Age = 2, Firstname = "John" },
             new User { Age = 2, Firstname = "Apple" },
             new User { Age = 3, Firstname = "Doe" },
-            new User { Age = 3, Firstname = "Egg" }
+            new User { Age = 3, Firstname = "Egg" },
         }.AsQueryable();
 
-        var query = new Query
-        {
-            Top = top
-        };
+        var query = new Query { Top = top };
 
         var result = users.Apply(query);
 
@@ -42,24 +40,19 @@ public sealed class TopTest
     [InlineData(4, 4)]
     public void Test_TopWithMaxTop(int top, int expectedCount)
     {
-        var users = new List<User>{
+        var users = new List<User>
+        {
             new User { Age = 1, Firstname = "Jane" },
             new User { Age = 1, Firstname = "Harry" },
             new User { Age = 2, Firstname = "John" },
             new User { Age = 2, Firstname = "Apple" },
             new User { Age = 3, Firstname = "Doe" },
-            new User { Age = 3, Firstname = "Egg" }
+            new User { Age = 3, Firstname = "Egg" },
         }.AsQueryable();
 
-        var query = new Query
-        {
-            Top = top
-        };
+        var query = new Query { Top = top };
 
-        var queryOptions = new QueryOptions
-        {
-            MaxTop = 4
-        };
+        var queryOptions = new QueryOptions { MaxTop = 4 };
 
         var result = users.Apply(query, null, queryOptions);
 
@@ -72,24 +65,19 @@ public sealed class TopTest
     [InlineData(100_000)]
     public void Test_TopWithMaxTopReturnsError(int top)
     {
-        var users = new List<User>{
+        var users = new List<User>
+        {
             new User { Age = 1, Firstname = "Jane" },
             new User { Age = 1, Firstname = "Harry" },
             new User { Age = 2, Firstname = "John" },
             new User { Age = 2, Firstname = "Apple" },
             new User { Age = 3, Firstname = "Doe" },
-            new User { Age = 3, Firstname = "Egg" }
+            new User { Age = 3, Firstname = "Egg" },
         }.AsQueryable();
 
-        var query = new Query
-        {
-            Top = top
-        };
+        var query = new Query { Top = top };
 
-        var queryOptions = new QueryOptions
-        {
-            MaxTop = 4
-        };
+        var queryOptions = new QueryOptions { MaxTop = 4 };
 
         var result = users.Apply(query, null, queryOptions);
 

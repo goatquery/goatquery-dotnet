@@ -9,9 +9,9 @@ public sealed class OrderByLexerTest
             "id asc",
             new KeyValuePair<TokenType, string>[]
             {
-                new (TokenType.IDENT, "id"),
-                new (TokenType.IDENT, "asc"),
-            }
+                new(TokenType.IDENT, "id"),
+                new(TokenType.IDENT, "asc"),
+            },
         };
 
         yield return new object[]
@@ -19,9 +19,9 @@ public sealed class OrderByLexerTest
             "iD desc",
             new KeyValuePair<TokenType, string>[]
             {
-                new (TokenType.IDENT, "iD"),
-                new (TokenType.IDENT, "desc"),
-            }
+                new(TokenType.IDENT, "iD"),
+                new(TokenType.IDENT, "desc"),
+            },
         };
 
         yield return new object[]
@@ -29,9 +29,9 @@ public sealed class OrderByLexerTest
             "id aSc",
             new KeyValuePair<TokenType, string>[]
             {
-                new (TokenType.IDENT, "id"),
-                new (TokenType.IDENT, "aSc"),
-            }
+                new(TokenType.IDENT, "id"),
+                new(TokenType.IDENT, "aSc"),
+            },
         };
 
         yield return new object[]
@@ -39,9 +39,9 @@ public sealed class OrderByLexerTest
             "id DeSc",
             new KeyValuePair<TokenType, string>[]
             {
-                new (TokenType.IDENT, "id"),
-                new (TokenType.IDENT, "DeSc"),
-            }
+                new(TokenType.IDENT, "id"),
+                new(TokenType.IDENT, "DeSc"),
+            },
         };
 
         yield return new object[]
@@ -49,9 +49,9 @@ public sealed class OrderByLexerTest
             "id AsC",
             new KeyValuePair<TokenType, string>[]
             {
-                new (TokenType.IDENT, "id"),
-                new (TokenType.IDENT, "AsC"),
-            }
+                new(TokenType.IDENT, "id"),
+                new(TokenType.IDENT, "AsC"),
+            },
         };
 
         yield return new object[]
@@ -59,9 +59,9 @@ public sealed class OrderByLexerTest
             "asc asc",
             new KeyValuePair<TokenType, string>[]
             {
-                new (TokenType.IDENT, "asc"),
-                new (TokenType.IDENT, "asc"),
-            }
+                new(TokenType.IDENT, "asc"),
+                new(TokenType.IDENT, "asc"),
+            },
         };
 
         yield return new object[]
@@ -69,9 +69,9 @@ public sealed class OrderByLexerTest
             "address1Line asc",
             new KeyValuePair<TokenType, string>[]
             {
-                new (TokenType.IDENT, "address1Line"),
-                new (TokenType.IDENT, "asc"),
-            }
+                new(TokenType.IDENT, "address1Line"),
+                new(TokenType.IDENT, "asc"),
+            },
         };
 
         yield return new object[]
@@ -79,9 +79,9 @@ public sealed class OrderByLexerTest
             "addASCress1Line desc",
             new KeyValuePair<TokenType, string>[]
             {
-                new (TokenType.IDENT, "addASCress1Line"),
-                new (TokenType.IDENT, "desc"),
-            }
+                new(TokenType.IDENT, "addASCress1Line"),
+                new(TokenType.IDENT, "desc"),
+            },
         };
     }
 

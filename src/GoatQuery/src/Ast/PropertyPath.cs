@@ -4,7 +4,8 @@ public sealed class PropertyPath : QueryExpression
 {
     public List<string> Segments { get; }
 
-    public PropertyPath(Token token, List<string> segments) : base(token)
+    public PropertyPath(Token token, List<string> segments)
+        : base(token)
     {
         Segments = segments;
     }

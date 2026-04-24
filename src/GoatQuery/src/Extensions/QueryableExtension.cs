@@ -5,19 +5,29 @@ using FluentResults;
 
 public static class QueryableExtension
 {
-
-    public static Result<QueryResult<T>> Apply<T>(this IQueryable<T> queryable, Query query, ISearchBinder<T> searchBinder = null, QueryOptions options = null)
+    public static Result<QueryResult<T>> Apply<T>(
+        this IQueryable<T> queryable,
+        Query query,
+        ISearchBinder<T> searchBinder = null,
+        QueryOptions options = null
+    )
     {
         if (query.Top > options?.MaxTop)
         {
-            return Result.Fail("The value supplied for the query parameter 'Top' was greater than the maximum top allowed for this resource");
+            return Result.Fail(
+                "The value supplied for the query parameter 'Top' was greater than the maximum top allowed for this resource"
+            );
         }
 
         var type = typeof(T);
 
-        var maxDepth = options?.MaxPropertyMappingDepth ?? new QueryOptions().MaxPropertyMappingDepth;
+        var maxDepth =
+            options?.MaxPropertyMappingDepth ?? new QueryOptions().MaxPropertyMappingDepth;
         var namingPolicy = options?.PropertyNamingPolicy;
-        var propertyMappingTree = PropertyMappingTreeBuilder.BuildMappingTree<T>(maxDepth, namingPolicy);
+        var propertyMappingTree = PropertyMappingTreeBuilder.BuildMappingTree<T>(
+            maxDepth,
+            namingPolicy
+        );
 
         // Filter
         if (!string.IsNullOrEmpty(query.Filter))
@@ -32,7 +42,12 @@ public static class QueryableExtension
 
             ParameterExpression parameter = Expression.Parameter(type);
 
-            var expression = FilterEvaluator.Evaluate(statement.Value.Expression, parameter, propertyMappingTree, maxDepth);
+            var expression = FilterEvaluator.Evaluate(
+                statement.Value.Expression,
+                parameter,
+                propertyMappingTree,
+                maxDepth
+            );
             if (expression.IsFailed)
             {
                 return Result.Fail(expression.Errors);
@@ -74,7 +89,12 @@ public static class QueryableExtension
 
             var parameter = Expression.Parameter(type);
 
-            var orderByQuery = OrderByEvaluator.Evaluate<T>(statements, parameter, queryable, propertyMappingTree);
+            var orderByQuery = OrderByEvaluator.Evaluate<T>(
+                statements,
+                parameter,
+                queryable,
+                propertyMappingTree
+            );
             if (orderByQuery.IsFailed)
             {
                 return Result.Fail(orderByQuery.Errors);

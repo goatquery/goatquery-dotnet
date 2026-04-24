@@ -50,6 +50,7 @@ public enum Gender
 {
     Male,
     Female,
+
     [JsonStringEnumMemberName("Alternative")]
-    Other
+    Other,
 }

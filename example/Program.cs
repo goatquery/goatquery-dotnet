@@ -10,9 +10,7 @@ Randomizer.Seed = new Random(8675309);
 
 var builder = WebApplication.CreateBuilder(args);
 
-var postgreSqlContainer = new PostgreSqlBuilder()
-  .WithImage("postgres:15")
-  .Build();
+var postgreSqlContainer = new PostgreSqlBuilder().WithImage("postgres:15").Build();
 
 await postgreSqlContainer.StartAsync();
 
@@ -56,16 +54,21 @@ using (var scope = app.Services.CreateScope())
             .RuleFor(x => x.Test, f => f.Random.Double())
             .RuleFor(x => x.NullableInt, f => f.Random.Bool() ? f.Random.Int(1, 100) : null)
             .RuleFor(x => x.IsEmailVerified, f => f.Random.Bool())
-            .Rules((f, u) =>
-            {
-                var timeZone = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
-                var date = f.Date.Past().ToUniversalTime();
+            .Rules(
+                (f, u) =>
+                {
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
+                    var date = f.Date.Past().ToUniversalTime();
 
-                u.DateOfBirthUtc = date;
-                u.DateOfBirthTz = TimeZoneInfo.ConvertTimeFromUtc(date, timeZone);
-            })
+                    u.DateOfBirthUtc = date;
+                    u.DateOfBirthTz = TimeZoneInfo.ConvertTimeFromUtc(date, timeZone);
+                }
+            )
             .RuleFor(x => x.Manager, (f, u) => f.CreateManager(3))
-            .RuleFor(x => x.Addresses, f => f.PickRandom(addresses.Generate(5), f.Random.Int(1, 3)).ToList())
+            .RuleFor(
+                x => x.Addresses,
+                f => f.PickRandom(addresses.Generate(5), f.Random.Int(1, 3)).ToList()
+            )
             .RuleFor(x => x.Tags, f => f.Lorem.Words(f.Random.Int(0, 5)).ToList())
             .RuleFor(x => x.Company, f => f.PickRandom(companies.Generate(20)));
 
@@ -78,27 +81,30 @@ using (var scope = app.Services.CreateScope())
 
 Console.WriteLine($"Postgres connection string: {postgreSqlContainer.GetConnectionString()}");
 
-app.MapGet("/minimal/users", (ApplicationDbContext db, [FromServices] IMapper mapper, [AsParameters] Query query) =>
-{
-    var result = db.Users
-        .Include(x => x.Company)
-        .Include(x => x.Addresses)
-            .ThenInclude(x => x.City)
-        .Include(x => x.Manager)
-            .ThenInclude(x => x.Manager)
-        .Where(x => !x.IsDeleted)
-        .ProjectTo<UserDto>(mapper.ConfigurationProvider)
-        .Apply(query);
-
-    if (result.IsFailed)
+app.MapGet(
+    "/minimal/users",
+    (ApplicationDbContext db, [FromServices] IMapper mapper, [AsParameters] Query query) =>
     {
-        return Results.BadRequest(new { message = result.Errors });
+        var result = db
+            .Users.Include(x => x.Company)
+            .Include(x => x.Addresses)
+                .ThenInclude(x => x.City)
+            .Include(x => x.Manager)
+                .ThenInclude(x => x.Manager)
+            .Where(x => !x.IsDeleted)
+            .ProjectTo<UserDto>(mapper.ConfigurationProvider)
+            .Apply(query);
+
+        if (result.IsFailed)
+        {
+            return Results.BadRequest(new { message = result.Errors });
+        }
+
+        var response = new PagedResponse<UserDto>(result.Value.Query.ToList(), result.Value.Count);
+
+        return Results.Ok(response);
     }
-
-    var response = new PagedResponse<UserDto>(result.Value.Query.ToList(), result.Value.Count);
-
-    return Results.Ok(response);
-});
+);
 
 app.MapControllers();
 
@@ -122,8 +128,11 @@ public static class FakerExtensions
             NullableInt = f.Random.Bool() ? f.Random.Int(1, 100) : null,
             IsEmailVerified = f.Random.Bool(),
             DateOfBirthUtc = f.Date.Past().ToUniversalTime(),
-            DateOfBirthTz = TimeZoneInfo.ConvertTimeFromUtc(f.Date.Past().ToUniversalTime(), TimeZoneInfo.FindSystemTimeZoneById("America/New_York")),
-            Manager = f.CreateManager(depth - 1) // Recursive call with reduced depth
+            DateOfBirthTz = TimeZoneInfo.ConvertTimeFromUtc(
+                f.Date.Past().ToUniversalTime(),
+                TimeZoneInfo.FindSystemTimeZoneById("America/New_York")
+            ),
+            Manager = f.CreateManager(depth - 1), // Recursive call with reduced depth
         };
     }
 }

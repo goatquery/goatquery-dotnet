@@ -52,10 +52,10 @@ public enum Gender
 {
     Male,
     Female,
-    [JsonStringEnumMemberName("Alternative")]
-    Other
-}
 
+    [JsonStringEnumMemberName("Alternative")]
+    Other,
+}
 
 public enum Status
 {
@@ -91,7 +91,8 @@ public record DepthTestNode
 public record DepthTestChild
 {
     public string Value { get; set; } = string.Empty;
-    public IEnumerable<DepthTestGrandchild> Items { get; set; } = Array.Empty<DepthTestGrandchild>();
+    public IEnumerable<DepthTestGrandchild> Items { get; set; } =
+        Array.Empty<DepthTestGrandchild>();
 }
 
 public record DepthTestGrandchild

@@ -7,20 +7,31 @@ using FluentResults;
 
 public static class OrderByEvaluator
 {
-    public static Result<IQueryable<T>> Evaluate<T>(IEnumerable<OrderByStatement> statements, ParameterExpression parameterExpression, IQueryable<T> queryable, PropertyMappingTree propertyMappingTree)
+    public static Result<IQueryable<T>> Evaluate<T>(
+        IEnumerable<OrderByStatement> statements,
+        ParameterExpression parameterExpression,
+        IQueryable<T> queryable,
+        PropertyMappingTree propertyMappingTree
+    )
     {
         var isAlreadyOrdered = false;
 
         foreach (var statement in statements)
         {
-            var propertyResult = BuildPropertyExpression(statement, parameterExpression, propertyMappingTree);
-            if (propertyResult.IsFailed) return Result.Fail(propertyResult.Errors);
+            var propertyResult = BuildPropertyExpression(
+                statement,
+                parameterExpression,
+                propertyMappingTree
+            );
+            if (propertyResult.IsFailed)
+                return Result.Fail(propertyResult.Errors);
 
             var property = propertyResult.Value;
             var lambda = Expression.Lambda(property, parameterExpression);
 
             var methodName = GetOrderByMethodName(statement.Direction, isAlreadyOrdered);
-            var method = GetQueryableMethod(methodName).MakeGenericMethod(parameterExpression.Type, lambda.Body.Type);
+            var method = GetQueryableMethod(methodName)
+                .MakeGenericMethod(parameterExpression.Type, lambda.Body.Type);
             queryable = (IQueryable<T>)method.Invoke(null, new object[] { queryable, lambda });
 
             isAlreadyOrdered = true;
@@ -29,12 +40,20 @@ public static class OrderByEvaluator
         return Result.Ok(queryable);
     }
 
-    private static Result<Expression> BuildPropertyExpression(OrderByStatement statement, ParameterExpression parameterExpression, PropertyMappingTree propertyMappingTree)
+    private static Result<Expression> BuildPropertyExpression(
+        OrderByStatement statement,
+        ParameterExpression parameterExpression,
+        PropertyMappingTree propertyMappingTree
+    )
     {
         Expression current = parameterExpression;
         var currentMappingTree = propertyMappingTree;
 
-        foreach (var (segment, isLast) in statement.Segments.Select((s, i) => (s, i == statement.Segments.Count - 1)))
+        foreach (
+            var (segment, isLast) in statement.Segments.Select(
+                (s, i) => (s, i == statement.Segments.Count - 1)
+            )
+        )
         {
             if (!currentMappingTree.TryGetProperty(segment, out var propertyNode))
             {
@@ -46,7 +65,9 @@ public static class OrderByEvaluator
             if (!isLast)
             {
                 if (!propertyNode.HasNestedMapping)
-                    return Result.Fail($"Property '{segment}' does not support nested navigation in orderby");
+                    return Result.Fail(
+                        $"Property '{segment}' does not support nested navigation in orderby"
+                    );
 
                 currentMappingTree = propertyNode.NestedMapping;
             }
@@ -63,13 +84,14 @@ public static class OrderByEvaluator
             (OrderByDirection.Descending, false) => nameof(Queryable.OrderByDescending),
             (OrderByDirection.Ascending, true) => nameof(Queryable.ThenBy),
             (OrderByDirection.Descending, true) => nameof(Queryable.ThenByDescending),
-            _ => nameof(Queryable.OrderBy)
+            _ => nameof(Queryable.OrderBy),
         };
     }
 
     private static MethodInfo GetQueryableMethod(string methodName)
     {
-        return typeof(Queryable).GetMethods()
+        return typeof(Queryable)
+            .GetMethods()
             .First(m => m.Name == methodName && m.GetParameters().Length == 2);
     }
 }

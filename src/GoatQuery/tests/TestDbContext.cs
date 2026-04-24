@@ -2,7 +2,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class TestDbContext : DbContext
 {
-    public TestDbContext(DbContextOptions<TestDbContext> options) : base(options) { }
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options) { }
 
     public DbSet<User> Users => Set<User>();
 
