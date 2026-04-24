@@ -24,13 +24,13 @@ public static class FilterEvaluator
     private static MethodInfo GetStringMethod(string methodName, params Type[] parameterTypes) =>
         typeof(string).GetMethod(methodName, parameterTypes ?? Type.EmptyTypes);
 
-    public static Result<Expression> Evaluate(QueryExpression expression, ParameterExpression parameterExpression, PropertyMappingTree propertyMappingTree)
+    public static Result<Expression> Evaluate(QueryExpression expression, ParameterExpression parameterExpression, PropertyMappingTree propertyMappingTree, int maxPropertyMappingDepth = 5)
     {
         if (expression == null) return Result.Fail("Expression cannot be null");
         if (parameterExpression == null) return Result.Fail("Parameter expression cannot be null");
         if (propertyMappingTree == null) return Result.Fail("Property mapping tree cannot be null");
 
-        var context = new FilterEvaluationContext(parameterExpression, propertyMappingTree);
+        var context = new FilterEvaluationContext(parameterExpression, propertyMappingTree, maxPropertyMappingDepth);
         return EvaluateExpression(expression, context);
     }
 
@@ -223,13 +223,13 @@ public static class FilterEvaluator
         return literal switch
         {
             IntegerLiteral intLit => CreateIntegerOrEnumConstant(intLit.Value, expression.Type),
-            DateLiteral dateLit => Result.Ok(CreateDateConstant(dateLit, expression)),
+            DateLiteral dateLit => Result.Ok(CreateDateConstant(dateLit, expression.Type)),
             GuidLiteral guidLit => Result.Ok(Expression.Constant(guidLit.Value, expression.Type)),
             DecimalLiteral decLit => Result.Ok(Expression.Constant(decLit.Value, expression.Type)),
             FloatLiteral floatLit => Result.Ok(Expression.Constant(floatLit.Value, expression.Type)),
             DoubleLiteral dblLit => Result.Ok(Expression.Constant(dblLit.Value, expression.Type)),
             StringLiteral strLit => CreateStringOrEnumConstant(strLit.Value, expression.Type),
-            DateTimeLiteral dtLit => Result.Ok(Expression.Constant(dtLit.Value, expression.Type)),
+            DateTimeLiteral dtLit => Result.Ok(CreateDateTimeConstant(dtLit, expression.Type)),
             BooleanLiteral boolLit => Result.Ok(Expression.Constant(boolLit.Value, expression.Type)),
             NullLiteral _ => Result.Ok(Expression.Constant(null, expression.Type)),
             _ => Result.Fail($"Unsupported literal type: {literal.GetType().Name}")
@@ -244,35 +244,66 @@ public static class FilterEvaluator
         return Result.Ok((constantResult.Value, property));
     }
 
-    private static ConstantExpression CreateDateConstant(DateLiteral dateLiteral, Expression expression)
+    private static ConstantExpression CreateDateConstant(DateLiteral dateLiteral, Type targetType)
     {
-        if (expression.Type == typeof(DateTime?))
+        var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+        if (underlyingType == typeof(DateTimeOffset))
         {
-            return Expression.Constant(dateLiteral.Value.Date, typeof(DateTime));
+            var value = new DateTimeOffset(dateLiteral.Value.Date, TimeSpan.Zero);
+            return Expression.Constant(value, targetType);
         }
-        else
+
+        return Expression.Constant(dateLiteral.Value.Date, targetType);
+    }
+
+    private static ConstantExpression CreateDateTimeConstant(DateTimeLiteral dtLiteral, Type targetType)
+    {
+        var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+        if (underlyingType == typeof(DateTimeOffset))
         {
-            return Expression.Constant(dateLiteral.Value.Date, expression.Type);
+            if (DateTimeOffset.TryParse(dtLiteral.TokenLiteral(), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var dto))
+            {
+                return Expression.Constant(dto, targetType);
+            }
+            return Expression.Constant(new DateTimeOffset(dtLiteral.Value), targetType);
         }
+
+        return Expression.Constant(dtLiteral.Value, targetType);
     }
 
     private static Expression CreateContainsExpression(Expression expression, ConstantExpression value)
     {
         var expressionToLower = Expression.Call(expression, StringToLowerMethod);
         var valueToLower = Expression.Call(value, StringToLowerMethod);
-        return Expression.Call(expressionToLower, StringContainsMethod, valueToLower);
+        var containsCall = Expression.Call(expressionToLower, StringContainsMethod, valueToLower);
+
+        // Guard against null: (expression != null && expression.ToLower().Contains(value.ToLower()))
+        var nullCheck = Expression.NotEqual(expression, Expression.Constant(null, typeof(string)));
+        return Expression.AndAlso(nullCheck, containsCall);
     }
 
     private static Expression CreateEqualityExpression(Expression expression, ConstantExpression value, bool isEqual)
     {
-        // For string comparisons, make them case-insensitive
+        // For string comparisons, make them case-insensitive with null safety
         if (expression.Type == typeof(string))
         {
             var expressionToLower = Expression.Call(expression, StringToLowerMethod);
             var valueToLower = Expression.Call(value, StringToLowerMethod);
-            return isEqual
-                ? Expression.Equal(expressionToLower, valueToLower)
-                : Expression.NotEqual(expressionToLower, valueToLower);
+            var nullCheck = Expression.NotEqual(expression, Expression.Constant(null, typeof(string)));
+
+            if (isEqual)
+            {
+                // eq: (expression != null && expression.ToLower() == value.ToLower())
+                return Expression.AndAlso(nullCheck, Expression.Equal(expressionToLower, valueToLower));
+            }
+            else
+            {
+                // ne: (expression == null || expression.ToLower() != value.ToLower())
+                var isNull = Expression.Equal(expression, Expression.Constant(null, typeof(string)));
+                return Expression.OrElse(isNull, Expression.NotEqual(expressionToLower, valueToLower));
+            }
         }
 
         // For non-string types, use standard equality
@@ -430,7 +461,7 @@ public static class FilterEvaluator
             propertyPath.Segments[0].Equals(context.CurrentLambda.ParameterName, StringComparison.OrdinalIgnoreCase);
 
         return isLambdaParameterPath
-            ? EvaluateLambdaPropertyPath(exp, propertyPath, context.CurrentLambda.Parameter)
+            ? EvaluateLambdaPropertyPath(exp, propertyPath, context.CurrentLambda.Parameter, context.MaxPropertyMappingDepth)
             : EvaluatePropertyPathExpression(exp, propertyPath, context);
     }
 
@@ -474,14 +505,14 @@ public static class FilterEvaluator
         };
     }
 
-    private static Result<Expression> EvaluateLambdaPropertyPath(InfixExpression exp, PropertyPath propertyPath, ParameterExpression lambdaParameter)
+    private static Result<Expression> EvaluateLambdaPropertyPath(InfixExpression exp, PropertyPath propertyPath, ParameterExpression lambdaParameter, int maxPropertyMappingDepth)
     {
         // Skip the first segment (lambda parameter name) and build property path from lambda parameter
         var current = (Expression)lambdaParameter;
         var elementType = lambdaParameter.Type;
 
         // Build property path from lambda parameter
-        var pathResult = BuildLambdaPropertyPath(current, propertyPath.Segments.Skip(1).ToList(), elementType);
+        var pathResult = BuildLambdaPropertyPath(current, propertyPath.Segments.Skip(1).ToList(), elementType, maxPropertyMappingDepth);
         if (pathResult.IsFailed) return pathResult;
 
         current = pathResult.Value;
@@ -517,10 +548,10 @@ public static class FilterEvaluator
         return Expression.AndAlso(hasElements, allMatch);
     }
 
-    private static Result<Expression> BuildLambdaPropertyPath(Expression startExpression, List<string> segments, Type elementType)
+    private static Result<Expression> BuildLambdaPropertyPath(Expression startExpression, List<string> segments, Type elementType, int maxPropertyMappingDepth)
     {
         var current = startExpression;
-        var currentMappingTree = PropertyMappingTreeBuilder.BuildMappingTree(elementType, GetDefaultMaxDepth());
+        var currentMappingTree = PropertyMappingTreeBuilder.BuildMappingTree(elementType, maxPropertyMappingDepth);
 
         foreach (var segment in segments)
         {
@@ -541,10 +572,6 @@ public static class FilterEvaluator
         return Result.Ok(current);
     }
 
-    private static int GetDefaultMaxDepth()
-    {
-        return new QueryOptions().MaxPropertyMappingDepth;
-    }
 
     private static Type GetCollectionElementType(Type collectionType)
     {

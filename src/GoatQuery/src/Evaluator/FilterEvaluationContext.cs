@@ -6,12 +6,14 @@ internal class FilterEvaluationContext
 {
     public ParameterExpression RootParameter { get; }
     public PropertyMappingTree PropertyMappingTree { get; }
+    public int MaxPropertyMappingDepth { get; }
     public Stack<LambdaScope> LambdaScopes { get; } = new Stack<LambdaScope>();
 
-    public FilterEvaluationContext(ParameterExpression rootParameter, PropertyMappingTree propertyMappingTree)
+    public FilterEvaluationContext(ParameterExpression rootParameter, PropertyMappingTree propertyMappingTree, int maxPropertyMappingDepth)
     {
         RootParameter = rootParameter;
         PropertyMappingTree = propertyMappingTree;
+        MaxPropertyMappingDepth = maxPropertyMappingDepth;
     }
 
     public bool IsInLambdaScope => LambdaScopes.Count > 0;

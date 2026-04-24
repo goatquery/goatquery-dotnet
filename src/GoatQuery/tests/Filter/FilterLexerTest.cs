@@ -626,6 +626,28 @@ public sealed class FilterLexerTest
                 new (TokenType.INT, "0"),
             }
         };
+
+        yield return new object[]
+        {
+            @"Name eq 'O\'Brien'",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "Name"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.STRING, "O'Brien"),
+            }
+        };
+
+        yield return new object[]
+        {
+            @"Name eq 'back\\slash'",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new (TokenType.IDENT, "Name"),
+                new (TokenType.IDENT, "eq"),
+                new (TokenType.STRING, @"back\slash"),
+            }
+        };
     }
 
     [Theory]

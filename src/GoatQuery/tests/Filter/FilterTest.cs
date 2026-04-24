@@ -506,6 +506,195 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
         }, result.Value.Query);
     }
 
+    [Fact]
+    public void Test_Filter_WithJsonNamingPolicy_SnakeCaseLower()
+    {
+        var users = new List<CamelCaseUser>{
+            new CamelCaseUser { FirstName = "John", Age = 25 },
+            new CamelCaseUser { FirstName = "Jane", Age = 30 },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "first_name eq 'John'" };
+        var options = new QueryOptions
+        {
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower
+        };
+        var result = users.Apply(query, null, options);
+
+        Assert.True(result.IsSuccess);
+        Assert.Single(result.Value.Query);
+        Assert.Equal("John", result.Value.Query.First().FirstName);
+    }
+
+    [Fact]
+    public void Test_Filter_WithJsonNamingPolicy_NestedProperty()
+    {
+        var users = new List<CamelCaseUser>{
+            new CamelCaseUser { FirstName = "John", Company = new CamelCaseCompany { CompanyName = "TechCorp" } },
+            new CamelCaseUser { FirstName = "Jane", Company = new CamelCaseCompany { CompanyName = "DataSoft" } },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "company/company_name eq 'TechCorp'" };
+        var options = new QueryOptions
+        {
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower
+        };
+        var result = users.Apply(query, null, options);
+
+        Assert.True(result.IsSuccess);
+        Assert.Single(result.Value.Query);
+        Assert.Equal("John", result.Value.Query.First().FirstName);
+    }
+
+    [Fact]
+    public void Test_Filter_StringEq_WithNullValues_DoesNotThrow()
+    {
+        var users = new List<NullableStringUser>{
+            new NullableStringUser { Firstname = "John", Age = 1 },
+            new NullableStringUser { Firstname = null, Age = 2 },
+            new NullableStringUser { Firstname = "Jane", Age = 3 },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "firstname eq 'John'" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("John", results.First().Firstname);
+    }
+
+    [Fact]
+    public void Test_Filter_StringNe_WithNullValues_IncludesNulls()
+    {
+        var users = new List<NullableStringUser>{
+            new NullableStringUser { Firstname = "John", Age = 1 },
+            new NullableStringUser { Firstname = null, Age = 2 },
+            new NullableStringUser { Firstname = "Jane", Age = 3 },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "firstname ne 'John'" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Equal(2, results.Count);
+        Assert.Contains(results, u => u.Firstname == null);
+        Assert.Contains(results, u => u.Firstname == "Jane");
+    }
+
+    [Fact]
+    public void Test_Filter_StringContains_WithNullValues_DoesNotThrow()
+    {
+        var users = new List<NullableStringUser>{
+            new NullableStringUser { Firstname = "John", Age = 1 },
+            new NullableStringUser { Firstname = null, Age = 2 },
+            new NullableStringUser { Firstname = "Jane", Age = 3 },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "firstname contains 'oh'" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("John", results.First().Firstname);
+    }
+
+    [Fact]
+    public void Test_Filter_LambdaRespectsMaxPropertyMappingDepth()
+    {
+        var data = new List<DepthTestNode>{
+            new DepthTestNode {
+                Name = "A",
+                Child = new DepthTestChild {
+                    Value = "X",
+                    Items = new[] {
+                        new DepthTestGrandchild {
+                            Label = "item1",
+                            Deep = new DepthTestGreatGrandchild { Detail = "deep_detail" }
+                        }
+                    }
+                }
+            },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "child/items/any(i: i/deep/detail eq 'deep_detail')" };
+        var options = new QueryOptions { MaxPropertyMappingDepth = 1 };
+        var result = data.Apply(query, null, options);
+
+        Assert.True(result.IsFailed);
+    }
+
+    [Fact]
+    public void Test_Filter_DateTimeOffset_Eq()
+    {
+        var timestamp = DateTimeOffset.Parse("2024-01-15T10:30:00+05:00");
+        var users = new List<DateTimeOffsetUser>{
+            new DateTimeOffsetUser { Name = "A", CreatedAt = timestamp },
+            new DateTimeOffsetUser { Name = "B", CreatedAt = DateTimeOffset.Parse("2024-06-01T00:00:00Z") },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "createdAt eq 2024-01-15T10:30:00+05:00" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("A", results.First().Name);
+    }
+
+    [Fact]
+    public void Test_Filter_DateTimeOffset_Comparison()
+    {
+        var users = new List<DateTimeOffsetUser>{
+            new DateTimeOffsetUser { Name = "A", CreatedAt = DateTimeOffset.Parse("2024-01-01T00:00:00Z") },
+            new DateTimeOffsetUser { Name = "B", CreatedAt = DateTimeOffset.Parse("2024-06-01T00:00:00Z") },
+            new DateTimeOffsetUser { Name = "C", CreatedAt = DateTimeOffset.Parse("2024-12-01T00:00:00Z") },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "createdAt lt 2024-07-01T00:00:00Z" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Equal(2, results.Count);
+    }
+
+    [Fact]
+    public void Test_Filter_NullableDateTimeOffset_EqNull()
+    {
+        var users = new List<DateTimeOffsetUser>{
+            new DateTimeOffsetUser { Name = "A", UpdatedAt = DateTimeOffset.Parse("2024-01-01T00:00:00Z") },
+            new DateTimeOffsetUser { Name = "B", UpdatedAt = null },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "updatedAt eq null" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("B", results.First().Name);
+    }
+
+    [Fact]
+    public void Test_Filter_NullableDateTimeOffset_NeNull()
+    {
+        var users = new List<DateTimeOffsetUser>{
+            new DateTimeOffsetUser { Name = "A", UpdatedAt = DateTimeOffset.Parse("2024-01-01T00:00:00Z") },
+            new DateTimeOffsetUser { Name = "B", UpdatedAt = null },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "updatedAt ne null" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("A", results.First().Name);
+    }
+
     public record IntegerConverts
     {
         public long Long { get; set; }

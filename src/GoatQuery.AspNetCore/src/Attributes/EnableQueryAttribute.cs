@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
 {
@@ -86,7 +88,25 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
             searchBinder = context.HttpContext.RequestServices.GetService(typeof(ISearchBinder<T>)) as ISearchBinder<T>;
         }
 
-        var applyResult = queryable.Apply(query, searchBinder, _options);
+        var applyOptions = _options ?? new QueryOptions();
+
+        // Auto-resolve JsonNamingPolicy from DI if not explicitly set
+        if (applyOptions.PropertyNamingPolicy is null)
+        {
+            var jsonOptions = context.HttpContext.RequestServices.GetService<IOptions<JsonOptions>>();
+            var namingPolicy = jsonOptions?.Value?.JsonSerializerOptions?.PropertyNamingPolicy;
+            if (namingPolicy is not null)
+            {
+                applyOptions = new QueryOptions()
+                {
+                    MaxTop = applyOptions.MaxTop,
+                    MaxPropertyMappingDepth = applyOptions.MaxPropertyMappingDepth,
+                    PropertyNamingPolicy = namingPolicy
+                };
+            }
+        }
+
+        var applyResult = queryable.Apply(query, searchBinder, applyOptions);
         if (applyResult.IsFailed)
         {
             var message = string.Join(", ", applyResult.Errors.Select(x => x.Message));

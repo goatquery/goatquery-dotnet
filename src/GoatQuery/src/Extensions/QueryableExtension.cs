@@ -16,7 +16,8 @@ public static class QueryableExtension
         var type = typeof(T);
 
         var maxDepth = options?.MaxPropertyMappingDepth ?? new QueryOptions().MaxPropertyMappingDepth;
-        var propertyMappingTree = PropertyMappingTreeBuilder.BuildMappingTree<T>(maxDepth);
+        var namingPolicy = options?.PropertyNamingPolicy;
+        var propertyMappingTree = PropertyMappingTreeBuilder.BuildMappingTree<T>(maxDepth, namingPolicy);
 
         // Filter
         if (!string.IsNullOrEmpty(query.Filter))
@@ -31,7 +32,7 @@ public static class QueryableExtension
 
             ParameterExpression parameter = Expression.Parameter(type);
 
-            var expression = FilterEvaluator.Evaluate(statement.Value.Expression, parameter, propertyMappingTree);
+            var expression = FilterEvaluator.Evaluate(statement.Value.Expression, parameter, propertyMappingTree, maxDepth);
             if (expression.IsFailed)
             {
                 return Result.Fail(expression.Errors);

@@ -62,3 +62,52 @@ public enum Status
     Active,
     Inactive,
 }
+
+public record CamelCaseUser
+{
+    public Guid Id { get; set; }
+    public string FirstName { get; set; } = string.Empty;
+    public int Age { get; set; }
+    public CamelCaseCompany? Company { get; set; }
+}
+
+public record CamelCaseCompany
+{
+    public string CompanyName { get; set; } = string.Empty;
+}
+
+public record NullableStringUser
+{
+    public string? Firstname { get; set; }
+    public int Age { get; set; }
+}
+
+public record DepthTestNode
+{
+    public string Name { get; set; } = string.Empty;
+    public DepthTestChild? Child { get; set; }
+}
+
+public record DepthTestChild
+{
+    public string Value { get; set; } = string.Empty;
+    public IEnumerable<DepthTestGrandchild> Items { get; set; } = Array.Empty<DepthTestGrandchild>();
+}
+
+public record DepthTestGrandchild
+{
+    public string Label { get; set; } = string.Empty;
+    public DepthTestGreatGrandchild? Deep { get; set; }
+}
+
+public record DepthTestGreatGrandchild
+{
+    public string Detail { get; set; } = string.Empty;
+}
+
+public record DateTimeOffsetUser
+{
+    public string Name { get; set; } = string.Empty;
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? UpdatedAt { get; set; }
+}

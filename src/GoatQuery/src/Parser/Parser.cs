@@ -50,16 +50,33 @@ public sealed class QueryParser
 
     private OrderByStatement ParseOrderByStatement()
     {
-        var statement = new OrderByStatement(_currentToken, OrderByDirection.Ascending);
+        var startToken = _currentToken;
+        var segments = new List<string> { _currentToken.Literal };
+
+        // Handle nested property paths (e.g., company/name)
+        while (_peekToken.Type == TokenType.SLASH)
+        {
+            NextToken(); // consume current identifier
+            NextToken(); // consume slash
+
+            if (_currentToken.Type != TokenType.IDENT)
+            {
+                break;
+            }
+
+            segments.Add(_currentToken.Literal);
+        }
+
+        var direction = OrderByDirection.Ascending;
 
         if (PeekIdentifierIs(Keywords.Desc))
         {
-            statement.Direction = OrderByDirection.Descending;
+            direction = OrderByDirection.Descending;
         }
 
         NextToken();
 
-        return statement;
+        return new OrderByStatement(startToken, segments, direction);
     }
 
     public Result<ExpressionStatement> ParseFilter()

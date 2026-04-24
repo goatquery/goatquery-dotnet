@@ -129,4 +129,84 @@ public sealed class OrderByTest
             new CustomJsonPropertyUser { Lastname = "John" },
         }, result.Value.Query);
     }
+
+    [Fact]
+    public void Test_OrderBy_NestedProperty()
+    {
+        var users = new List<User>{
+            new User { Firstname = "A", Company = new Company { Name = "Zebra" } },
+            new User { Firstname = "B", Company = new Company { Name = "Alpha" } },
+            new User { Firstname = "C", Company = new Company { Name = "Middle" } },
+        }.AsQueryable();
+
+        var query = new Query { OrderBy = "company/name asc" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var ordered = result.Value.Query.ToList();
+        Assert.Equal("B", ordered[0].Firstname); // Alpha
+        Assert.Equal("C", ordered[1].Firstname); // Middle
+        Assert.Equal("A", ordered[2].Firstname); // Zebra
+    }
+
+    [Fact]
+    public void Test_OrderBy_NestedProperty_Descending()
+    {
+        var users = new List<User>{
+            new User { Firstname = "A", Company = new Company { Name = "Zebra" } },
+            new User { Firstname = "B", Company = new Company { Name = "Alpha" } },
+            new User { Firstname = "C", Company = new Company { Name = "Middle" } },
+        }.AsQueryable();
+
+        var query = new Query { OrderBy = "company/name desc" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var ordered = result.Value.Query.ToList();
+        Assert.Equal("A", ordered[0].Firstname); // Zebra
+        Assert.Equal("C", ordered[1].Firstname); // Middle
+        Assert.Equal("B", ordered[2].Firstname); // Alpha
+    }
+
+    [Fact]
+    public void Test_OrderBy_NestedProperty_WithFlatProperty()
+    {
+        var users = new List<User>{
+            new User { Firstname = "A", Age = 30, Company = new Company { Name = "Zebra" } },
+            new User { Firstname = "B", Age = 25, Company = new Company { Name = "Zebra" } },
+            new User { Firstname = "C", Age = 20, Company = new Company { Name = "Alpha" } },
+        }.AsQueryable();
+
+        var query = new Query { OrderBy = "company/name asc, age desc" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var ordered = result.Value.Query.ToList();
+        Assert.Equal("C", ordered[0].Firstname); // Alpha, 20
+        Assert.Equal("A", ordered[1].Firstname); // Zebra, 30
+        Assert.Equal("B", ordered[2].Firstname); // Zebra, 25
+    }
+
+    [Fact]
+    public void Test_OrderBy_WithJsonNamingPolicy_SnakeCaseLower()
+    {
+        var users = new List<CamelCaseUser>{
+            new CamelCaseUser { FirstName = "Charlie" },
+            new CamelCaseUser { FirstName = "Alice" },
+            new CamelCaseUser { FirstName = "Bob" },
+        }.AsQueryable();
+
+        var query = new Query { OrderBy = "first_name asc" };
+        var options = new QueryOptions
+        {
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower
+        };
+        var result = users.Apply(query, null, options);
+
+        Assert.True(result.IsSuccess);
+        var ordered = result.Value.Query.ToList();
+        Assert.Equal("Alice", ordered[0].FirstName);
+        Assert.Equal("Bob", ordered[1].FirstName);
+        Assert.Equal("Charlie", ordered[2].FirstName);
+    }
 }

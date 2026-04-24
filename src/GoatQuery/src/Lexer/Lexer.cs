@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Text;
 
 public sealed class QueryLexer
 {
@@ -208,17 +209,39 @@ public sealed class QueryLexer
 
     private string ReadString()
     {
-        var currentPosition = _position + 1;
+        var result = new StringBuilder();
 
         while (true)
         {
             ReadCharacter();
+
+            if (_character == '\\')
+            {
+                ReadCharacter();
+                switch (_character)
+                {
+                    case '\'':
+                        result.Append('\'');
+                        break;
+                    case '\\':
+                        result.Append('\\');
+                        break;
+                    default:
+                        result.Append('\\');
+                        result.Append(_character);
+                        break;
+                }
+                continue;
+            }
+
             if (_character == '\'' || _character == 0)
             {
                 break;
             }
+
+            result.Append(_character);
         }
 
-        return _input.Substring(currentPosition, _position - currentPosition);
+        return result.ToString();
     }
 }

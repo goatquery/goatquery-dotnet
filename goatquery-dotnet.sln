@@ -1,0 +1,61 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "example", "example\example.csproj", "{A0FC842C-5103-E242-CA0E-06B13ABAA9ED}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GoatQuery", "GoatQuery", "{94160C38-8879-207F-820A-803BE9D227B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "src\GoatQuery\tests\tests.csproj", "{7BAC3D46-1702-42C0-F16F-9A1BD17B74A6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1FEFF0A2-436C-169C-7207-B80A25992048}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoatQuery", "src\GoatQuery\src\GoatQuery.csproj", "{6916B381-5E7F-292D-8CAF-CF88B62E3B32}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GoatQuery.AspNetCore", "GoatQuery.AspNetCore", "{A0FD25A3-A54C-9555-6DAE-55D63D9A1B08}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9BB897A5-53BC-1E2F-A9E5-833D0C339756}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoatQuery.AspNetCore", "src\GoatQuery.AspNetCore\src\GoatQuery.AspNetCore.csproj", "{E838C398-8747-11C6-C882-BE86419A0576}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A0FC842C-5103-E242-CA0E-06B13ABAA9ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0FC842C-5103-E242-CA0E-06B13ABAA9ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0FC842C-5103-E242-CA0E-06B13ABAA9ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0FC842C-5103-E242-CA0E-06B13ABAA9ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BAC3D46-1702-42C0-F16F-9A1BD17B74A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BAC3D46-1702-42C0-F16F-9A1BD17B74A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BAC3D46-1702-42C0-F16F-9A1BD17B74A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BAC3D46-1702-42C0-F16F-9A1BD17B74A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6916B381-5E7F-292D-8CAF-CF88B62E3B32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6916B381-5E7F-292D-8CAF-CF88B62E3B32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6916B381-5E7F-292D-8CAF-CF88B62E3B32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6916B381-5E7F-292D-8CAF-CF88B62E3B32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E838C398-8747-11C6-C882-BE86419A0576}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E838C398-8747-11C6-C882-BE86419A0576}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E838C398-8747-11C6-C882-BE86419A0576}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E838C398-8747-11C6-C882-BE86419A0576}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{94160C38-8879-207F-820A-803BE9D227B4} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{7BAC3D46-1702-42C0-F16F-9A1BD17B74A6} = {94160C38-8879-207F-820A-803BE9D227B4}
+		{1FEFF0A2-436C-169C-7207-B80A25992048} = {94160C38-8879-207F-820A-803BE9D227B4}
+		{6916B381-5E7F-292D-8CAF-CF88B62E3B32} = {1FEFF0A2-436C-169C-7207-B80A25992048}
+		{A0FD25A3-A54C-9555-6DAE-55D63D9A1B08} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{9BB897A5-53BC-1E2F-A9E5-833D0C339756} = {A0FD25A3-A54C-9555-6DAE-55D63D9A1B08}
+		{E838C398-8747-11C6-C882-BE86419A0576} = {9BB897A5-53BC-1E2F-A9E5-833D0C339756}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4DE0B5C8-84BA-4D9E-811F-7C4F6553A67A}
+	EndGlobalSection
+EndGlobal

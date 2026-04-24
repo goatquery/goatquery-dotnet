@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 public sealed class PropertyMappingTree
@@ -66,20 +67,20 @@ public static class PropertyMappingTreeBuilder
         typeof(DateTimeOffset), typeof(TimeSpan), typeof(Guid)
     };
 
-    public static PropertyMappingTree BuildMappingTree<T>(int maxDepth)
+    public static PropertyMappingTree BuildMappingTree<T>(int maxDepth, JsonNamingPolicy namingPolicy = null)
     {
-        return BuildMappingTree(typeof(T), maxDepth);
+        return BuildMappingTree(typeof(T), maxDepth, namingPolicy);
     }
 
-    public static PropertyMappingTree BuildMappingTree(Type type, int maxDepth)
+    public static PropertyMappingTree BuildMappingTree(Type type, int maxDepth, JsonNamingPolicy namingPolicy = null)
     {
         if (type == null) throw new ArgumentNullException(nameof(type));
         if (maxDepth <= 0) throw new ArgumentOutOfRangeException(nameof(maxDepth), "Max depth must be greater than 0");
 
-        return BuildMappingTreeInternal(type, maxDepth, currentDepth: 0, new List<Type>());
+        return BuildMappingTreeInternal(type, maxDepth, currentDepth: 0, new List<Type>(), namingPolicy);
     }
 
-    private static PropertyMappingTree BuildMappingTreeInternal(Type type, int maxDepth, int currentDepth, List<Type> typePath)
+    private static PropertyMappingTree BuildMappingTreeInternal(Type type, int maxDepth, int currentDepth, List<Type> typePath, JsonNamingPolicy namingPolicy)
     {
         var tree = new PropertyMappingTree(type);
 
@@ -89,7 +90,7 @@ public static class PropertyMappingTreeBuilder
         typePath.Add(type);
         try
         {
-            BuildPropertiesForTree(tree, type, maxDepth, currentDepth, typePath);
+            BuildPropertiesForTree(tree, type, maxDepth, currentDepth, typePath, namingPolicy);
         }
         finally
         {
@@ -99,13 +100,13 @@ public static class PropertyMappingTreeBuilder
         return tree;
     }
 
-    private static void BuildPropertiesForTree(PropertyMappingTree tree, Type type, int maxDepth, int currentDepth, List<Type> typePath)
+    private static void BuildPropertiesForTree(PropertyMappingTree tree, Type type, int maxDepth, int currentDepth, List<Type> typePath, JsonNamingPolicy namingPolicy)
     {
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
         foreach (var property in properties)
         {
-            var node = CreatePropertyNode(property);
+            var node = CreatePropertyNode(property, namingPolicy);
             var typeToProcess = node.CollectionElementType ?? node.PropertyType;
 
             if (ShouldCreateNestedMapping(typeToProcess) && CanNavigateToType(typeToProcess, typePath, maxDepth))
@@ -114,16 +115,17 @@ public static class PropertyMappingTreeBuilder
                     typeToProcess,
                     maxDepth,
                     currentDepth + 1,
-                    new List<Type>(typePath));
+                    new List<Type>(typePath),
+                    namingPolicy);
             }
 
             tree.AddProperty(node.JsonPropertyName, node);
         }
     }
 
-    private static PropertyMappingNode CreatePropertyNode(PropertyInfo property)
+    private static PropertyMappingNode CreatePropertyNode(PropertyInfo property, JsonNamingPolicy namingPolicy)
     {
-        var jsonPropertyName = GetJsonPropertyName(property);
+        var jsonPropertyName = GetJsonPropertyName(property, namingPolicy);
         var (isCollection, elementType) = GetCollectionInfo(property.PropertyType);
 
         return new PropertyMappingNode(
@@ -140,9 +142,11 @@ public static class PropertyMappingTreeBuilder
         return typeCount < maxDepth;
     }
 
-    private static string GetJsonPropertyName(PropertyInfo property)
+    private static string GetJsonPropertyName(PropertyInfo property, JsonNamingPolicy namingPolicy)
     {
-        return property.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ?? property.Name;
+        return property.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name
+            ?? namingPolicy?.ConvertName(property.Name)
+            ?? property.Name;
     }
 
     private static (bool IsCollection, Type ElementType) GetCollectionInfo(Type type)

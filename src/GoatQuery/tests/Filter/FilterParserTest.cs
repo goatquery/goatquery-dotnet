@@ -25,6 +25,8 @@ public sealed class FilterParserTest
     [InlineData("balance eq null", "balance", "eq", "null")]
     [InlineData("balance ne null", "balance", "ne", "null")]
     [InlineData("name eq NULL", "name", "eq", "NULL")]
+    [InlineData(@"Name eq 'O\'Brien'", "Name", "eq", "O'Brien")]
+    [InlineData(@"Name eq 'back\\slash'", "Name", "eq", @"back\slash")]
     public void Test_ParsingFilterStatement(string input, string expectedLeft, string expectedOperator, string expectedRight)
     {
         var lexer = new QueryLexer(input);
