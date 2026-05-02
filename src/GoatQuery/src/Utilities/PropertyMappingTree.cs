@@ -76,14 +76,12 @@ public sealed class PropertyMappingNode
     public string ActualPropertyName { get; }
     public Type PropertyType { get; }
     public PropertyMappingTree NestedMapping { get; internal set; }
-    public bool IsCollection { get; }
     public Type CollectionElementType { get; }
 
     internal PropertyMappingNode(
         string jsonPropertyName,
         string actualPropertyName,
         Type propertyType,
-        bool isCollection = false,
         Type collectionElementType = null
     )
     {
@@ -92,7 +90,6 @@ public sealed class PropertyMappingNode
         ActualPropertyName =
             actualPropertyName ?? throw new ArgumentNullException(nameof(actualPropertyName));
         PropertyType = propertyType ?? throw new ArgumentNullException(nameof(propertyType));
-        IsCollection = isCollection;
         CollectionElementType = collectionElementType;
     }
 
@@ -208,13 +205,12 @@ public static class PropertyMappingTreeBuilder
     )
     {
         var jsonPropertyName = GetJsonPropertyName(property, namingPolicy);
-        var (isCollection, elementType) = GetCollectionInfo(property.PropertyType);
+        var (_, elementType) = GetCollectionInfo(property.PropertyType);
 
         return new PropertyMappingNode(
             jsonPropertyName,
             property.Name,
             property.PropertyType,
-            isCollection,
             elementType
         );
     }
@@ -257,7 +253,7 @@ public static class PropertyMappingTreeBuilder
             && !type.IsInterface;
     }
 
-    private static bool IsPrimitiveType(Type type)
+    internal static bool IsPrimitiveType(Type type)
     {
         if (type.IsPrimitive || PrimitiveTypes.Contains(type))
             return true;

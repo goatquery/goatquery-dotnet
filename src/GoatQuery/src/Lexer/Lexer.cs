@@ -5,9 +5,9 @@ using System.Text;
 public sealed class QueryLexer
 {
     private readonly string _input;
-    private int _position { get; set; }
-    private int _readPosition { get; set; }
-    private char _character { get; set; }
+    private int _position;
+    private int _readPosition;
+    private char _character;
 
     public QueryLexer(string input)
     {
@@ -203,7 +203,11 @@ public sealed class QueryLexer
             return TokenType.DOUBLE;
 
         if (literal.EndsWith("l", StringComparison.OrdinalIgnoreCase))
-            return TokenType.INT; // Our existing INT type for simplicity
+            return TokenType.LONG;
+
+        // Unsuffixed decimal point defaults to double
+        if (literal.Contains("."))
+            return TokenType.DOUBLE;
 
         // Default to integer
         return TokenType.INT;

@@ -233,6 +233,7 @@ public sealed class QueryParser
             !PeekTokenIn(
                 TokenType.STRING,
                 TokenType.INT,
+                TokenType.LONG,
                 TokenType.GUID,
                 TokenType.DATETIME,
                 TokenType.DECIMAL,
@@ -254,15 +255,11 @@ public sealed class QueryParser
             return Result.Fail("Value must be a string when using 'contains' operand");
         }
 
-        if (statement.Operator.Equals(Keywords.Contains) && _currentToken.Type == TokenType.NULL)
-        {
-            return Result.Fail("Cannot use 'contains' operand with null value");
-        }
-
         if (
             statement.Operator.In(Keywords.Lt, Keywords.Lte, Keywords.Gt, Keywords.Gte)
             && !CurrentTokenIn(
                 TokenType.INT,
+                TokenType.LONG,
                 TokenType.DECIMAL,
                 TokenType.FLOAT,
                 TokenType.DOUBLE,
@@ -277,6 +274,13 @@ public sealed class QueryParser
         }
 
         statement.Right = ParseLiteral(_currentToken);
+
+        if (statement.Right == null)
+        {
+            return Result.Fail(
+                $"Could not parse value '{_currentToken.Literal}' as {_currentToken.Type}"
+            );
+        }
 
         return statement;
     }
@@ -340,8 +344,9 @@ public sealed class QueryParser
                 ? new GuidLiteral(token, guidValue)
                 : null,
             TokenType.STRING => new StringLiteral(token, token.Literal),
-            TokenType.INT => int.TryParse(token.Literal, out var intValue)
-                ? new IntegerLiteral(token, intValue)
+            TokenType.INT => ParseIntegerOrLong(token),
+            TokenType.LONG => long.TryParse(token.Literal.TrimEnd('l', 'L'), out var longValue)
+                ? new LongLiteral(token, longValue)
                 : null,
             TokenType.FLOAT => float.TryParse(token.Literal.TrimEnd('f'), out var floatValue)
                 ? new FloatLiteral(token, floatValue)
@@ -374,6 +379,17 @@ public sealed class QueryParser
                 : null,
             _ => null,
         };
+    }
+
+    private QueryExpression ParseIntegerOrLong(Token token)
+    {
+        if (int.TryParse(token.Literal, out var intValue))
+            return new IntegerLiteral(token, intValue);
+
+        if (long.TryParse(token.Literal, out var longValue))
+            return new LongLiteral(token, longValue);
+
+        return null;
     }
 
     private bool PeekTokenIs(TokenType tokenType)

@@ -21,8 +21,6 @@ public sealed class OrderByStatement : Node
         Segments = segments;
     }
 
-    public bool IsNestedPath => Segments.Count > 1;
-
     public override string TokenLiteral()
     {
         return string.Join("/", Segments);

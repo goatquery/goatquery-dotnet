@@ -12,6 +12,7 @@ public record User
     public float? BalanceFloat { get; set; }
     public DateTime? DateOfBirth { get; set; }
     public bool IsEmailVerified { get; set; }
+    public long? LargeNumber { get; set; }
     public Company? Company { get; set; }
 
     public Guid? ManagerId { get; set; }

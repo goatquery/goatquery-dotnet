@@ -23,6 +23,11 @@ internal class FilterEvaluationContext
     public bool IsInLambdaScope => LambdaScopes.Count > 0;
     public LambdaScope CurrentLambda => LambdaScopes.Peek();
 
+    public Expression GetBaseExpression()
+    {
+        return IsInLambdaScope ? CurrentLambda.Parameter : RootParameter;
+    }
+
     public void EnterLambdaScope(
         string parameterName,
         ParameterExpression parameter,

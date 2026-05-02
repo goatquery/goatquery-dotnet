@@ -73,9 +73,7 @@ public static class FilterEvaluator
         FilterEvaluationContext context
     )
     {
-        var baseExpression = context.IsInLambdaScope
-            ? (Expression)context.CurrentLambda.Parameter
-            : context.RootParameter;
+        var baseExpression = context.GetBaseExpression();
 
         var propertyPathResult = BuildPropertyPath(
             propertyPath,
@@ -89,15 +87,10 @@ public static class FilterEvaluator
 
         if (exp.Right is NullLiteral)
         {
-            var nullComparison = CreateNullComparison(exp, finalProperty);
-            return nullComparison;
+            return CreateNullComparison(exp, finalProperty);
         }
 
-        var comparisonResult = EvaluateValueComparison(exp, finalProperty);
-        if (comparisonResult.IsFailed)
-            return comparisonResult;
-
-        return comparisonResult.Value;
+        return EvaluateValueComparison(exp, finalProperty);
     }
 
     private static Result<MemberExpression> BuildPropertyPath(
@@ -130,16 +123,6 @@ public static class FilterEvaluator
         if (result.IsFailed)
             return Result.Fail(result.Errors);
         return Result.Ok((MemberExpression)result.Value);
-    }
-
-    private static bool IsPrimitiveType(Type type)
-    {
-        return type.IsPrimitive
-            || type == typeof(string)
-            || type == typeof(decimal)
-            || type == typeof(DateTime)
-            || type == typeof(Guid)
-            || Nullable.GetUnderlyingType(type) != null;
     }
 
     private static Expression CreateNullComparison(InfixExpression exp, MemberExpression property)
@@ -261,6 +244,7 @@ public static class FilterEvaluator
         return literal switch
         {
             IntegerLiteral intLit => CreateIntegerOrEnumConstant(intLit.Value, expression.Type),
+            LongLiteral longLit => CreateLongConstant(longLit.Value, expression.Type),
             DateLiteral dateLit => Result.Ok(CreateDateConstant(dateLit, expression.Type)),
             GuidLiteral guidLit => Result.Ok(Expression.Constant(guidLit.Value, expression.Type)),
             DecimalLiteral decLit => Result.Ok(Expression.Constant(decLit.Value, expression.Type)),
@@ -416,9 +400,7 @@ public static class FilterEvaluator
             return Result.Fail($"Invalid property '{identifier}' within filter");
         }
 
-        var baseExpression = context.IsInLambdaScope
-            ? (Expression)context.CurrentLambda.Parameter
-            : context.RootParameter;
+        var baseExpression = context.GetBaseExpression();
 
         var identifierProperty = Expression.Property(
             baseExpression,
@@ -488,9 +470,7 @@ public static class FilterEvaluator
         ParameterExpression Parameter
     )> SetupLambdaEvaluation(QueryLambdaExpression lambdaExp, FilterEvaluationContext context)
     {
-        var baseExpression = context.IsInLambdaScope
-            ? (Expression)context.CurrentLambda.Parameter
-            : context.RootParameter;
+        var baseExpression = context.GetBaseExpression();
 
         var collectionResult = ResolveCollectionProperty(
             lambdaExp.Property,
@@ -629,7 +609,7 @@ public static class FilterEvaluator
         )
         {
             // For primitive types (string, int, etc.), allow direct comparisons with the lambda parameter
-            if (IsPrimitiveType(context.CurrentLambda.ElementType))
+            if (PropertyMappingTreeBuilder.IsPrimitiveType(context.CurrentLambda.ElementType))
             {
                 return EvaluateValueComparison(exp, context.CurrentLambda.Parameter);
             }
@@ -788,6 +768,39 @@ public static class FilterEvaluator
             {
                 Type t when t == typeof(int) => value,
                 Type t when t == typeof(long) => Convert.ToInt64(value),
+                Type t when t == typeof(short) => Convert.ToInt16(value),
+                Type t when t == typeof(byte) => Convert.ToByte(value),
+                Type t when t == typeof(uint) => Convert.ToUInt32(value),
+                Type t when t == typeof(ulong) => Convert.ToUInt64(value),
+                Type t when t == typeof(ushort) => Convert.ToUInt16(value),
+                Type t when t == typeof(sbyte) => Convert.ToSByte(value),
+                _ => throw new NotSupportedException(
+                    $"Unsupported numeric type: {targetType.Name}"
+                ),
+            };
+
+            return Expression.Constant(convertedValue, targetType);
+        }
+        catch (OverflowException)
+        {
+            return Result.Fail($"Value {value} is too large for type {targetType.Name}");
+        }
+        catch (Exception)
+        {
+            return Result.Fail($"Error converting {value} to {targetType.Name}");
+        }
+    }
+
+    private static Result<ConstantExpression> CreateLongConstant(long value, Type targetType)
+    {
+        try
+        {
+            var type = GetNonNullableType(targetType);
+
+            object convertedValue = type switch
+            {
+                Type t when t == typeof(long) => value,
+                Type t when t == typeof(int) => Convert.ToInt32(value),
                 Type t when t == typeof(short) => Convert.ToInt16(value),
                 Type t when t == typeof(byte) => Convert.ToByte(value),
                 Type t when t == typeof(uint) => Convert.ToUInt32(value),

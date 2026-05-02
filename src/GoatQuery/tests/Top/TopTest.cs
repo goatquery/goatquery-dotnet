@@ -83,4 +83,26 @@ public sealed class TopTest
 
         Assert.True(result.IsFailed);
     }
+
+    [Fact]
+    public void Test_TopWithMaxTop_WhenTopIsNull_AppliesMaxTop()
+    {
+        var users = new List<User>
+        {
+            new User { Age = 1, Firstname = "Jane" },
+            new User { Age = 1, Firstname = "Harry" },
+            new User { Age = 2, Firstname = "John" },
+            new User { Age = 2, Firstname = "Apple" },
+            new User { Age = 3, Firstname = "Doe" },
+            new User { Age = 3, Firstname = "Egg" },
+        }.AsQueryable();
+
+        var query = new Query { Top = null };
+
+        var queryOptions = new QueryOptions { MaxTop = 4 };
+
+        var result = users.Apply(query, null, queryOptions);
+
+        Assert.Equal(4, result.Value.Query.Count());
+    }
 }

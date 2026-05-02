@@ -33,6 +33,17 @@ public sealed class IntegerLiteral : QueryExpression
     }
 }
 
+public sealed class LongLiteral : QueryExpression
+{
+    public long Value { get; set; }
+
+    public LongLiteral(Token token, long value)
+        : base(token)
+    {
+        Value = value;
+    }
+}
+
 public sealed class DecimalLiteral : QueryExpression
 {
     public decimal Value { get; set; }

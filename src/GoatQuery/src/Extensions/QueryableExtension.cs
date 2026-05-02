@@ -21,8 +21,7 @@ public static class QueryableExtension
 
         var type = typeof(T);
 
-        var maxDepth =
-            options?.MaxPropertyMappingDepth ?? new QueryOptions().MaxPropertyMappingDepth;
+        var maxDepth = options?.MaxPropertyMappingDepth ?? 5;
         var namingPolicy = options?.PropertyNamingPolicy;
         var propertyMappingTree = PropertyMappingTreeBuilder.BuildMappingTree<T>(
             maxDepth,
@@ -106,16 +105,16 @@ public static class QueryableExtension
         // Skip
         if (query.Skip > 0)
         {
-            queryable = queryable.Skip(query.Skip ?? 0);
+            queryable = queryable.Skip(query.Skip.Value);
         }
 
         // Top
         if (query.Top > 0)
         {
-            queryable = queryable.Take(query.Top ?? 0);
+            queryable = queryable.Take(query.Top.Value);
         }
 
-        if (query.Top <= 0 && options?.MaxTop != null)
+        if ((query.Top == null || query.Top <= 0) && options?.MaxTop > 0)
         {
             queryable = queryable.Take(options.MaxTop);
         }

@@ -5,6 +5,7 @@ public enum TokenType
     IDENT,
     STRING,
     INT,
+    LONG,
     DECIMAL,
     FLOAT,
     DOUBLE,

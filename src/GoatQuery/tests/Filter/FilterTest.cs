@@ -901,4 +901,60 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
             result.Value.Query
         );
     }
+
+    [Fact]
+    public void Test_Filter_LongLiteral_Eq()
+    {
+        var users = new List<User>
+        {
+            new User { Firstname = "A", LargeNumber = 99999999999L },
+            new User { Firstname = "B", LargeNumber = 42L },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "largeNumber eq 99999999999L" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("A", results.First().Firstname);
+    }
+
+    [Fact]
+    public void Test_Filter_LongLiteral_WithoutSuffix()
+    {
+        var users = new List<User>
+        {
+            new User { Firstname = "A", LargeNumber = 99999999999L },
+            new User { Firstname = "B", LargeNumber = 42L },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "largeNumber eq 99999999999" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("A", results.First().Firstname);
+    }
+
+    [Theory]
+    [InlineData("largeNumber gt 50", 1)]
+    [InlineData("largeNumber lt 99999999999", 1)]
+    [InlineData("largeNumber gte 99999999999", 1)]
+    [InlineData("largeNumber lte 42", 1)]
+    public void Test_Filter_LongLiteral_Comparison(string filter, int expectedCount)
+    {
+        var users = new List<User>
+        {
+            new User { Firstname = "A", LargeNumber = 99999999999L },
+            new User { Firstname = "B", LargeNumber = 42L },
+        }.AsQueryable();
+
+        var query = new Query { Filter = filter };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(expectedCount, result.Value.Query.Count());
+    }
 }

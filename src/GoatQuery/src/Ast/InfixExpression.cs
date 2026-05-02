@@ -10,7 +10,4 @@ public sealed class InfixExpression : QueryExpression
         Left = left;
         Operator = op;
     }
-
-    public InfixExpression(Token token)
-        : base(token) { }
 }

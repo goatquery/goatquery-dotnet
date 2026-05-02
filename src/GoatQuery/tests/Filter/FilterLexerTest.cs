@@ -648,6 +648,28 @@ public sealed class FilterLexerTest
                 new(TokenType.STRING, @"back\slash"),
             },
         };
+
+        yield return new object[]
+        {
+            "id eq 100L",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new(TokenType.IDENT, "id"),
+                new(TokenType.IDENT, "eq"),
+                new(TokenType.LONG, "100L"),
+            },
+        };
+
+        yield return new object[]
+        {
+            "id eq 100l",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new(TokenType.IDENT, "id"),
+                new(TokenType.IDENT, "eq"),
+                new(TokenType.LONG, "100l"),
+            },
+        };
     }
 
     [Theory]

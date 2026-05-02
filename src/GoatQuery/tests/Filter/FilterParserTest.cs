@@ -37,6 +37,8 @@ public sealed class FilterParserTest
     [InlineData("name eq NULL", "name", "eq", "NULL")]
     [InlineData(@"Name eq 'O\'Brien'", "Name", "eq", "O'Brien")]
     [InlineData(@"Name eq 'back\\slash'", "Name", "eq", @"back\slash")]
+    [InlineData("age eq 100L", "age", "eq", "100L")]
+    [InlineData("age eq 99999999999", "age", "eq", "99999999999")]
     public void Test_ParsingFilterStatement(
         string input,
         string expectedLeft,
@@ -70,6 +72,7 @@ public sealed class FilterParserTest
     [InlineData("age gt null")]
     [InlineData("age lte null")]
     [InlineData("age gte null")]
+    [InlineData("age eq 99999999999999999999")]
     public void Test_ParsingInvalidFilterReturnsError(string input)
     {
         var lexer = new QueryLexer(input);

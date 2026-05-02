@@ -20,8 +20,6 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
 
     public EnableQueryAttribute() { }
 
-    public override void OnActionExecuting(ActionExecutingContext context) { }
-
     public override void OnActionExecuted(ActionExecutedContext context)
     {
         var result = context.Result as ObjectResult;
@@ -40,7 +38,7 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
         if (!int.TryParse(topQuery.ToString(), out int top) && !string.IsNullOrEmpty(topQuery))
         {
             context.Result = new BadRequestObjectResult(
-                new { Message = "The query parameter 'Top' could not be parsed to an integer" }
+                new { message = "The query parameter 'Top' could not be parsed to an integer" }
             );
             return;
         }
@@ -52,7 +50,7 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
         if (!int.TryParse(skipString, out int skip) && !string.IsNullOrEmpty(skipQuery))
         {
             context.Result = new BadRequestObjectResult(
-                new { Message = "The query parameter 'Skip' could not be parsed to an integer" }
+                new { message = "The query parameter 'Skip' could not be parsed to an integer" }
             );
             return;
         }
@@ -64,7 +62,7 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
         if (!bool.TryParse(countString, out bool count) && !string.IsNullOrEmpty(countString))
         {
             context.Result = new BadRequestObjectResult(
-                new { Message = "The query parameter 'Count' could not be parsed to a boolean" }
+                new { message = "The query parameter 'Count' could not be parsed to a boolean" }
             );
             return;
         }
@@ -81,9 +79,9 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
 
         var query = new Query()
         {
-            Top = top,
-            Skip = skip,
-            Count = count,
+            Top = string.IsNullOrEmpty(topQuery.ToString()) ? null : top,
+            Skip = string.IsNullOrEmpty(skipString) ? null : skip,
+            Count = string.IsNullOrEmpty(countString) ? null : count,
             OrderBy = orderbyQuery.ToString(),
             Search = search,
             Filter = filterQuery.ToString(),
@@ -98,7 +96,14 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
                 as ISearchBinder<T>;
         }
 
-        var applyOptions = _options ?? new QueryOptions();
+        var applyOptions = _options is not null
+            ? new QueryOptions
+            {
+                MaxTop = _options.MaxTop,
+                MaxPropertyMappingDepth = _options.MaxPropertyMappingDepth,
+                PropertyNamingPolicy = _options.PropertyNamingPolicy,
+            }
+            : new QueryOptions();
 
         // Auto-resolve JsonNamingPolicy from DI if not explicitly set
         if (applyOptions.PropertyNamingPolicy is null)

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <LangVersion>11.0</LangVersion>
@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
 
     <PackageId>GoatQuery.AspNetCore</PackageId>
-    <PackageProjectUrl>https://github.com/goatquery/src/GoatQuery.AspNetCore</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/goatquery/goatquery-dotnet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/goatquery/goatquery-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Description>AspNetCore extensions for GoatQuery</Description>
