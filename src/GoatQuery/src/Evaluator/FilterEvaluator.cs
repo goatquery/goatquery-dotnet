@@ -471,12 +471,44 @@ public static class FilterEvaluator
     )> SetupLambdaEvaluation(QueryLambdaExpression lambdaExp, FilterEvaluationContext context)
     {
         var baseExpression = context.GetBaseExpression();
+        var property = lambdaExp.Property;
 
-        var collectionResult = ResolveCollectionProperty(
-            lambdaExp.Property,
-            baseExpression,
-            context.PropertyMappingTree
-        );
+        // When inside a lambda scope and the nested lambda's property path starts
+        // with the current lambda parameter name (e.g. "o/items" where "o" is the
+        // outer lambda param), strip that first segment and resolve against a
+        // mapping tree built from the lambda element type instead of the root tree.
+        Result<MemberExpression> collectionResult;
+        if (
+            context.IsInLambdaScope
+            && property is PropertyPath propertyPath
+            && propertyPath.Segments.Count > 1
+            && propertyPath
+                .Segments[0]
+                .Equals(context.CurrentLambda.ParameterName, StringComparison.OrdinalIgnoreCase)
+        )
+        {
+            var strippedSegments = propertyPath.Segments.Skip(1).ToList();
+            var lambdaMappingTree = PropertyMappingTreeBuilder.BuildMappingTree(
+                context.CurrentLambda.ElementType,
+                context.MaxPropertyMappingDepth
+            );
+            var walkResult = lambdaMappingTree.WalkPropertyPath(
+                strippedSegments,
+                baseExpression,
+                "lambda expression property path"
+            );
+            collectionResult = walkResult.IsFailed
+                ? Result.Fail(walkResult.Errors)
+                : Result.Ok((MemberExpression)walkResult.Value);
+        }
+        else
+        {
+            collectionResult = ResolveCollectionProperty(
+                property,
+                baseExpression,
+                context.PropertyMappingTree
+            );
+        }
         if (collectionResult.IsFailed)
             return Result.Fail(collectionResult.Errors);
 

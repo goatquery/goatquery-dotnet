@@ -205,7 +205,7 @@ public static class PropertyMappingTreeBuilder
     )
     {
         var jsonPropertyName = GetJsonPropertyName(property, namingPolicy);
-        var (_, elementType) = GetCollectionInfo(property.PropertyType);
+        var elementType = GetCollectionElementType(property.PropertyType);
 
         return new PropertyMappingNode(
             jsonPropertyName,
@@ -228,10 +228,10 @@ public static class PropertyMappingTreeBuilder
             ?? property.Name;
     }
 
-    private static (bool IsCollection, Type ElementType) GetCollectionInfo(Type type)
+    private static Type GetCollectionElementType(Type type)
     {
         if (type.IsArray)
-            return (true, type.GetElementType());
+            return type.GetElementType();
 
         if (type.IsGenericType && type.GetGenericArguments().Length == 1)
         {
@@ -239,10 +239,10 @@ public static class PropertyMappingTreeBuilder
             var enumerableType = typeof(IEnumerable<>).MakeGenericType(elementType);
 
             if (enumerableType.IsAssignableFrom(type))
-                return (true, elementType);
+                return elementType;
         }
 
-        return (false, null);
+        return null;
     }
 
     private static bool ShouldCreateNestedMapping(Type type)

@@ -3,8 +3,25 @@ using System.Linq;
 using System.Linq.Expressions;
 using FluentResults;
 
+/// <summary>
+/// Extension methods for applying <see cref="Query"/> to <see cref="IQueryable{T}"/> sources.
+/// </summary>
 public static class QueryableExtension
 {
+    /// <summary>
+    /// Applies filtering, search, ordering, pagination, and optional count to the queryable source.
+    /// </summary>
+    /// <typeparam name="T">The entity type.</typeparam>
+    /// <param name="queryable">The source queryable.</param>
+    /// <param name="query">The query parameters to apply.</param>
+    /// <param name="searchBinder">
+    /// Optional search binder that defines how the <c>search</c> parameter is translated to a predicate.
+    /// </param>
+    /// <param name="options">Optional configuration for max top, property depth, and naming policy.</param>
+    /// <returns>
+    /// A <see cref="Result{T}"/> containing the <see cref="QueryResult{T}"/> on success,
+    /// or error details on failure (e.g. invalid filter syntax, unknown property, exceeded max top).
+    /// </returns>
     public static Result<QueryResult<T>> Apply<T>(
         this IQueryable<T> queryable,
         Query query,

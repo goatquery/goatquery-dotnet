@@ -28,6 +28,9 @@ public class UsersController : ControllerBase
                 .ThenInclude(x => x.City)
             .Include(x => x.Manager)
                 .ThenInclude(x => x.Manager)
+            .Include(x => x.Orders)
+                .ThenInclude(x => x.Items)
+                    .ThenInclude(x => x.Product)
             .Where(x => !x.IsDeleted)
             .ProjectTo<UserDto>(_mapper.ConfigurationProvider);
 

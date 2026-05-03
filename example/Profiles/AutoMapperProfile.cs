@@ -8,5 +8,8 @@ public class AutoMapperProfile : Profile
         CreateMap<Address, AddressDto>();
         CreateMap<City, CityDto>();
         CreateMap<Company, CompanyDto>();
+        CreateMap<Order, OrderDto>();
+        CreateMap<OrderItem, OrderItemDto>();
+        CreateMap<Product, ProductDto>();
     }
 }

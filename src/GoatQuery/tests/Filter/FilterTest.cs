@@ -957,4 +957,197 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
         Assert.True(result.IsSuccess);
         Assert.Equal(expectedCount, result.Value.Query.Count());
     }
+
+    public record Order
+    {
+        public Guid Id { get; set; }
+        public IEnumerable<OrderItem> Items { get; set; } = Array.Empty<OrderItem>();
+    }
+
+    public record OrderItem
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+    }
+
+    public record UserWithOrders
+    {
+        public Guid Id { get; set; }
+        public string Firstname { get; set; } = string.Empty;
+        public IEnumerable<Order> Orders { get; set; } = Array.Empty<Order>();
+    }
+
+    [Fact]
+    public void Test_Filter_NestedLambda_AnyInsideAny()
+    {
+        var users = new List<UserWithOrders>
+        {
+            new UserWithOrders
+            {
+                Firstname = "Alice",
+                Orders = new[]
+                {
+                    new Order
+                    {
+                        Items = new[]
+                        {
+                            new OrderItem { Name = "Widget", Price = 50m },
+                            new OrderItem { Name = "Gadget", Price = 1500m },
+                        },
+                    },
+                },
+            },
+            new UserWithOrders
+            {
+                Firstname = "Bob",
+                Orders = new[]
+                {
+                    new Order
+                    {
+                        Items = new[]
+                        {
+                            new OrderItem { Name = "Widget", Price = 25m },
+                        },
+                    },
+                },
+            },
+            new UserWithOrders { Firstname = "Charlie", Orders = Array.Empty<Order>() },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "orders/any(o: o/items/any(i: i/price gt 1000m))" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess, string.Join("; ", result.Errors.Select(e => e.Message)));
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("Alice", results.First().Firstname);
+    }
+
+    [Fact]
+    public void Test_Filter_NestedLambda_AnyInsideAny_WithStringComparison()
+    {
+        var users = new List<UserWithOrders>
+        {
+            new UserWithOrders
+            {
+                Firstname = "Alice",
+                Orders = new[]
+                {
+                    new Order
+                    {
+                        Items = new[]
+                        {
+                            new OrderItem { Name = "Widget" },
+                            new OrderItem { Name = "Gadget" },
+                        },
+                    },
+                },
+            },
+            new UserWithOrders
+            {
+                Firstname = "Bob",
+                Orders = new[]
+                {
+                    new Order { Items = new[] { new OrderItem { Name = "Thingamajig" } } },
+                },
+            },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "orders/any(o: o/items/any(i: i/name eq 'Gadget'))" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("Alice", results.First().Firstname);
+    }
+
+    [Fact]
+    public void Test_Filter_AllLambda_EmptyCollection_ReturnsFalse()
+    {
+        var users = new List<UserWithOrders>
+        {
+            new UserWithOrders
+            {
+                Firstname = "Alice",
+                Orders = new[]
+                {
+                    new Order
+                    {
+                        Items = new[]
+                        {
+                            new OrderItem { Name = "A", Price = 100m },
+                            new OrderItem { Name = "B", Price = 200m },
+                        },
+                    },
+                },
+            },
+            new UserWithOrders { Firstname = "Bob", Orders = Array.Empty<Order>() },
+        }.AsQueryable();
+
+        // all() on empty collection should return false (requires non-empty)
+        var query = new Query { Filter = "orders/all(o: o/items/any(i: i/price gt 0m))" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("Alice", results.First().Firstname);
+    }
+
+    [Fact]
+    public void Test_Filter_AllLambda_AllMatch()
+    {
+        // User01 has addresses in New York and Chicago — both in USA
+        // User02 has address in Seattle — USA
+        // User03 has no addresses
+        // User04 has no addresses
+        // User05 has address in Miami — USA
+        // all() excludes users with no addresses (empty collection = false)
+        var query = new Query
+        {
+            Filter = "addresses/all(addr: addr/city/country eq 'USA')",
+            OrderBy = "Firstname",
+        };
+
+        var result = _fixture.DbContext.Users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Equal(3, results.Count);
+        Assert.Equal("User01", results[0].Firstname);
+        Assert.Equal("User02", results[1].Firstname);
+        Assert.Equal("User05", results[2].Firstname);
+    }
+
+    [Fact]
+    public void Test_Filter_OrderBy_WithJsonNamingPolicy_NestedProperty()
+    {
+        var users = new List<CamelCaseUser>
+        {
+            new CamelCaseUser
+            {
+                FirstName = "A",
+                Company = new CamelCaseCompany { CompanyName = "Zebra" },
+            },
+            new CamelCaseUser
+            {
+                FirstName = "B",
+                Company = new CamelCaseCompany { CompanyName = "Alpha" },
+            },
+        }.AsQueryable();
+
+        var query = new Query { OrderBy = "company/company_name asc" };
+        var options = new QueryOptions
+        {
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower,
+        };
+        var result = users.Apply(query, null, options);
+
+        Assert.True(result.IsSuccess);
+        var ordered = result.Value.Query.ToList();
+        Assert.Equal("B", ordered[0].FirstName); // Alpha
+        Assert.Equal("A", ordered[1].FirstName); // Zebra
+    }
 }

@@ -10,10 +10,17 @@
     <PackageProjectUrl>https://github.com/goatquery/goatquery-dotnet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/goatquery/goatquery-dotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Description>AspNetCore extensions for GoatQuery</Description>
+    <Description>ASP.NET Core integration for GoatQuery — action filter for automatic query parameter processing.</Description>
+    <Authors>goatquery</Authors>
+    <PackageTags>odata;filter;paging;sorting;linq;querystring;rest;api;aspnetcore</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../../README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

@@ -22,6 +22,7 @@ public record User
     public ICollection<Address> Addresses { get; set; } = new List<Address>();
     public ICollection<string> Tags { get; set; } = new List<string>();
     public Company? Company { get; set; }
+    public ICollection<Order> Orders { get; set; } = new List<Order>();
 }
 
 public record Address
@@ -45,6 +46,34 @@ public record Company
     public string Department { get; set; } = string.Empty;
 }
 
+public record Order
+{
+    public Guid Id { get; set; }
+    public string OrderNumber { get; set; } = string.Empty;
+
+    [Column(TypeName = "timestamp with time zone")]
+    public DateTime OrderDate { get; set; }
+    public decimal Total { get; set; }
+    public OrderStatus Status { get; set; }
+    public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
+}
+
+public record OrderItem
+{
+    public Guid Id { get; set; }
+    public Product Product { get; set; } = new Product();
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+}
+
+public record Product
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+}
+
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum Gender
 {
@@ -53,4 +82,13 @@ public enum Gender
 
     [JsonStringEnumMemberName("Alternative")]
     Other,
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum OrderStatus
+{
+    Pending,
+    Shipped,
+    Delivered,
+    Cancelled,
 }

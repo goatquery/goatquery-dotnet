@@ -3,6 +3,21 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
+/// <summary>
+/// An action filter that automatically applies GoatQuery filtering, ordering, pagination,
+/// and search to an <see cref="IQueryable{T}"/> returned from a controller action.
+/// <para>
+/// The action must return an <see cref="ObjectResult"/> whose value is <see cref="IQueryable{T}"/>.
+/// Query parameters (<c>filter</c>, <c>orderby</c>, <c>top</c>, <c>skip</c>, <c>count</c>, <c>search</c>)
+/// are read from the HTTP request query string.
+/// </para>
+/// <para>
+/// The <see cref="JsonNamingPolicy"/> is automatically resolved from <c>IOptions&lt;JsonOptions&gt;</c>
+/// in DI when not explicitly configured, so property names in query strings match your
+/// configured JSON serialization policy.
+/// </para>
+/// </summary>
+/// <typeparam name="T">The entity type exposed by the action.</typeparam>
 public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
 {
     private readonly QueryOptions? _options;

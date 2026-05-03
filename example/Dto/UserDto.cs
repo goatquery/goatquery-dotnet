@@ -18,6 +18,7 @@ public record UserDto
     public IEnumerable<AddressDto> Addresses { get; set; } = Array.Empty<AddressDto>();
     public IEnumerable<string> Tags { get; set; } = Array.Empty<string>();
     public CompanyDto? Company { get; set; }
+    public IEnumerable<OrderDto> Orders { get; set; } = Array.Empty<OrderDto>();
 }
 
 public record AddressDto
@@ -36,4 +37,28 @@ public record CompanyDto
 {
     public string Name { get; set; } = string.Empty;
     public string Department { get; set; } = string.Empty;
+}
+
+public record OrderDto
+{
+    public Guid Id { get; set; }
+    public string OrderNumber { get; set; } = string.Empty;
+    public DateTime OrderDate { get; set; }
+    public decimal Total { get; set; }
+    public OrderStatus Status { get; set; }
+    public IEnumerable<OrderItemDto> Items { get; set; } = Array.Empty<OrderItemDto>();
+}
+
+public record OrderItemDto
+{
+    public ProductDto Product { get; set; } = new ProductDto();
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+}
+
+public record ProductDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+    public decimal Price { get; set; }
 }
