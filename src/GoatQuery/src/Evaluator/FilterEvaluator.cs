@@ -252,22 +252,19 @@ internal static class FilterEvaluator
         )
             return Result.Fail($"Cannot parse '{raw}' as a valid number.");
 
-        // If the double value is a whole number (e.g., 5.0), try to convert it to the
-        // target integer type and do an exact comparison instead of promoting to double.
-        if (doubleValue == Math.Truncate(doubleValue))
+        if (
+            long.TryParse(
+                raw,
+                NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint,
+                CultureInfo.InvariantCulture,
+                out var longValue
+            )
+        )
         {
-            try
+            var intResult = GetIntegerExpressionConstant(longValue, property.Type);
+            if (intResult.IsSuccess)
             {
-                var longValue = Convert.ToInt64(doubleValue);
-                var intResult = GetIntegerExpressionConstant(longValue, property.Type);
-                if (intResult.IsSuccess)
-                {
-                    return CreateComparisonExpression(operatorKeyword, property, intResult.Value);
-                }
-            }
-            catch (OverflowException)
-            {
-                // Fall through to double promotion
+                return CreateComparisonExpression(operatorKeyword, property, intResult.Value);
             }
         }
 
@@ -471,8 +468,8 @@ internal static class FilterEvaluator
             if (
                 DateTimeOffset.TryParse(
                     dtLiteral.TokenLiteral(),
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    System.Globalization.DateTimeStyles.None,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
                     out var dto
                 )
             )
