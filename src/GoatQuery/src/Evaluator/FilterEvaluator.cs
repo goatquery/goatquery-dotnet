@@ -107,18 +107,6 @@ internal static class FilterEvaluator
         return Result.Ok((MemberExpression)result.Value);
     }
 
-    private static Result<MemberExpression> ResolvePropertyPathForCollection(
-        PropertyPath propertyPath,
-        Expression baseExpression,
-        PropertyMappingTree propertyMappingTree
-    )
-    {
-        var result = propertyMappingTree.WalkPropertyPath(propertyPath.Segments, baseExpression);
-        if (result.IsFailed)
-            return Result.Fail(result.Errors);
-        return Result.Ok((MemberExpression)result.Value);
-    }
-
     private static Result<Expression> CreateNullComparison(
         InfixExpression exp,
         MemberExpression property
@@ -714,7 +702,9 @@ internal static class FilterEvaluator
             return Result.Fail(collectionResult.Errors);
 
         var collectionProperty = collectionResult.Value;
-        var elementType = GetCollectionElementType(collectionProperty.Type);
+        var elementType = PropertyMappingTreeBuilder.GetCollectionElementType(
+            collectionProperty.Type
+        );
 
         if (elementType == null)
         {
@@ -760,11 +750,7 @@ internal static class FilterEvaluator
                 return Expression.Property(baseExpression, propertyNode.ActualPropertyName);
 
             case PropertyPath propertyPath:
-                return ResolvePropertyPathForCollection(
-                    propertyPath,
-                    baseExpression,
-                    propertyMappingTree
-                );
+                return BuildPropertyPath(propertyPath, baseExpression, propertyMappingTree);
 
             default:
                 return Result.Fail(
@@ -894,13 +880,13 @@ internal static class FilterEvaluator
         var current = (Expression)lambdaParameter;
         var elementType = lambdaParameter.Type;
 
-        // Build property path from lambda parameter
-        var pathResult = BuildLambdaPropertyPath(
-            current,
-            propertyPath.Segments.Skip(1).ToList(),
+        // Build property path from lambda parameter's element type, skipping the parameter name segment
+        var segments = propertyPath.Segments.Skip(1).ToList();
+        var mappingTree = PropertyMappingTreeBuilder.BuildMappingTree(
             elementType,
             maxPropertyMappingDepth
         );
+        var pathResult = mappingTree.WalkPropertyPath(segments, current);
         if (pathResult.IsFailed)
             return pathResult;
 
@@ -941,47 +927,6 @@ internal static class FilterEvaluator
         var allMatch = Expression.Call(allMethod, collection, lambda);
 
         return Expression.AndAlso(hasElements, allMatch);
-    }
-
-    private static Result<Expression> BuildLambdaPropertyPath(
-        Expression startExpression,
-        List<string> segments,
-        Type elementType,
-        int maxPropertyMappingDepth
-    )
-    {
-        var mappingTree = PropertyMappingTreeBuilder.BuildMappingTree(
-            elementType,
-            maxPropertyMappingDepth
-        );
-
-        return mappingTree.WalkPropertyPath(segments, startExpression);
-    }
-
-    private static Type GetCollectionElementType(Type collectionType)
-    {
-        // Handle IEnumerable<T>
-        if (collectionType.IsGenericType)
-        {
-            var genericArgs = collectionType.GetGenericArguments();
-            if (
-                genericArgs.Length == 1
-                && typeof(IEnumerable<>)
-                    .MakeGenericType(genericArgs[0])
-                    .IsAssignableFrom(collectionType)
-            )
-            {
-                return genericArgs[0];
-            }
-        }
-
-        // Handle arrays
-        if (collectionType.IsArray)
-        {
-            return collectionType.GetElementType();
-        }
-
-        return null;
     }
 
     private static Result<ConstantExpression> GetIntegerExpressionConstant(

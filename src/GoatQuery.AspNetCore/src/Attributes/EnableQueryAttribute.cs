@@ -113,14 +113,12 @@ public sealed class EnableQueryAttribute<T> : ActionFilterAttribute
                 as ISearchBinder<T>;
         }
 
-        var applyOptions = _options is not null
-            ? new QueryOptions
-            {
-                MaxTop = _options.MaxTop,
-                MaxPropertyMappingDepth = _options.MaxPropertyMappingDepth,
-                PropertyNamingPolicy = _options.PropertyNamingPolicy,
-            }
-            : new QueryOptions();
+        var applyOptions = new QueryOptions
+        {
+            MaxTop = _options?.MaxTop ?? 0,
+            MaxPropertyMappingDepth = _options?.MaxPropertyMappingDepth ?? 5,
+            PropertyNamingPolicy = _options?.PropertyNamingPolicy,
+        };
 
         // Auto-resolve JsonNamingPolicy from DI if not explicitly set
         if (applyOptions.PropertyNamingPolicy is null)

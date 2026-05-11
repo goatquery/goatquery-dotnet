@@ -15,11 +15,11 @@ public sealed class QueryResult<T>
     }
 
     /// <summary>The queryable with filters, ordering, and pagination applied.</summary>
-    public IQueryable<T> Query { get; set; }
+    public IQueryable<T> Query { get; }
 
     /// <summary>
     /// Total count of matching items before pagination, or <c>null</c> if
     /// <see cref="GoatQuery.Query.Count"/> was not set to <c>true</c>.
     /// </summary>
-    public int? Count { get; set; }
+    public int? Count { get; }
 }

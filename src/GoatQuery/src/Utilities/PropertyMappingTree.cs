@@ -222,7 +222,7 @@ internal static class PropertyMappingTreeBuilder
             ?? property.Name;
     }
 
-    private static Type GetCollectionElementType(Type type)
+    internal static Type GetCollectionElementType(Type type)
     {
         if (type.IsArray)
             return type.GetElementType();

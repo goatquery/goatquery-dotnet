@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <LangVersion>11.0</LangVersion>
-    <RootNamespace>GoatQuery.AspNetCore</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -12,7 +11,7 @@
     <RepositoryType>git</RepositoryType>
     <Description>ASP.NET Core integration for GoatQuery — action filter for automatic query parameter processing.</Description>
     <Authors>goatquery</Authors>
-    <PackageTags>odata;filter;paging;sorting;linq;querystring;rest;api;aspnetcore</PackageTags>
+    <PackageTags>filter;paging;sorting;linq;querystring;rest;api;aspnetcore</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <IsPackable>true</IsPackable>

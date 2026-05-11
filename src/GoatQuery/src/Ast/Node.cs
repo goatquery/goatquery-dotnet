@@ -4,7 +4,7 @@ internal abstract class Node
 {
     private readonly Token _token;
 
-    public Node(Token token)
+    protected Node(Token token)
     {
         _token = token;
     }

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-internal class FilterEvaluationContext
+internal sealed class FilterEvaluationContext
 {
     public ParameterExpression RootParameter { get; }
     public PropertyMappingTree PropertyMappingTree { get; }
@@ -42,7 +42,7 @@ internal class FilterEvaluationContext
     public void ExitLambdaScope() => LambdaScopes.Pop();
 }
 
-internal class LambdaScope
+internal sealed class LambdaScope
 {
     public string ParameterName { get; }
     public ParameterExpression Parameter { get; }
