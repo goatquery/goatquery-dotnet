@@ -1,3 +1,6 @@
+namespace GoatQuery.Tests;
+
+using GoatQuery;
 using Xunit;
 
 public sealed class TopTest

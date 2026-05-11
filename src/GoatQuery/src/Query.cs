@@ -1,3 +1,5 @@
+namespace GoatQuery;
+
 /// <summary>
 /// Represents the query parameters for filtering, ordering, pagination, and search.
 /// Query parameter names do not use the OData <c>$</c> prefix.

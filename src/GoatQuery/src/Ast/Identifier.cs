@@ -1,4 +1,6 @@
-public sealed class Identifier : QueryExpression
+namespace GoatQuery;
+
+internal sealed class Identifier : QueryExpression
 {
     public string Value { get; set; }
 

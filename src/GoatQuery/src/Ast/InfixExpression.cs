@@ -1,4 +1,6 @@
-public sealed class InfixExpression : QueryExpression
+namespace GoatQuery;
+
+internal sealed class InfixExpression : QueryExpression
 {
     public QueryExpression Left { get; set; } = default;
     public string Operator { get; set; } = string.Empty;

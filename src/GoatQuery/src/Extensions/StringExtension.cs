@@ -1,7 +1,9 @@
+namespace GoatQuery;
+
 using System;
 using System.Linq;
 
-public static class StringExtension
+internal static class StringExtension
 {
     public static bool In(this string str, params string[] strings)
     {

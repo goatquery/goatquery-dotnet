@@ -1,6 +1,9 @@
+namespace GoatQuery.Tests;
+
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using GoatQuery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;

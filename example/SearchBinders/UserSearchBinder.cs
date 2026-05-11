@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using GoatQuery;
 
 public class UserSearchBinder : ISearchBinder<UserDto>
 {

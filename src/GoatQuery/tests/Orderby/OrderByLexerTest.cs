@@ -1,3 +1,6 @@
+namespace GoatQuery.Tests;
+
+using GoatQuery;
 using Xunit;
 
 public sealed class OrderByLexerTest
@@ -87,8 +90,9 @@ public sealed class OrderByLexerTest
 
     [Theory]
     [MemberData(nameof(Parameters))]
-    public void Test_OrderByNextToken(string input, KeyValuePair<TokenType, string>[] expected)
+    public void Test_OrderByNextToken(string input, object expectedObj)
     {
+        var expected = (KeyValuePair<TokenType, string>[])expectedObj;
         var lexer = new QueryLexer(input);
 
         foreach (var test in expected)

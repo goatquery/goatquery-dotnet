@@ -1,3 +1,6 @@
+namespace GoatQuery.Tests;
+
+using GoatQuery;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;

@@ -1,13 +1,12 @@
-public enum TokenType
+namespace GoatQuery;
+
+internal enum TokenType
 {
     EOF = 1,
     ILLEGAL,
     IDENT,
     STRING,
     INT,
-    LONG,
-    DECIMAL,
-    FLOAT,
     DOUBLE,
     GUID,
     DATETIME,
@@ -20,7 +19,7 @@ public enum TokenType
     COLON,
 }
 
-public static class Keywords
+internal static class Keywords
 {
     internal const string Asc = "asc";
     internal const string Desc = "desc";
@@ -40,7 +39,7 @@ public static class Keywords
     internal const string All = "all";
 }
 
-public sealed class Token
+internal sealed class Token
 {
     public TokenType Type { get; set; }
     public string Literal { get; set; } = string.Empty;

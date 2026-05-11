@@ -1,12 +1,14 @@
+namespace GoatQuery;
+
 using System.Collections.Generic;
 
-public enum OrderByDirection
+internal enum OrderByDirection
 {
     Ascending = 1,
     Descending,
 }
 
-public sealed class OrderByStatement : Node
+internal sealed class OrderByStatement : Node
 {
     public OrderByDirection Direction { get; set; }
     public List<string> Segments { get; }

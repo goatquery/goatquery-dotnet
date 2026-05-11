@@ -1,4 +1,7 @@
+namespace GoatQuery.Tests;
+
 using System.Text.Json.Serialization;
+using GoatQuery;
 
 public record User
 {
@@ -112,4 +115,11 @@ public record DateTimeOffsetUser
     public string Name { get; set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
+}
+
+public record DateTimeUser
+{
+    public string Name { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }

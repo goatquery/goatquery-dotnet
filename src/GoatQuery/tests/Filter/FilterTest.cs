@@ -1,3 +1,6 @@
+namespace GoatQuery.Tests;
+
+using GoatQuery;
 using Xunit;
 
 public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
@@ -138,19 +141,19 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
 
         yield return new object[]
         {
-            "balanceDecimal eq 1500.75m",
+            "balanceDecimal eq 1500.75",
             new[] { TestData.Users["User01"] },
         };
 
         yield return new object[]
         {
-            "balanceDecimal eq 500.00m",
+            "balanceDecimal eq 500.00",
             new[] { TestData.Users["User02"] },
         };
 
         yield return new object[]
         {
-            "balanceDecimal gt 100m",
+            "balanceDecimal gt 100",
             new[] { TestData.Users["User01"], TestData.Users["User02"] },
         };
 
@@ -168,7 +171,7 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
 
         yield return new object[]
         {
-            "balanceDouble eq 2500.50d",
+            "balanceDouble eq 2500.50",
             new[] { TestData.Users["User01"] },
         };
 
@@ -178,13 +181,9 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
             new[] { TestData.Users["User02"], TestData.Users["User04"] },
         };
 
-        yield return new object[]
-        {
-            "balanceFloat eq 3500.25f",
-            new[] { TestData.Users["User01"] },
-        };
+        yield return new object[] { "balanceFloat eq 3500.25", new[] { TestData.Users["User01"] } };
 
-        yield return new object[] { "balanceFloat eq 750.50f", new[] { TestData.Users["User02"] } };
+        yield return new object[] { "balanceFloat eq 750.50", new[] { TestData.Users["User02"] } };
 
         yield return new object[]
         {
@@ -911,7 +910,7 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
             new User { Firstname = "B", LargeNumber = 42L },
         }.AsQueryable();
 
-        var query = new Query { Filter = "largeNumber eq 99999999999L" };
+        var query = new Query { Filter = "largeNumber eq 99999999999" };
         var result = users.Apply(query);
 
         Assert.True(result.IsSuccess);
@@ -1015,7 +1014,7 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
             new UserWithOrders { Firstname = "Charlie", Orders = Array.Empty<Order>() },
         }.AsQueryable();
 
-        var query = new Query { Filter = "orders/any(o: o/items/any(i: i/price gt 1000m))" };
+        var query = new Query { Filter = "orders/any(o: o/items/any(i: i/price gt 1000))" };
         var result = users.Apply(query);
 
         Assert.True(result.IsSuccess, string.Join("; ", result.Errors.Select(e => e.Message)));
@@ -1087,7 +1086,7 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
         }.AsQueryable();
 
         // all() on empty collection should return false (requires non-empty)
-        var query = new Query { Filter = "orders/all(o: o/items/any(i: i/price gt 0m))" };
+        var query = new Query { Filter = "orders/all(o: o/items/any(i: i/price gt 0))" };
         var result = users.Apply(query);
 
         Assert.True(result.IsSuccess);
@@ -1149,5 +1148,253 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
         var ordered = result.Value.Query.ToList();
         Assert.Equal("B", ordered[0].FirstName); // Alpha
         Assert.Equal("A", ordered[1].FirstName); // Zebra
+    }
+
+    [Fact]
+    public void Test_Filter_DateOnly_Eq_MatchesDuringDay()
+    {
+        var users = new List<DateTimeUser>
+        {
+            new DateTimeUser
+            {
+                Name = "A",
+                CreatedAt = new DateTime(2025, 6, 14, 15, 30, 0, DateTimeKind.Utc),
+            },
+            new DateTimeUser
+            {
+                Name = "B",
+                CreatedAt = new DateTime(2025, 6, 15, 0, 0, 0, DateTimeKind.Utc),
+            },
+            new DateTimeUser
+            {
+                Name = "C",
+                CreatedAt = new DateTime(2025, 6, 14, 0, 0, 0, DateTimeKind.Utc),
+            },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "createdAt eq 2025-06-14" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Equal(2, results.Count);
+        Assert.Contains(results, u => u.Name == "A");
+        Assert.Contains(results, u => u.Name == "C");
+    }
+
+    [Fact]
+    public void Test_Filter_DateOnly_Ne()
+    {
+        var users = new List<DateTimeUser>
+        {
+            new DateTimeUser
+            {
+                Name = "A",
+                CreatedAt = new DateTime(2025, 6, 14, 15, 30, 0, DateTimeKind.Utc),
+            },
+            new DateTimeUser
+            {
+                Name = "B",
+                CreatedAt = new DateTime(2025, 6, 15, 1, 0, 0, DateTimeKind.Utc),
+            },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "createdAt ne 2025-06-14" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("B", results.First().Name);
+    }
+
+    [Fact]
+    public void Test_Filter_DateOnly_Lt()
+    {
+        var users = new List<DateTimeUser>
+        {
+            new DateTimeUser
+            {
+                Name = "A",
+                CreatedAt = new DateTime(2025, 6, 13, 23, 59, 59, DateTimeKind.Utc),
+            },
+            new DateTimeUser
+            {
+                Name = "B",
+                CreatedAt = new DateTime(2025, 6, 14, 0, 0, 0, DateTimeKind.Utc),
+            },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "createdAt lt 2025-06-14" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("A", results.First().Name);
+    }
+
+    [Fact]
+    public void Test_Filter_DateOnly_Lte()
+    {
+        var users = new List<DateTimeUser>
+        {
+            new DateTimeUser
+            {
+                Name = "A",
+                CreatedAt = new DateTime(2025, 6, 14, 23, 59, 59, DateTimeKind.Utc),
+            },
+            new DateTimeUser
+            {
+                Name = "B",
+                CreatedAt = new DateTime(2025, 6, 15, 0, 0, 0, DateTimeKind.Utc),
+            },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "createdAt lte 2025-06-14" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("A", results.First().Name);
+    }
+
+    [Fact]
+    public void Test_Filter_DateOnly_Gt()
+    {
+        var users = new List<DateTimeUser>
+        {
+            new DateTimeUser
+            {
+                Name = "A",
+                CreatedAt = new DateTime(2025, 6, 14, 23, 59, 59, DateTimeKind.Utc),
+            },
+            new DateTimeUser
+            {
+                Name = "B",
+                CreatedAt = new DateTime(2025, 6, 15, 0, 0, 0, DateTimeKind.Utc),
+            },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "createdAt gt 2025-06-14" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("B", results.First().Name);
+    }
+
+    [Fact]
+    public void Test_Filter_DateOnly_Gte()
+    {
+        var users = new List<DateTimeUser>
+        {
+            new DateTimeUser
+            {
+                Name = "A",
+                CreatedAt = new DateTime(2025, 6, 13, 23, 59, 59, DateTimeKind.Utc),
+            },
+            new DateTimeUser
+            {
+                Name = "B",
+                CreatedAt = new DateTime(2025, 6, 14, 0, 0, 0, DateTimeKind.Utc),
+            },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "createdAt gte 2025-06-14" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("B", results.First().Name);
+    }
+
+    [Fact]
+    public void Test_Filter_DateOnly_Against_NullableDateTime()
+    {
+        var users = new List<DateTimeUser>
+        {
+            new DateTimeUser
+            {
+                Name = "A",
+                CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                UpdatedAt = new DateTime(2025, 6, 14, 10, 0, 0, DateTimeKind.Utc),
+            },
+            new DateTimeUser
+            {
+                Name = "B",
+                CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                UpdatedAt = null,
+            },
+            new DateTimeUser
+            {
+                Name = "C",
+                CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                UpdatedAt = new DateTime(2025, 6, 15, 0, 0, 0, DateTimeKind.Utc),
+            },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "updatedAt eq 2025-06-14" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("A", results.First().Name);
+    }
+
+    [Fact]
+    public void Test_Filter_DateOnly_Against_DateTimeOffset()
+    {
+        var users = new List<DateTimeOffsetUser>
+        {
+            new DateTimeOffsetUser
+            {
+                Name = "A",
+                CreatedAt = new DateTimeOffset(2025, 6, 14, 18, 30, 0, TimeSpan.Zero),
+            },
+            new DateTimeOffsetUser
+            {
+                Name = "B",
+                CreatedAt = new DateTimeOffset(2025, 6, 15, 0, 0, 0, TimeSpan.Zero),
+            },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "createdAt eq 2025-06-14" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("A", results.First().Name);
+    }
+
+    [Fact]
+    public void Test_Filter_DateTime_WithTime_Against_DateTime()
+    {
+        var users = new List<DateTimeUser>
+        {
+            new DateTimeUser
+            {
+                Name = "A",
+                CreatedAt = new DateTime(2025, 6, 14, 10, 30, 0, DateTimeKind.Utc),
+            },
+            new DateTimeUser
+            {
+                Name = "B",
+                CreatedAt = new DateTime(2025, 7, 1, 0, 0, 0, DateTimeKind.Utc),
+            },
+        }.AsQueryable();
+
+        var query = new Query { Filter = "createdAt eq 2025-06-14T10:30:00Z" };
+        var result = users.Apply(query);
+
+        Assert.True(result.IsSuccess);
+        var results = result.Value.Query.ToList();
+        Assert.Single(results);
+        Assert.Equal("A", results.First().Name);
     }
 }

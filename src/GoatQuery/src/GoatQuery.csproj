@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <RootNamespace>GoatQuery</RootNamespace>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>12.0</LangVersion>
 
     <PackageId>GoatQuery</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -15,6 +15,10 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="tests" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="../README.md" Pack="true" PackagePath="\" />

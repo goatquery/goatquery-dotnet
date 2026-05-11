@@ -2,6 +2,7 @@ using System.Reflection;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Bogus;
+using GoatQuery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
@@ -65,7 +66,10 @@ using (var scope = app.Services.CreateScope())
 
         var orders = new Faker<Order>()
             .RuleFor(x => x.OrderNumber, f => f.Random.Replace("ORD-####-####"))
-            .RuleFor(x => x.OrderDate, f => f.Date.Past(2).ToUniversalTime())
+            .RuleFor(
+                x => x.OrderDate,
+                f => new DateTimeOffset(f.Date.Past(2).ToUniversalTime(), TimeSpan.Zero)
+            )
             .RuleFor(x => x.Status, f => f.PickRandom<OrderStatus>())
             .RuleFor(x => x.Items, f => orderItems.Generate(f.Random.Int(1, 5)))
             .RuleFor(x => x.Total, (f, o) => o.Items.Sum(i => i.UnitPrice * i.Quantity));
@@ -85,7 +89,7 @@ using (var scope = app.Services.CreateScope())
                     var timeZone = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
                     var date = f.Date.Past().ToUniversalTime();
 
-                    u.DateOfBirthUtc = date;
+                    u.DateOfBirthUtc = new DateTimeOffset(date, TimeSpan.Zero);
                     u.DateOfBirthTz = TimeZoneInfo.ConvertTimeFromUtc(date, timeZone);
                 }
             )
@@ -157,7 +161,7 @@ public static class FakerExtensions
             Test = f.Random.Double(),
             NullableInt = f.Random.Bool() ? f.Random.Int(1, 100) : null,
             IsEmailVerified = f.Random.Bool(),
-            DateOfBirthUtc = f.Date.Past().ToUniversalTime(),
+            DateOfBirthUtc = new DateTimeOffset(f.Date.Past().ToUniversalTime(), TimeSpan.Zero),
             DateOfBirthTz = TimeZoneInfo.ConvertTimeFromUtc(
                 f.Date.Past().ToUniversalTime(),
                 TimeZoneInfo.FindSystemTimeZoneById("America/New_York")

@@ -1,3 +1,6 @@
+namespace GoatQuery.Tests;
+
+using GoatQuery;
 using Xunit;
 
 public sealed class OrderByParserTest
@@ -91,11 +94,9 @@ public sealed class OrderByParserTest
 
     [Theory]
     [MemberData(nameof(Parameters))]
-    public void Test_ParsingMultipleOrderByStatement(
-        string input,
-        IEnumerable<OrderByStatement> expected
-    )
+    public void Test_ParsingMultipleOrderByStatement(string input, object expectedObj)
     {
+        var expected = (IEnumerable<OrderByStatement>)expectedObj;
         var lexer = new QueryLexer(input);
         var parser = new QueryParser(lexer);
 

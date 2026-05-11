@@ -1,3 +1,5 @@
+namespace GoatQuery;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +9,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentResults;
 
-public sealed class PropertyMappingTree
+internal sealed class PropertyMappingTree
 {
     public IReadOnlyDictionary<string, PropertyMappingNode> Properties { get; }
     public Type SourceType { get; }
@@ -51,16 +53,14 @@ public sealed class PropertyMappingTree
             var segment = segments[i];
 
             if (!currentMappingTree.TryGetProperty(segment, out var propertyNode))
-                return Result.Fail($"Invalid property '{segment}' in {errorContext}");
+                return Result.Fail($"Property '{segment}' does not exist.");
 
             current = Expression.Property(current, propertyNode.ActualPropertyName);
 
             if (i < segments.Count - 1)
             {
                 if (!propertyNode.HasNestedMapping)
-                    return Result.Fail(
-                        $"Property '{segment}' does not support nested navigation in {errorContext}"
-                    );
+                    return Result.Fail($"Property '{segment}' does not support nested navigation.");
 
                 currentMappingTree = propertyNode.NestedMapping;
             }
@@ -70,7 +70,7 @@ public sealed class PropertyMappingTree
     }
 }
 
-public sealed class PropertyMappingNode
+internal sealed class PropertyMappingNode
 {
     public string JsonPropertyName { get; }
     public string ActualPropertyName { get; }
@@ -96,7 +96,7 @@ public sealed class PropertyMappingNode
     public bool HasNestedMapping => NestedMapping != null;
 }
 
-public static class PropertyMappingTreeBuilder
+internal static class PropertyMappingTreeBuilder
 {
     private static readonly HashSet<Type> PrimitiveTypes = new HashSet<Type>
     {

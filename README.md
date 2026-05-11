@@ -70,14 +70,12 @@ GET /api/users?search=john
 | Type | Example |
 |------|---------|
 | String | `'value'`, `'it\'s escaped'`, `'back\\slash'` |
-| Integer | `42` |
-| Float | `3.14f` |
-| Decimal | `2.5m` |
-| Double | `1.0d` |
+| Integer | `42`, `99999999999`, `-7` |
+| Double | `3.14`, `1.0`, `-2.5` |
 | Boolean | `true`, `false` |
 | DateTime | `2023-12-25T10:30:00Z` |
 | DateTimeOffset | `2023-12-25T10:30:00+05:00` |
-| Date | `2023-12-25` |
+| Date | `2023-12-25` (expanded to full-day range) |
 | GUID | `123e4567-e89b-12d3-a456-426614174000` |
 | Enum | `'Active'` (string) or `1` (integer) |
 | Null | `null` |
@@ -111,7 +109,23 @@ orders/any(o: o/items/any(i: i/price gt 100))
 // Primitive array filtering
 tags/any(x: x eq 'premium')
 scores/any(x: x gt 80)
+
+// Root property access inside lambda body
+orders/any(o: o/total gt 100 and status eq 'Active')
 ```
+
+### Date-Only Range Expansion
+
+Date-only literals (e.g., `2023-12-25`) are automatically expanded to full-day range comparisons against `DateTime`/`DateTimeOffset` columns:
+
+| Operator | Expansion |
+|----------|-----------|
+| `eq` | `>= 2023-12-25T00:00:00` AND `< 2023-12-26T00:00:00` |
+| `ne` | `< 2023-12-25T00:00:00` OR `>= 2023-12-26T00:00:00` |
+| `lt` | `< 2023-12-25T00:00:00` |
+| `lte` | `< 2023-12-26T00:00:00` |
+| `gt` | `>= 2023-12-26T00:00:00` |
+| `gte` | `>= 2023-12-25T00:00:00` |
 
 ### Null Safety
 
@@ -128,8 +142,11 @@ firstName eq 'John' and isActive ne false
 name contains 'smith'
 status eq 'Active'
 createdAt gte 2023-01-01T00:00:00Z
+createdAt eq 2023-06-15
+balance gt -100
 addresses/any(x: x/city eq 'London' and x/isActive eq true)
 age gt 25 and tags/any(x: x eq 'premium')
+orders/any(o: o/total gt 50 and status eq 'Active')
 ```
 
 ## Ordering

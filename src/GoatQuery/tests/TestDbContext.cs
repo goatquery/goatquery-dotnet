@@ -1,3 +1,6 @@
+namespace GoatQuery.Tests;
+
+using GoatQuery;
 using Microsoft.EntityFrameworkCore;
 
 public class TestDbContext : DbContext

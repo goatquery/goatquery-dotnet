@@ -1,3 +1,7 @@
+namespace GoatQuery.Tests;
+
+using GoatQuery;
+
 public static class TestData
 {
     private static readonly Guid User01Id = Guid.Parse("11111111-1111-1111-1111-111111111111");

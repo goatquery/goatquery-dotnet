@@ -1,3 +1,5 @@
+namespace GoatQuery;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,7 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using FluentResults;
 
-public static class OrderByEvaluator
+internal static class OrderByEvaluator
 {
     public static Result<IQueryable<T>> Evaluate<T>(
         IEnumerable<OrderByStatement> statements,

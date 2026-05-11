@@ -13,8 +13,7 @@ public record User
     public double Test { get; set; }
     public int? NullableInt { get; set; }
 
-    [Column(TypeName = "timestamp with time zone")]
-    public DateTime DateOfBirthUtc { get; set; }
+    public DateTimeOffset DateOfBirthUtc { get; set; }
 
     [Column(TypeName = "timestamp without time zone")]
     public DateTime DateOfBirthTz { get; set; }
@@ -51,8 +50,7 @@ public record Order
     public Guid Id { get; set; }
     public string OrderNumber { get; set; } = string.Empty;
 
-    [Column(TypeName = "timestamp with time zone")]
-    public DateTime OrderDate { get; set; }
+    public DateTimeOffset OrderDate { get; set; }
     public decimal Total { get; set; }
     public OrderStatus Status { get; set; }
     public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();

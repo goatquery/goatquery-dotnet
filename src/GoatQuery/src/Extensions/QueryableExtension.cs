@@ -1,3 +1,5 @@
+namespace GoatQuery;
+
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -81,7 +83,7 @@ public static class QueryableExtension
 
             if (searchExpression is null)
             {
-                return Result.Fail("Cannot parse search binder expression");
+                return Result.Fail("Cannot parse search binder expression.");
             }
 
             queryable = queryable.Where(searchExpression);

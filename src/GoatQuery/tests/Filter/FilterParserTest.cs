@@ -1,3 +1,6 @@
+namespace GoatQuery.Tests;
+
+using GoatQuery;
 using Xunit;
 
 public sealed class FilterParserTest
@@ -14,9 +17,7 @@ public sealed class FilterParserTest
         "eq",
         "e4c7772b-8947-4e46-98ed-644b417d2a08"
     )]
-    [InlineData("Id eq 3.14159265359f", "Id", "eq", "3.14159265359f")]
-    [InlineData("Id eq 3.14159265359m", "Id", "eq", "3.14159265359m")]
-    [InlineData("Id eq 3.14159265359d", "Id", "eq", "3.14159265359d")]
+    [InlineData("Id eq 3.14159265359", "Id", "eq", "3.14159265359")]
     [InlineData("Age lt 99", "Age", "lt", "99")]
     [InlineData("Age lte 99", "Age", "lte", "99")]
     [InlineData("Age gt 99", "Age", "gt", "99")]
@@ -37,8 +38,11 @@ public sealed class FilterParserTest
     [InlineData("name eq NULL", "name", "eq", "NULL")]
     [InlineData(@"Name eq 'O\'Brien'", "Name", "eq", "O'Brien")]
     [InlineData(@"Name eq 'back\\slash'", "Name", "eq", @"back\slash")]
-    [InlineData("age eq 100L", "age", "eq", "100L")]
     [InlineData("age eq 99999999999", "age", "eq", "99999999999")]
+    [InlineData("age gt -5", "age", "gt", "-5")]
+    [InlineData("age eq -0.5", "age", "eq", "-0.5")]
+    [InlineData("age gt -2147483648", "age", "gt", "-2147483648")]
+    [InlineData("age eq -0", "age", "eq", "-0")]
     public void Test_ParsingFilterStatement(
         string input,
         string expectedLeft,
@@ -73,6 +77,7 @@ public sealed class FilterParserTest
     [InlineData("age lte null")]
     [InlineData("age gte null")]
     [InlineData("age eq 99999999999999999999")]
+    [InlineData("age gt --5")]
     public void Test_ParsingInvalidFilterReturnsError(string input)
     {
         var lexer = new QueryLexer(input);

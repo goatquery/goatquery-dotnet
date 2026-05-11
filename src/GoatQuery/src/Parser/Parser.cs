@@ -1,10 +1,12 @@
+namespace GoatQuery;
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using FluentResults;
 
-public sealed class QueryParser
+internal sealed class QueryParser
 {
     private readonly QueryLexer _lexer;
     private Token _currentToken { get; set; } = default;
@@ -137,7 +139,7 @@ public sealed class QueryParser
 
         if (!CurrentTokenIs(TokenType.RPAREN))
         {
-            return Result.Fail("Expected closing parenthesis");
+            return Result.Fail("Expected closing parenthesis.");
         }
 
         return exp;
@@ -160,7 +162,7 @@ public sealed class QueryParser
 
                 if (_currentToken.Type != TokenType.IDENT)
                 {
-                    return Result.Fail("Expected identifier after '/' in property path");
+                    return Result.Fail("Expected identifier after '/' in property path.");
                 }
 
                 // Check if this is a lambda function (any/all followed by parenthesis)
@@ -222,7 +224,7 @@ public sealed class QueryParser
             )
         )
         {
-            return Result.Fail("Invalid conjunction within filter");
+            return Result.Fail("Invalid conjunction within filter.");
         }
 
         NextToken();
@@ -233,11 +235,8 @@ public sealed class QueryParser
             !PeekTokenIn(
                 TokenType.STRING,
                 TokenType.INT,
-                TokenType.LONG,
                 TokenType.GUID,
                 TokenType.DATETIME,
-                TokenType.DECIMAL,
-                TokenType.FLOAT,
                 TokenType.DOUBLE,
                 TokenType.DATE,
                 TokenType.NULL,
@@ -245,31 +244,23 @@ public sealed class QueryParser
             )
         )
         {
-            return Result.Fail("Invalid value type within filter");
+            return Result.Fail("Invalid value type within filter.");
         }
 
         NextToken();
 
         if (statement.Operator.Equals(Keywords.Contains) && _currentToken.Type != TokenType.STRING)
         {
-            return Result.Fail("Value must be a string when using 'contains' operand");
+            return Result.Fail("Value must be a string when using 'contains' operator.");
         }
 
         if (
             statement.Operator.In(Keywords.Lt, Keywords.Lte, Keywords.Gt, Keywords.Gte)
-            && !CurrentTokenIn(
-                TokenType.INT,
-                TokenType.LONG,
-                TokenType.DECIMAL,
-                TokenType.FLOAT,
-                TokenType.DOUBLE,
-                TokenType.DATETIME,
-                TokenType.DATE
-            )
+            && !CurrentTokenIn(TokenType.INT, TokenType.DOUBLE, TokenType.DATETIME, TokenType.DATE)
         )
         {
             return Result.Fail(
-                $"Value must be a numeric or date type when using '{statement.Operator}' operand"
+                $"Value must be a numeric or date type when using '{statement.Operator}' operator."
             );
         }
 
@@ -278,7 +269,7 @@ public sealed class QueryParser
         if (statement.Right == null)
         {
             return Result.Fail(
-                $"Could not parse value '{_currentToken.Literal}' as {_currentToken.Type}"
+                $"Could not parse value '{_currentToken.Literal}' as '{_currentToken.Type}'."
             );
         }
 
@@ -295,7 +286,7 @@ public sealed class QueryParser
         // Consume opening parenthesis
         if (!PeekTokenIs(TokenType.LPAREN))
         {
-            return Result.Fail("Expected '(' after lambda function");
+            return Result.Fail("Expected '(' after lambda function.");
         }
         NextToken(); // consume function name (any/all)
         NextToken(); // consume '('
@@ -303,7 +294,7 @@ public sealed class QueryParser
         // Parse parameter name
         if (!CurrentTokenIs(TokenType.IDENT))
         {
-            return Result.Fail("Expected parameter name in lambda expression");
+            return Result.Fail("Expected parameter name in lambda expression.");
         }
         var parameter = _currentToken.Literal;
         NextToken();
@@ -311,7 +302,7 @@ public sealed class QueryParser
         // Parse colon
         if (!CurrentTokenIs(TokenType.COLON))
         {
-            return Result.Fail("Expected ':' after lambda parameter");
+            return Result.Fail("Expected ':' after lambda parameter.");
         }
         NextToken();
 
@@ -325,7 +316,7 @@ public sealed class QueryParser
         // Expect closing parenthesis
         if (!CurrentTokenIs(TokenType.RPAREN))
         {
-            return Result.Fail("Expected ')' to close lambda expression");
+            return Result.Fail("Expected ')' to close lambda expression.");
         }
 
         var lambda = new QueryLambdaExpression(startToken, property, function, parameter)
@@ -344,17 +335,10 @@ public sealed class QueryParser
                 ? new GuidLiteral(token, guidValue)
                 : null,
             TokenType.STRING => new StringLiteral(token, token.Literal),
-            TokenType.INT => ParseIntegerOrLong(token),
-            TokenType.LONG => long.TryParse(token.Literal.TrimEnd('l', 'L'), out var longValue)
-                ? new LongLiteral(token, longValue)
+            TokenType.INT => long.TryParse(token.Literal, out var longValue)
+                ? new IntegerLiteral(token, longValue)
                 : null,
-            TokenType.FLOAT => float.TryParse(token.Literal.TrimEnd('f'), out var floatValue)
-                ? new FloatLiteral(token, floatValue)
-                : null,
-            TokenType.DECIMAL => decimal.TryParse(token.Literal.TrimEnd('m'), out var decimalValue)
-                ? new DecimalLiteral(token, decimalValue)
-                : null,
-            TokenType.DOUBLE => double.TryParse(token.Literal.TrimEnd('d'), out var doubleValue)
+            TokenType.DOUBLE => double.TryParse(token.Literal, out var doubleValue)
                 ? new DoubleLiteral(token, doubleValue)
                 : null,
             TokenType.DATETIME => DateTime.TryParse(
@@ -379,17 +363,6 @@ public sealed class QueryParser
                 : null,
             _ => null,
         };
-    }
-
-    private QueryExpression ParseIntegerOrLong(Token token)
-    {
-        if (int.TryParse(token.Literal, out var intValue))
-            return new IntegerLiteral(token, intValue);
-
-        if (long.TryParse(token.Literal, out var longValue))
-            return new LongLiteral(token, longValue);
-
-        return null;
     }
 
     private bool PeekTokenIs(TokenType tokenType)

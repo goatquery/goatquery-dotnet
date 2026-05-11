@@ -1,4 +1,6 @@
-public sealed class QueryLambdaExpression : QueryExpression
+namespace GoatQuery;
+
+internal sealed class QueryLambdaExpression : QueryExpression
 {
     public QueryExpression Property { get; }
     public string Function { get; }

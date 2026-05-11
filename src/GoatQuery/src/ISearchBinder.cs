@@ -1,3 +1,5 @@
+namespace GoatQuery;
+
 using System;
 using System.Linq.Expressions;
 

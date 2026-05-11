@@ -1,4 +1,6 @@
-public sealed class ExpressionStatement : Statement
+namespace GoatQuery;
+
+internal sealed class ExpressionStatement : Statement
 {
     public InfixExpression Expression { get; set; } = default;
 

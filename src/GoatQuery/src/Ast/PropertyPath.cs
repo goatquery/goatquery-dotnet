@@ -1,6 +1,8 @@
+namespace GoatQuery;
+
 using System.Collections.Generic;
 
-public sealed class PropertyPath : QueryExpression
+internal sealed class PropertyPath : QueryExpression
 {
     public List<string> Segments { get; }
 

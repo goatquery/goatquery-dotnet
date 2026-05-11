@@ -1,4 +1,7 @@
+namespace GoatQuery.Tests;
+
 using System.Linq.Expressions;
+using GoatQuery;
 using Xunit;
 
 public class UserSearchTestBinder : ISearchBinder<User>

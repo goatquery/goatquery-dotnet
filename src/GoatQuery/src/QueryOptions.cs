@@ -1,3 +1,5 @@
+namespace GoatQuery;
+
 using System.Text.Json;
 
 /// <summary>

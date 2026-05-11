@@ -1,8 +1,10 @@
+namespace GoatQuery;
+
 using System;
 using System.Globalization;
 using System.Text;
 
-public sealed class QueryLexer
+internal sealed class QueryLexer
 {
     private readonly string _input;
     private int _position;
@@ -59,6 +61,10 @@ public sealed class QueryLexer
                 token.Type = TokenType.STRING;
                 token.Literal = ReadString();
                 break;
+            case '-' when _readPosition < _input.Length && char.IsDigit(_input[_readPosition]):
+                token.Literal = ReadNegativeNumeric();
+                token.Type = token.Literal.Contains(".") ? TokenType.DOUBLE : TokenType.INT;
+                return token;
             case var c when char.IsDigit(c):
                 token.Literal = ReadNumericOrDateTime();
                 token.Type = DetermineNumericTokenType(token.Literal);
@@ -91,7 +97,29 @@ public sealed class QueryLexer
 
     private bool IsDateTime(string value)
     {
-        return DateTime.TryParse(value, out _);
+        // DateTime.TryParse is too permissive (e.g., parses "1.5" as Jan 5).
+        // Require the value to contain 'T' (datetime) or be exactly a date (yyyy-MM-dd format, 10 chars with dashes).
+        if (value.Contains("T") || value.Contains("t"))
+        {
+            return DateTime.TryParse(
+                value,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out _
+            );
+        }
+
+        if (value.Length >= 10 && value[4] == '-' && value[7] == '-')
+        {
+            return DateTime.TryParse(
+                value,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out _
+            );
+        }
+
+        return false;
     }
 
     private bool IsGuid(string value)
@@ -132,6 +160,29 @@ public sealed class QueryLexer
         return _input.Substring(startPosition, _position - startPosition);
     }
 
+    private string ReadNegativeNumeric()
+    {
+        var startPosition = _position;
+
+        // Consume the '-'
+        ReadCharacter();
+
+        // Read digits and at most one '.'
+        var hasDot = false;
+        while (_character != char.MinValue && (IsDigit(_character) || _character == '.'))
+        {
+            if (_character == '.')
+            {
+                if (hasDot)
+                    break;
+                hasDot = true;
+            }
+            ReadCharacter();
+        }
+
+        return _input.Substring(startPosition, _position - startPosition);
+    }
+
     private bool IsNumericOrDateTimeCharacter()
     {
         return IsDigit(_character)
@@ -144,18 +195,6 @@ public sealed class QueryLexer
             || // UTC indicator
             _character == '+'
             || // Timezone offset
-            _character == 'f'
-            || _character == 'F'
-            || // Float suffix
-            _character == 'm'
-            || _character == 'M'
-            || // Decimal suffix
-            _character == 'd'
-            || _character == 'D'
-            || // Double suffix
-            _character == 'l'
-            || _character == 'L'
-            || // Long suffix
             ('a' <= _character && _character <= 'f')
             || // GUID hex chars
             ('A' <= _character && _character <= 'F'); // GUID hex chars (uppercase)
@@ -192,20 +231,7 @@ public sealed class QueryLexer
         if (IsDateTime(literal))
             return TokenType.DATETIME;
 
-        // Check numeric suffixes
-        if (literal.EndsWith("f", StringComparison.OrdinalIgnoreCase))
-            return TokenType.FLOAT;
-
-        if (literal.EndsWith("m", StringComparison.OrdinalIgnoreCase))
-            return TokenType.DECIMAL;
-
-        if (literal.EndsWith("d", StringComparison.OrdinalIgnoreCase))
-            return TokenType.DOUBLE;
-
-        if (literal.EndsWith("l", StringComparison.OrdinalIgnoreCase))
-            return TokenType.LONG;
-
-        // Unsuffixed decimal point defaults to double
+        // Decimal point means it's a floating-point number
         if (literal.Contains("."))
             return TokenType.DOUBLE;
 

@@ -1,6 +1,8 @@
+namespace GoatQuery;
+
 using System;
 
-public sealed class StringLiteral : QueryExpression
+internal sealed class StringLiteral : QueryExpression
 {
     public string Value { get; set; }
 
@@ -11,7 +13,7 @@ public sealed class StringLiteral : QueryExpression
     }
 }
 
-public sealed class GuidLiteral : QueryExpression
+internal sealed class GuidLiteral : QueryExpression
 {
     public Guid Value { get; set; }
 
@@ -22,51 +24,18 @@ public sealed class GuidLiteral : QueryExpression
     }
 }
 
-public sealed class IntegerLiteral : QueryExpression
-{
-    public int Value { get; set; }
-
-    public IntegerLiteral(Token token, int value)
-        : base(token)
-    {
-        Value = value;
-    }
-}
-
-public sealed class LongLiteral : QueryExpression
+internal sealed class IntegerLiteral : QueryExpression
 {
     public long Value { get; set; }
 
-    public LongLiteral(Token token, long value)
+    public IntegerLiteral(Token token, long value)
         : base(token)
     {
         Value = value;
     }
 }
 
-public sealed class DecimalLiteral : QueryExpression
-{
-    public decimal Value { get; set; }
-
-    public DecimalLiteral(Token token, decimal value)
-        : base(token)
-    {
-        Value = value;
-    }
-}
-
-public sealed class FloatLiteral : QueryExpression
-{
-    public float Value { get; set; }
-
-    public FloatLiteral(Token token, float value)
-        : base(token)
-    {
-        Value = value;
-    }
-}
-
-public sealed class DoubleLiteral : QueryExpression
+internal sealed class DoubleLiteral : QueryExpression
 {
     public double Value { get; set; }
 
@@ -77,7 +46,7 @@ public sealed class DoubleLiteral : QueryExpression
     }
 }
 
-public sealed class DateTimeLiteral : QueryExpression
+internal sealed class DateTimeLiteral : QueryExpression
 {
     public DateTime Value { get; set; }
 
@@ -88,7 +57,7 @@ public sealed class DateTimeLiteral : QueryExpression
     }
 }
 
-public sealed class DateLiteral : QueryExpression
+internal sealed class DateLiteral : QueryExpression
 {
     public DateTime Value { get; set; }
 
@@ -99,13 +68,13 @@ public sealed class DateLiteral : QueryExpression
     }
 }
 
-public sealed class NullLiteral : QueryExpression
+internal sealed class NullLiteral : QueryExpression
 {
     public NullLiteral(Token token)
         : base(token) { }
 }
 
-public sealed class BooleanLiteral : QueryExpression
+internal sealed class BooleanLiteral : QueryExpression
 {
     public bool Value { get; set; }
 

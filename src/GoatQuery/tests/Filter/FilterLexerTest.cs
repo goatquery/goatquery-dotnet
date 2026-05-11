@@ -1,3 +1,6 @@
+namespace GoatQuery.Tests;
+
+using GoatQuery;
 using Xunit;
 
 public sealed class FilterLexerTest
@@ -183,100 +186,45 @@ public sealed class FilterLexerTest
 
         yield return new object[]
         {
-            "id eq 10m",
+            "id eq 10.50",
             new KeyValuePair<TokenType, string>[]
             {
                 new(TokenType.IDENT, "id"),
                 new(TokenType.IDENT, "eq"),
-                new(TokenType.DECIMAL, "10m"),
+                new(TokenType.DOUBLE, "10.50"),
             },
         };
 
         yield return new object[]
         {
-            "id eq 10.50m",
-            new KeyValuePair<TokenType, string>[]
-            {
-                new(TokenType.IDENT, "id"),
-                new(TokenType.IDENT, "eq"),
-                new(TokenType.DECIMAL, "10.50m"),
-            },
-        };
-
-        yield return new object[]
-        {
-            "id eq 10.50M",
-            new KeyValuePair<TokenType, string>[]
-            {
-                new(TokenType.IDENT, "id"),
-                new(TokenType.IDENT, "eq"),
-                new(TokenType.DECIMAL, "10.50M"),
-            },
-        };
-
-        yield return new object[]
-        {
-            "id eq 10f",
-            new KeyValuePair<TokenType, string>[]
-            {
-                new(TokenType.IDENT, "id"),
-                new(TokenType.IDENT, "eq"),
-                new(TokenType.FLOAT, "10f"),
-            },
-        };
-
-        yield return new object[]
-        {
-            "id ne 0.1121563052701180f",
+            "id ne 0.1121563052701180",
             new KeyValuePair<TokenType, string>[]
             {
                 new(TokenType.IDENT, "id"),
                 new(TokenType.IDENT, "ne"),
-                new(TokenType.FLOAT, "0.1121563052701180f"),
+                new(TokenType.DOUBLE, "0.1121563052701180"),
             },
         };
 
         yield return new object[]
         {
-            "id ne 0.1121563052701180F",
-            new KeyValuePair<TokenType, string>[]
-            {
-                new(TokenType.IDENT, "id"),
-                new(TokenType.IDENT, "ne"),
-                new(TokenType.FLOAT, "0.1121563052701180F"),
-            },
-        };
-
-        yield return new object[]
-        {
-            "id eq 10d",
+            "id eq 3.14159265359",
             new KeyValuePair<TokenType, string>[]
             {
                 new(TokenType.IDENT, "id"),
                 new(TokenType.IDENT, "eq"),
-                new(TokenType.DOUBLE, "10d"),
+                new(TokenType.DOUBLE, "3.14159265359"),
             },
         };
 
         yield return new object[]
         {
-            "id eq 3.14159265359d",
+            "id eq 1.5",
             new KeyValuePair<TokenType, string>[]
             {
                 new(TokenType.IDENT, "id"),
                 new(TokenType.IDENT, "eq"),
-                new(TokenType.DOUBLE, "3.14159265359d"),
-            },
-        };
-
-        yield return new object[]
-        {
-            "id eq 3.14159265359D",
-            new KeyValuePair<TokenType, string>[]
-            {
-                new(TokenType.IDENT, "id"),
-                new(TokenType.IDENT, "eq"),
-                new(TokenType.DOUBLE, "3.14159265359D"),
+                new(TokenType.DOUBLE, "1.5"),
             },
         };
 
@@ -651,31 +599,65 @@ public sealed class FilterLexerTest
 
         yield return new object[]
         {
-            "id eq 100L",
+            "id eq 100000000000",
             new KeyValuePair<TokenType, string>[]
             {
                 new(TokenType.IDENT, "id"),
                 new(TokenType.IDENT, "eq"),
-                new(TokenType.LONG, "100L"),
+                new(TokenType.INT, "100000000000"),
             },
         };
 
         yield return new object[]
         {
-            "id eq 100l",
+            "age gt -5",
             new KeyValuePair<TokenType, string>[]
             {
-                new(TokenType.IDENT, "id"),
+                new(TokenType.IDENT, "age"),
+                new(TokenType.IDENT, "gt"),
+                new(TokenType.INT, "-5"),
+            },
+        };
+
+        yield return new object[]
+        {
+            "age eq -0.5",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new(TokenType.IDENT, "age"),
                 new(TokenType.IDENT, "eq"),
-                new(TokenType.LONG, "100l"),
+                new(TokenType.DOUBLE, "-0.5"),
+            },
+        };
+
+        yield return new object[]
+        {
+            "age gt -2147483648",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new(TokenType.IDENT, "age"),
+                new(TokenType.IDENT, "gt"),
+                new(TokenType.INT, "-2147483648"),
+            },
+        };
+
+        yield return new object[]
+        {
+            "age eq -0",
+            new KeyValuePair<TokenType, string>[]
+            {
+                new(TokenType.IDENT, "age"),
+                new(TokenType.IDENT, "eq"),
+                new(TokenType.INT, "-0"),
             },
         };
     }
 
     [Theory]
     [MemberData(nameof(Parameters))]
-    public void Test_FilterNextToken(string input, KeyValuePair<TokenType, string>[] expected)
+    public void Test_FilterNextToken(string input, object expectedObj)
     {
+        var expected = (KeyValuePair<TokenType, string>[])expectedObj;
         var lexer = new QueryLexer(input);
 
         foreach (var test in expected)

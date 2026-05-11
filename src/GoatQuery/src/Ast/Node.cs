@@ -1,4 +1,6 @@
-public abstract class Node
+namespace GoatQuery;
+
+internal abstract class Node
 {
     private readonly Token _token;
 
