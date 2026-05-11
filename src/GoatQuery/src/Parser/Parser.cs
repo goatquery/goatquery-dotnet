@@ -81,7 +81,7 @@ internal sealed class QueryParser
         return new OrderByStatement(startToken, segments, direction);
     }
 
-    public Result<ExpressionStatement> ParseFilter()
+    public Result<InfixExpression> ParseFilter()
     {
         var expression = ParseExpression();
         if (expression.IsFailed)
@@ -89,9 +89,7 @@ internal sealed class QueryParser
             return Result.Fail(expression.Errors);
         }
 
-        var statement = new ExpressionStatement(_currentToken) { Expression = expression.Value };
-
-        return statement;
+        return expression;
     }
 
     private Result<InfixExpression> ParseExpression(int precedence = 0)
@@ -203,7 +201,7 @@ internal sealed class QueryParser
         }
         else
         {
-            leftExpression = new Identifier(_currentToken, _currentToken.Literal);
+            leftExpression = new Identifier(_currentToken);
         }
 
         // Lambda expressions don't need an operator after them - they are complete expressions

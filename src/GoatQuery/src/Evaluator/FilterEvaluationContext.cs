@@ -36,14 +36,7 @@ internal class FilterEvaluationContext
         Type elementType
     )
     {
-        LambdaScopes.Push(
-            new LambdaScope
-            {
-                ParameterName = parameterName,
-                Parameter = parameter,
-                ElementType = elementType,
-            }
-        );
+        LambdaScopes.Push(new LambdaScope(parameterName, parameter, elementType));
     }
 
     public void ExitLambdaScope() => LambdaScopes.Pop();
@@ -51,7 +44,14 @@ internal class FilterEvaluationContext
 
 internal class LambdaScope
 {
-    public string ParameterName { get; set; }
-    public ParameterExpression Parameter { get; set; }
-    public Type ElementType { get; set; }
+    public string ParameterName { get; }
+    public ParameterExpression Parameter { get; }
+    public Type ElementType { get; }
+
+    public LambdaScope(string parameterName, ParameterExpression parameter, Type elementType)
+    {
+        ParameterName = parameterName;
+        Parameter = parameter;
+        ElementType = elementType;
+    }
 }

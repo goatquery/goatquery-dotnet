@@ -10,7 +10,7 @@ internal enum OrderByDirection
 
 internal sealed class OrderByStatement : Node
 {
-    public OrderByDirection Direction { get; set; }
+    public OrderByDirection Direction { get; }
     public List<string> Segments { get; }
 
     public OrderByStatement(Token token, OrderByDirection direction)

@@ -11,13 +11,11 @@ using FluentResults;
 
 internal sealed class PropertyMappingTree
 {
-    public IReadOnlyDictionary<string, PropertyMappingNode> Properties { get; }
-    public Type SourceType { get; }
+    private readonly Dictionary<string, PropertyMappingNode> _properties;
 
-    internal PropertyMappingTree(Type sourceType)
+    internal PropertyMappingTree()
     {
-        SourceType = sourceType ?? throw new ArgumentNullException(nameof(sourceType));
-        Properties = new Dictionary<string, PropertyMappingNode>(StringComparer.OrdinalIgnoreCase);
+        _properties = new Dictionary<string, PropertyMappingNode>(StringComparer.OrdinalIgnoreCase);
     }
 
     public bool TryGetProperty(string jsonPropertyName, out PropertyMappingNode node)
@@ -28,21 +26,17 @@ internal sealed class PropertyMappingTree
             return false;
         }
 
-        return ((Dictionary<string, PropertyMappingNode>)Properties).TryGetValue(
-            jsonPropertyName,
-            out node
-        );
+        return _properties.TryGetValue(jsonPropertyName, out node);
     }
 
     internal void AddProperty(string jsonPropertyName, PropertyMappingNode node)
     {
-        ((Dictionary<string, PropertyMappingNode>)Properties)[jsonPropertyName] = node;
+        _properties[jsonPropertyName] = node;
     }
 
     public Result<Expression> WalkPropertyPath(
         IReadOnlyList<string> segments,
-        Expression startExpression,
-        string errorContext = "path"
+        Expression startExpression
     )
     {
         var current = startExpression;
@@ -147,7 +141,7 @@ internal static class PropertyMappingTreeBuilder
         JsonNamingPolicy namingPolicy
     )
     {
-        var tree = new PropertyMappingTree(type);
+        var tree = new PropertyMappingTree();
 
         if (currentDepth >= maxDepth)
             return tree;

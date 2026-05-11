@@ -101,11 +101,7 @@ internal static class FilterEvaluator
         PropertyMappingTree propertyMappingTree
     )
     {
-        var result = propertyMappingTree.WalkPropertyPath(
-            propertyPath.Segments,
-            startExpression,
-            "path"
-        );
+        var result = propertyMappingTree.WalkPropertyPath(propertyPath.Segments, startExpression);
         if (result.IsFailed)
             return Result.Fail(result.Errors);
         return Result.Ok((MemberExpression)result.Value);
@@ -117,11 +113,7 @@ internal static class FilterEvaluator
         PropertyMappingTree propertyMappingTree
     )
     {
-        var result = propertyMappingTree.WalkPropertyPath(
-            propertyPath.Segments,
-            baseExpression,
-            "lambda expression property path"
-        );
+        var result = propertyMappingTree.WalkPropertyPath(propertyPath.Segments, baseExpression);
         if (result.IsFailed)
             return Result.Fail(result.Errors);
         return Result.Ok((MemberExpression)result.Value);
@@ -219,36 +211,6 @@ internal static class FilterEvaluator
         }
 
         return comparison;
-    }
-
-    private static Result<Expression> EvaluateValueComparison(
-        InfixExpression exp,
-        MemberExpression property
-    )
-    {
-        if (IsDateLiteralComparison(property, exp.Right))
-        {
-            return CreateDateRangeExpression(property, (DateLiteral)exp.Right, exp.Operator);
-        }
-
-        var valueResult = CreateConstantExpression(exp.Right, property);
-        if (valueResult.IsFailed)
-        {
-            // If a numeric literal can't be exactly represented in the target type
-            // (e.g., 1.5 on an int property), promote both sides to double instead of erroring.
-            if (exp.Right is DoubleLiteral || exp.Right is IntegerLiteral)
-            {
-                var promotionResult = TryCreateNumericPromotion(exp.Operator, property, exp.Right);
-                if (promotionResult.IsSuccess)
-                    return promotionResult;
-            }
-
-            return Result.Fail(valueResult.Errors);
-        }
-
-        var (value, updatedProperty) = valueResult.Value;
-
-        return CreateComparisonExpression(exp.Operator, updatedProperty, value);
     }
 
     private static Result<Expression> EvaluateValueComparison(
@@ -421,15 +383,6 @@ internal static class FilterEvaluator
         return Result.Ok((Expression)factory(left, right));
     }
 
-    private static Result<Expression> CreateComparisonExpression(
-        string operatorKeyword,
-        MemberExpression property,
-        ConstantExpression value
-    )
-    {
-        return CreateComparisonExpression(operatorKeyword, (Expression)property, value);
-    }
-
     private static Result<ConstantExpression> CreateConstantExpression(
         QueryExpression literal,
         Expression expression
@@ -449,18 +402,6 @@ internal static class FilterEvaluator
             ),
             _ => Result.Fail($"Unsupported literal type '{literal.GetType().Name}'."),
         };
-    }
-
-    private static Result<(
-        ConstantExpression Value,
-        MemberExpression Property
-    )> CreateConstantExpression(QueryExpression literal, MemberExpression property)
-    {
-        var constantResult = CreateConstantExpression(literal, (Expression)property);
-        if (constantResult.IsFailed)
-            return Result.Fail(constantResult.Errors);
-
-        return Result.Ok((constantResult.Value, property));
     }
 
     private static ConstantExpression CreateDateConstant(DateLiteral dateLiteral, Type targetType)
@@ -756,11 +697,7 @@ internal static class FilterEvaluator
                 context.CurrentLambda.ElementType,
                 context.MaxPropertyMappingDepth
             );
-            var walkResult = lambdaMappingTree.WalkPropertyPath(
-                strippedSegments,
-                baseExpression,
-                "lambda expression property path"
-            );
+            var walkResult = lambdaMappingTree.WalkPropertyPath(strippedSegments, baseExpression);
             collectionResult = walkResult.IsFailed
                 ? Result.Fail(walkResult.Errors)
                 : Result.Ok((MemberExpression)walkResult.Value);
@@ -902,7 +839,7 @@ internal static class FilterEvaluator
             )
         )
         {
-            // For primitive types (string, int, etc.), allow direct comparisons with the lambda parameter
+            // For primitive types (string, int, etc.), allow direct comparisons with the lambda parameter.
             if (PropertyMappingTreeBuilder.IsPrimitiveType(context.CurrentLambda.ElementType))
             {
                 return EvaluateValueComparison(exp, context.CurrentLambda.Parameter);
@@ -1018,7 +955,7 @@ internal static class FilterEvaluator
             maxPropertyMappingDepth
         );
 
-        return mappingTree.WalkPropertyPath(segments, startExpression, "lambda property path");
+        return mappingTree.WalkPropertyPath(segments, startExpression);
     }
 
     private static Type GetCollectionElementType(Type collectionType)

@@ -419,6 +419,24 @@ public sealed class FilterTest : IClassFixture<DatabaseTestFixture>
 
         yield return new object[]
         {
+            "tags/any(t: t eq 'premium') and isEmailVerified eq true",
+            new[] { TestData.Users["User01"] },
+        };
+
+        yield return new object[]
+        {
+            "tags/any(t: t eq 'premium') and company/department eq 'Engineering'",
+            new[] { TestData.Users["User01"] },
+        };
+
+        yield return new object[]
+        {
+            "tags/any(t: t eq 'premium') and company/department contains 'Eng' and isEmailVerified eq true",
+            new[] { TestData.Users["User01"] },
+        };
+
+        yield return new object[]
+        {
             "status eq 0",
             new[] { TestData.Users["User01"], TestData.Users["User02"], TestData.Users["User05"] },
         };

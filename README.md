@@ -30,7 +30,7 @@ var usersWithLondonAddress = dbContext.Users
 // Filter by primitive arrays (tags, categories, etc.)
 var vipUsers = dbContext.Users
     .Apply(new Query { Filter = "tags/any(x: x eq 'vip')" })
-    .Value.Results;
+    .Value.Query;
 
 // Complex nested filtering
 var activeUsersWithHighValueOrders = dbContext.Users
@@ -297,4 +297,4 @@ dotnet test ./src/GoatQuery/tests
 cd example && dotnet run
 ```
 
-**Targets**: .NET Standard 2.0/2.1, .NET 6.0+
+**Targets**: GoatQuery targets .NET Standard 2.0/2.1. GoatQuery.AspNetCore targets .NET 6.0/8.0.

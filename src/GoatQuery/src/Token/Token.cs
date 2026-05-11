@@ -41,8 +41,8 @@ internal static class Keywords
 
 internal sealed class Token
 {
-    public TokenType Type { get; set; }
-    public string Literal { get; set; } = string.Empty;
+    public TokenType Type { get; }
+    public string Literal { get; }
 
     public Token(TokenType type, char literal)
     {

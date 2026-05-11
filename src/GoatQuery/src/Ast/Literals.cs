@@ -4,7 +4,7 @@ using System;
 
 internal sealed class StringLiteral : QueryExpression
 {
-    public string Value { get; set; }
+    public string Value { get; }
 
     public StringLiteral(Token token, string value)
         : base(token)
@@ -15,7 +15,7 @@ internal sealed class StringLiteral : QueryExpression
 
 internal sealed class GuidLiteral : QueryExpression
 {
-    public Guid Value { get; set; }
+    public Guid Value { get; }
 
     public GuidLiteral(Token token, Guid value)
         : base(token)
@@ -26,7 +26,7 @@ internal sealed class GuidLiteral : QueryExpression
 
 internal sealed class IntegerLiteral : QueryExpression
 {
-    public long Value { get; set; }
+    public long Value { get; }
 
     public IntegerLiteral(Token token, long value)
         : base(token)
@@ -37,7 +37,7 @@ internal sealed class IntegerLiteral : QueryExpression
 
 internal sealed class DoubleLiteral : QueryExpression
 {
-    public double Value { get; set; }
+    public double Value { get; }
 
     public DoubleLiteral(Token token, double value)
         : base(token)
@@ -48,7 +48,7 @@ internal sealed class DoubleLiteral : QueryExpression
 
 internal sealed class DateTimeLiteral : QueryExpression
 {
-    public DateTime Value { get; set; }
+    public DateTime Value { get; }
 
     public DateTimeLiteral(Token token, DateTime value)
         : base(token)
@@ -59,7 +59,7 @@ internal sealed class DateTimeLiteral : QueryExpression
 
 internal sealed class DateLiteral : QueryExpression
 {
-    public DateTime Value { get; set; }
+    public DateTime Value { get; }
 
     public DateLiteral(Token token, DateTime value)
         : base(token)
@@ -76,7 +76,7 @@ internal sealed class NullLiteral : QueryExpression
 
 internal sealed class BooleanLiteral : QueryExpression
 {
-    public bool Value { get; set; }
+    public bool Value { get; }
 
     public BooleanLiteral(Token token, bool value)
         : base(token)

@@ -48,11 +48,7 @@ internal static class OrderByEvaluator
         PropertyMappingTree propertyMappingTree
     )
     {
-        return propertyMappingTree.WalkPropertyPath(
-            statement.Segments,
-            parameterExpression,
-            "orderby"
-        );
+        return propertyMappingTree.WalkPropertyPath(statement.Segments, parameterExpression);
     }
 
     private static string GetOrderByMethodName(OrderByDirection direction, bool isAlreadyOrdered)

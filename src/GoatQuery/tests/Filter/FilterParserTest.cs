@@ -55,7 +55,7 @@ public sealed class FilterParserTest
 
         var program = parser.ParseFilter();
 
-        var expression = program.Value.Expression;
+        var expression = program.Value;
         Assert.NotNull(expression);
 
         Assert.Equal(expectedLeft, expression.Left.TokenLiteral());
@@ -98,7 +98,7 @@ public sealed class FilterParserTest
 
         var program = parser.ParseFilter();
 
-        var expression = program.Value.Expression;
+        var expression = program.Value;
         Assert.NotNull(expression);
 
         var left = expression.Left as InfixExpression;
@@ -128,7 +128,7 @@ public sealed class FilterParserTest
 
         var program = parser.ParseFilter();
 
-        var expression = program.Value.Expression;
+        var expression = program.Value;
         Assert.NotNull(expression);
 
         var left = expression.Left as InfixExpression;
@@ -158,7 +158,7 @@ public sealed class FilterParserTest
 
         var program = parser.ParseFilter();
 
-        var expression = program.Value.Expression;
+        var expression = program.Value;
         Assert.NotNull(expression);
 
         var left = expression.Left as InfixExpression;
@@ -215,7 +215,7 @@ public sealed class FilterParserTest
 
         var program = parser.ParseFilter();
 
-        var expression = program.Value.Expression;
+        var expression = program.Value;
         Assert.NotNull(expression);
 
         var left = expression.Left as PropertyPath;
@@ -263,7 +263,7 @@ public sealed class FilterParserTest
         var program = parser.ParseFilter();
 
         Assert.True(program.IsSuccess);
-        var expression = program.Value.Expression;
+        var expression = program.Value;
         Assert.NotNull(expression);
 
         // Lambda expressions are wrapped in InfixExpression with empty operator
@@ -319,7 +319,7 @@ public sealed class FilterParserTest
         var program = parser.ParseFilter();
 
         Assert.True(program.IsSuccess);
-        var expression = program.Value.Expression;
+        var expression = program.Value;
         Assert.NotNull(expression);
 
         // Lambda expressions are wrapped in InfixExpression with empty operator
@@ -358,7 +358,7 @@ public sealed class FilterParserTest
         var program = parser.ParseFilter();
 
         Assert.True(program.IsSuccess);
-        var expression = program.Value.Expression;
+        var expression = program.Value;
         Assert.NotNull(expression);
 
         // Verify the logical operator between expressions
@@ -386,7 +386,7 @@ public sealed class FilterParserTest
         var program = parser.ParseFilter();
 
         Assert.True(program.IsSuccess);
-        var expression = program.Value.Expression;
+        var expression = program.Value;
         Assert.NotNull(expression);
 
         // Lambda expressions are wrapped in InfixExpression with empty operator
@@ -445,7 +445,7 @@ public sealed class FilterParserTest
 
         var program = parser.ParseFilter();
 
-        var expression = program.Value.Expression;
+        var expression = program.Value;
         Assert.NotNull(expression);
 
         Assert.Equal(expectedLeft, expression.Left.TokenLiteral());
@@ -471,7 +471,7 @@ public sealed class FilterParserTest
 
         var program = parser.ParseFilter();
 
-        var expression = program.Value.Expression;
+        var expression = program.Value;
         Assert.NotNull(expression);
 
         Assert.Equal(expectedLeft, expression.Left.TokenLiteral());
@@ -494,7 +494,7 @@ public sealed class FilterParserTest
 
         var program = parser.ParseFilter();
 
-        var expression = program.Value.Expression;
+        var expression = program.Value;
         Assert.NotNull(expression);
 
         Assert.Equal(expectedLeft, expression.Left.TokenLiteral());
@@ -512,7 +512,7 @@ public sealed class FilterParserTest
 
         var program = parser.ParseFilter();
 
-        var expression = program.Value.Expression;
+        var expression = program.Value;
         Assert.NotNull(expression);
 
         var left = expression.Left as InfixExpression;

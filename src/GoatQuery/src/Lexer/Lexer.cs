@@ -35,15 +35,14 @@ internal sealed class QueryLexer
 
     public Token NextToken()
     {
-        var token = new Token(TokenType.ILLEGAL, _character);
-
         SkipWhitespace();
+
+        Token token;
 
         switch (_character)
         {
             case char.MinValue:
-                token.Literal = "";
-                token.Type = TokenType.EOF;
+                token = new Token(TokenType.EOF, "");
                 break;
             case '(':
                 token = new Token(TokenType.LPAREN, _character);
@@ -58,24 +57,25 @@ internal sealed class QueryLexer
                 token = new Token(TokenType.COLON, _character);
                 break;
             case '\'':
-                token.Type = TokenType.STRING;
-                token.Literal = ReadString();
+                var str = ReadString();
+                token = new Token(TokenType.STRING, str);
                 break;
             case '-' when _readPosition < _input.Length && char.IsDigit(_input[_readPosition]):
-                token.Literal = ReadNegativeNumeric();
-                token.Type = token.Literal.Contains(".") ? TokenType.DOUBLE : TokenType.INT;
-                return token;
+                var negLiteral = ReadNegativeNumeric();
+                var negType = negLiteral.Contains(".") ? TokenType.DOUBLE : TokenType.INT;
+                return new Token(negType, negLiteral);
             case var c when char.IsDigit(c):
-                token.Literal = ReadNumericOrDateTime();
-                token.Type = DetermineNumericTokenType(token.Literal);
-                return token;
+                var numLiteral = ReadNumericOrDateTime();
+                var numType = DetermineNumericTokenType(numLiteral);
+                return new Token(numType, numLiteral);
             default:
                 if (IsLetter(_character))
                 {
-                    token.Literal = ReadIdentifier();
-                    token.Type = ClassifyIdentifier(token.Literal);
-                    return token;
+                    var identifier = ReadIdentifier();
+                    var identType = ClassifyIdentifier(identifier);
+                    return new Token(identType, identifier);
                 }
+                token = new Token(TokenType.ILLEGAL, _character);
                 break;
         }
 

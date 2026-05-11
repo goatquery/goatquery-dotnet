@@ -61,7 +61,7 @@ public static class QueryableExtension
             ParameterExpression parameter = Expression.Parameter(type);
 
             var expression = FilterEvaluator.Evaluate(
-                statement.Value.Expression,
+                statement.Value,
                 parameter,
                 propertyMappingTree,
                 maxDepth
