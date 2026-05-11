@@ -320,20 +320,25 @@ internal static class FilterEvaluator
             Keywords.Eq => CreateEqualityExpression(expression, value, isEqual: true),
             Keywords.Ne => CreateEqualityExpression(expression, value, isEqual: false),
             Keywords.Contains => CreateContainsExpression(expression, value),
-            Keywords.Lt => CreateOrderingExpression(Expression.LessThan, expression, value, "lt"),
-            Keywords.Lte => CreateOrderingExpression(
+            Keywords.Lt => CreateRelationalOperatorExpression(
+                Expression.LessThan,
+                expression,
+                value,
+                "lt"
+            ),
+            Keywords.Lte => CreateRelationalOperatorExpression(
                 Expression.LessThanOrEqual,
                 expression,
                 value,
                 "lte"
             ),
-            Keywords.Gt => CreateOrderingExpression(
+            Keywords.Gt => CreateRelationalOperatorExpression(
                 Expression.GreaterThan,
                 expression,
                 value,
                 "gt"
             ),
-            Keywords.Gte => CreateOrderingExpression(
+            Keywords.Gte => CreateRelationalOperatorExpression(
                 Expression.GreaterThanOrEqual,
                 expression,
                 value,
@@ -343,7 +348,7 @@ internal static class FilterEvaluator
         };
     }
 
-    private static Result<Expression> CreateOrderingExpression(
+    private static Result<Expression> CreateRelationalOperatorExpression(
         Func<Expression, Expression, BinaryExpression> factory,
         Expression left,
         Expression right,
@@ -627,24 +632,20 @@ internal static class FilterEvaluator
         // Enter lambda scope
         context.EnterLambdaScope(lambdaExp.Parameter, lambdaParameter, elementType);
 
-        try
-        {
-            var bodyResult = EvaluateLambdaBody(lambdaExp.Body, context);
-            if (bodyResult.IsFailed)
-                return bodyResult;
+        var bodyResult = EvaluateLambdaBody(lambdaExp.Body, context);
 
-            var lambdaExpr = Expression.Lambda(bodyResult.Value, lambdaParameter);
-            return CreateLambdaLinqCall(
-                lambdaExp.Function,
-                collectionProperty,
-                lambdaExpr,
-                elementType
-            );
-        }
-        finally
-        {
-            context.ExitLambdaScope();
-        }
+        context.ExitLambdaScope();
+
+        if (bodyResult.IsFailed)
+            return bodyResult;
+
+        var lambdaExpr = Expression.Lambda(bodyResult.Value, lambdaParameter);
+        return CreateLambdaLinqCall(
+            lambdaExp.Function,
+            collectionProperty,
+            lambdaExpr,
+            elementType
+        );
     }
 
     private static Result<(
