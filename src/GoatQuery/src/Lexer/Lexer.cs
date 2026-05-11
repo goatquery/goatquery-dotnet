@@ -88,7 +88,7 @@ internal sealed class QueryLexer
     {
         return DateTime.TryParseExact(
             value,
-            new[] { "yyyy-MM-dd" },
+            ["yyyy-MM-dd"],
             CultureInfo.InvariantCulture,
             DateTimeStyles.AdjustToUniversal,
             out _

@@ -97,6 +97,7 @@ internal sealed class QueryParser
         var left = CurrentTokenIs(TokenType.LPAREN)
             ? ParseGroupedExpression()
             : ParseFilterStatement();
+
         if (left.IsFailed)
         {
             return left;

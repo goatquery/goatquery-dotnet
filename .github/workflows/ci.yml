@@ -54,5 +54,8 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Test
+      - name: Test GoatQuery
         run: dotnet test ./src/GoatQuery/tests
+
+      - name: Test GoatQuery.AspNetCore
+        run: dotnet test ./src/GoatQuery.AspNetCore/tests

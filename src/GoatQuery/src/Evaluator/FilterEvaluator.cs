@@ -231,13 +231,6 @@ internal static class FilterEvaluator
         return CreateComparisonExpression(exp.Operator, expression, valueResult.Value);
     }
 
-    /// <summary>
-    /// When a numeric literal can't be exactly represented in the target property type
-    /// (e.g., 1.5 on an int property), this method promotes both sides to double.
-    /// For eq/ne with a fractional value, the result is a constant (no integer equals 1.5).
-    /// For ordering operators, both sides are cast to double for a mathematically correct comparison.
-    /// If the double value is a whole number (e.g., 5.0), it converts to the target integer type instead.
-    /// </summary>
     private static Result<Expression> TryCreateNumericPromotion(
         string operatorKeyword,
         Expression property,
@@ -252,8 +245,8 @@ internal static class FilterEvaluator
         if (
             !double.TryParse(
                 raw,
-                System.Globalization.NumberStyles.Float,
-                System.Globalization.CultureInfo.InvariantCulture,
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
                 out var doubleValue
             )
         )

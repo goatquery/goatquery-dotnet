@@ -21,7 +21,6 @@ internal enum TokenType
 
 internal static class Keywords
 {
-    internal const string Asc = "asc";
     internal const string Desc = "desc";
     internal const string Eq = "eq";
     internal const string Ne = "ne";
