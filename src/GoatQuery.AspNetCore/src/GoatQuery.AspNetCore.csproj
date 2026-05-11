@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <LangVersion>11.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <PackageId>GoatQuery.AspNetCore</PackageId>
+    <PackageProjectUrl>https://github.com/goatquery/goatquery-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/goatquery/goatquery-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Description>ASP.NET Core integration for GoatQuery — action filter for automatic query parameter processing.</Description>
+    <Authors>goatquery</Authors>
+    <PackageTags>filter;paging;sorting;linq;querystring;rest;api;aspnetcore</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../../README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../GoatQuery/src/GoatQuery.csproj" />
+  </ItemGroup>
+</Project>

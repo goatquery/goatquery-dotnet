@@ -1,0 +1,15 @@
+namespace GoatQuery;
+
+internal sealed class InfixExpression : QueryExpression
+{
+    public QueryExpression Left { get; } = default;
+    public string Operator { get; } = string.Empty;
+    public QueryExpression Right { get; set; } = default;
+
+    public InfixExpression(Token token, QueryExpression left, string op)
+        : base(token)
+    {
+        Left = left;
+        Operator = op;
+    }
+}

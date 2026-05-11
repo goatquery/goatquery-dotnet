@@ -6,11 +6,16 @@ updates:
       interval: "weekly"
 
   - package-ecosystem: "nuget"
-    directory: "/src"
+    directory: "/src/GoatQuery/src"
     schedule:
       interval: "weekly"
 
   - package-ecosystem: "nuget"
-    directory: "/tests"
+    directory: "/src/GoatQuery/tests"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "nuget"
+    directory: "/src/GoatQuery.AspNetCore/src"
     schedule:
       interval: "weekly"
