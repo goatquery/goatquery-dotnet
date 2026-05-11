@@ -16,6 +16,10 @@ var postgreSqlContainer = new PostgreSqlBuilder().WithImage("postgres:15").Build
 await postgreSqlContainer.StartAsync();
 
 builder.Services.AddControllers();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddOperationTransformer<EnableQueryOperationTransformer>();
+});
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -140,6 +144,7 @@ app.MapGet(
     }
 );
 
+app.MapOpenApi();
 app.MapControllers();
 
 app.Run();

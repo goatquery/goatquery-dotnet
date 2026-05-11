@@ -259,6 +259,19 @@ builder.Services.Configure<JsonOptions>(options =>
 
 The action filter will use that policy for property resolution without additional configuration.
 
+### OpenAPI Integration
+
+On .NET 9+, register the operation transformer to automatically add GoatQuery query parameters to your OpenAPI document for any endpoint decorated with `[EnableQuery<T>]`:
+
+```csharp
+builder.Services.AddOpenApi(options =>
+{
+    options.AddOperationTransformer<EnableQueryOperationTransformer>();
+});
+```
+
+This adds `filter`, `orderby`, `top`, `skip`, `count`, and `search` parameters to the generated OpenAPI spec.
+
 ### Manual Processing
 
 ```csharp
@@ -297,4 +310,4 @@ dotnet test ./src/GoatQuery/tests
 cd example && dotnet run
 ```
 
-**Targets**: GoatQuery targets .NET Standard 2.0/2.1. GoatQuery.AspNetCore targets .NET 6.0/8.0.
+**Targets**: GoatQuery targets .NET Standard 2.0/2.1. GoatQuery.AspNetCore targets .NET 8.0/9.0.
